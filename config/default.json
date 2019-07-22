@@ -1,0 +1,49 @@
+{
+    "axios_timeout": "4000",
+    "axios_long_timeout": "16000",
+    "bucket_key": "digital-catalog",
+    "companyName": "Autodesk",
+    "db": {
+      "url": ""
+    },
+    "deployTarget" : "",
+    "ngrok": {
+      "callbackURL": "http://<your url>.ngrok.io/api/admin/webhook/callback"
+    },
+    "oauth2": {
+      "authorizationURL": "https://developer.api.autodesk.com/authentication/v1/authorize",
+      "clientID": "<your Forge app ID>",
+      "clientSecret": "<your Forge app secret>",
+      "callbackURL": "<your host>/api/forge/callback/oauth",
+      "tokenURL": "https://developer.api.autodesk.com/authentication/v1/gettoken"
+    },
+    "http_port": 3000,
+    "https_port": 3001,
+    "oss_file_upload_max_size": 524288900,
+    "scope": "[\"data:create\", \"data:read\"]",
+    "bucket_scope": ["bucket:create", "bucket:read", "data:create", "data:read", "data:write"],
+    "view_scope": ["viewables:read"],
+    "region": "US",
+    "session": {
+      "maxAge": 3600000,
+      "overwrite": true,
+      "httpOnly": true,
+      "signed": true,
+      "rolling": false,
+      "renew": false
+    },
+    "webhook": {
+      "callbackURL": "<your host>/api/webhook/callback",
+      "workflow": "digital-catalog"
+    },
+    "githubRepoUrl": "",
+    "tlsversion": "TLSv1_2_method",
+    "vuehost": "http://localhost:8080",
+    "API_auth_host": "https://developer.api.autodesk.com/authentication/v1",
+    "API_data_host": "https://developer.api.autodesk.com/data/v1",
+    "API_derivative_host": "https://developer.api.autodesk.com/modelderivative/v2",
+    "API_oss_host": "https://developer.api.autodesk.com/oss/v2",
+    "API_project_host": "https://developer.api.autodesk.com/project/v1",
+    "API_webhook_host": "https://developer.api.autodesk.com/webhooks/v1",
+    "logoutaccount_url": "https://accounts.autodesk.com/Authentication/LogOut"
+  }
