@@ -26,7 +26,7 @@ If you're not already an AWS customer, you need to sign up. Signing up enables y
 ## Build and archive the app
 
 1. Download the application code to a local directory \
-```git clone https://cs-accelerators@dev.azure.com/cs-accelerators/Digital%20Catalog/_git/Digital%20Catalog digital-catalog```
+```git clone https://github.com/Autodesk-Forge/forge-digital-catalog digital-catalog```
 2. Change directory \
 ```cd digital-catalog```
 3. Delete the ```node_modules``` directory if present

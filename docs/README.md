@@ -72,7 +72,7 @@ This section will guide you through getting the code up and running on your own 
 
 1.	Installation process
 
-    ```git clone https://cs-accelerators@dev.azure.com/cs-accelerators/Digital%20Catalog/_git/Digital%20Catalog digital-catalog```\
+    ```git clone https://github.com/Autodesk-Forge/forge-digital-catalog digital-catalog```\
     ```cd digital-catalog``` \
     ```npm install``` 
 

@@ -92,7 +92,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://wwfo-cs@dev.azure.com/wwfo-cs/Forge%20Digital%20Catalog/_git/Forge%20Digital%20Catalog"
+    "url": "https://github.com/Autodesk-Forge/forge-digital-catalog"
   },
   "snyk": true
 }
