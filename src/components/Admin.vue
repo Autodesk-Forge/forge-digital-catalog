@@ -621,7 +621,7 @@ export default {
       this.$router.push({ path: '/' })
     },
     goToHelp() {
-      window.open('https://mazerab.github.io/forge-digital-catalog/', '_blank')
+      window.open(config.helphost, '_blank')
     },
     goToPublisherConsole() {
       this.$router.push({ path: '/publish' })

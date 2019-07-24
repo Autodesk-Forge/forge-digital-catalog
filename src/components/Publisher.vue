@@ -280,7 +280,7 @@ export default {
       this.$router.push({ path: '/admin' })
     },
     goToHelp() {
-      window.open('https://mazerab.github.io/forge-digital-catalog/', '_blank')
+      window.open(config.helphost, '_blank')
     },
     goToHome() {
       this.$router.push({ path: '/' })
