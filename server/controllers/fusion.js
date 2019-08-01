@@ -10,7 +10,7 @@ const util = require('util')
 axios.defaults.withCredentials = true
 axios.defaults.crossDomain = true
 
-const handleError = require('./handle-error')
+const handleError = require('../helpers/handle-error')
 const Token = require('../auth/token')
 
 const config = require('config')

@@ -19,6 +19,7 @@ const adminRoutes = require('./routes/admin')
 const authRoutes = require('./routes/auth')
 const catalogRoutes = require('./routes/catalog')
 const fusionRoutes = require('./routes/fusion')
+const arvrRoutes = require('./routes/arvr-toolkit')
 
 const logger = log4js.getLogger('app')
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug' }
@@ -76,6 +77,7 @@ app.on('ready', () => {
     app.use(authRoutes.routes())
     app.use(catalogRoutes.routes())
     app.use(fusionRoutes.routes())
+    app.use(arvrRoutes.routes())
     if (process.env.NODE_ENV === 'production') { 
         app.use(historyApiFallback({ whiteList: ['/api'] }))
         app.use(serve('./www'))

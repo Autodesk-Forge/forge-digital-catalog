@@ -2,108 +2,175 @@
   <div>
     <v-toolbar>
       <v-toolbar-title>Publisher Console</v-toolbar-title>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-toolbar-items class="hidden-sm-and-down">
-        <v-btn flat @click="goToHome">Home</v-btn>
-        <v-btn flat @click="goToAdminConsole">Administration</v-btn>
-        <v-btn flat @click="goToHelp">Help</v-btn>
         <v-btn
-          flat
+          text
+          @click="goToHome"
+        >
+          Home
+        </v-btn>
+        <v-btn
+          text
+          @click="goToAdminConsole"
+        >
+          Administration
+        </v-btn>
+        <v-btn
+          text
+          @click="goToHelp"
+        >
+          Help
+        </v-btn>
+        <v-btn
+          v-if="!this.$store.state.isAdminUserLoggedIn"
+          text
           :icon="$vuetify.breakpoint.xs"
           @click="login"
-          v-if="!this.$store.state.isAdminUserLoggedIn"
         >
           <v-icon>person</v-icon>
           <span class="hidden-md-and-down">Login</span>
         </v-btn>
         <v-btn
-          flat
+          v-if="this.$store.state.isAdminUserLoggedIn"
+          text
           :icon="$vuetify.breakpoint.xs"
           @click="logout"
-          v-if="this.$store.state.isAdminUserLoggedIn"
         >
           <v-icon>power_settings_new</v-icon>
           <span class="hidden-md-and-down">Logout</span>
         </v-btn>
         <span v-if="this.$store.state.isAdminUserLoggedIn">
           <v-progress-circular
+            v-if="this.$store.state.loading.userInfo"
             indeterminate
             color="primary"
-            v-if="this.$store.state.loading.userInfo"
-          ></v-progress-circular>
+          />
           <v-avatar
-            :title="this.$store.state.user.fullName"
             v-if="!this.$store.state.loading.userInfo"
+            :title="this.$store.state.user.fullName"
           >
             <img :src="this.$store.state.user.picture">
           </v-avatar>
-          <strong class="pl-1 hidden-sm-and-down" v-html="this.$store.state.user.fullName"></strong>
+          <strong
+            class="pl-1 hidden-sm-and-down"
+            v-html="this.$store.state.user.fullName"
+          />
         </span>
       </v-toolbar-items>
     </v-toolbar>
-    <v-alert v-model="success" dismissible type="success">{{successMessage}}</v-alert>
-    <v-alert v-model="alert" dismissible type="error">{{alertMessage}}</v-alert>
+    <v-alert
+      v-model="success"
+      dismissible
+      type="success"
+    >
+      {{ successMessage }}
+    </v-alert>
+    <v-alert
+      v-model="alert"
+      dismissible
+      type="error"
+    >
+      {{ alertMessage }}
+    </v-alert>
     <v-content>
-      <v-container grid-list-md bg fluid>
-        <v-layout row wrap align-center>
-            <v-flex xs5>
-              <v-container style="max-height:500px;overflow-y:scroll">
-                <v-card v-if="this.$store.state.isAdminUserLoggedIn">
-                  <v-card-text>
-                    <autodeskTree/>
-                  </v-card-text>
-                </v-card>
-              </v-container>
-            </v-flex>
-            <v-flex xs2>
-              <v-card v-if="this.$store.state.isAdminUserLoggedIn">
-                <v-card-actions>
-                  <v-flex class='text-xs-center'>
-                    <v-btn v-if="this.active" color="primary" dark round @click="publish">Publish</v-btn>
-                    <v-btn v-if="!this.active" color="primary" disabled round @click="publish">Publish</v-btn>
-                  </v-flex>
-                </v-card-actions>
-              </v-card>
-            </v-flex>
-            <v-flex xs5>
-              <v-container style="max-height:500px;overflow-y:scroll">
+      <v-container
+        class="bg"
+        fluid
+      >
+        <v-row 
+          align="center"
+        >
+          <v-col cols="5">
+            <v-container style="max-height:500px;overflow-y:scroll">
               <v-card v-if="this.$store.state.isAdminUserLoggedIn">
                 <v-card-text>
-                  <catalogTree/>
+                  <autodeskTree />
                 </v-card-text>
               </v-card>
-              </v-container>
-            </v-flex>
-        </v-layout>
-        <v-layout row wrap>
-          <v-flex xs12>
-            <v-progress-linear v-if="!this.active" :indeterminate="true"></v-progress-linear>
-          </v-flex>
-        </v-layout>
-        <v-layout row wrap>
-          <v-flex xs12>
+            </v-container>
+          </v-col>
+          <v-col cols="2">
             <v-card v-if="this.$store.state.isAdminUserLoggedIn">
-            <v-card-title primary-title>
-              <div>
-                <h3 class="headline mb-0">Publisher Logs</h3>
-              </div>
-            </v-card-title>
-            <v-card-text>
-              <publishLogs/>
-            </v-card-text>
-          </v-card>
-          </v-flex>
-        </v-layout>
+              <v-card-actions>
+                <v-col class="text-center">
+                  <v-btn
+                    v-if="active"
+                    color="primary"
+                    dark
+                    rounded=""
+                    @click="publish"
+                  >
+                    Publish
+                  </v-btn>
+                  <v-btn
+                    v-if="!active"
+                    color="primary"
+                    disabled
+                    rounded=""
+                    @click="publish"
+                  >
+                    Publish
+                  </v-btn>
+                </v-col>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+          <v-col cols="5">
+            <v-container style="max-height:500px;overflow-y:scroll">
+              <v-card v-if="this.$store.state.isAdminUserLoggedIn">
+                <v-card-text>
+                  <catalogTree />
+                </v-card-text>
+              </v-card>
+            </v-container>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12">
+            <v-progress-linear
+              v-if="!active"
+              :indeterminate="true" 
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12">
+            <v-card v-if="this.$store.state.isAdminUserLoggedIn">
+              <v-card-title primary-title>
+                <div>
+                  <h3 class="headline mb-0">
+                    Publisher Logs
+                  </h3>
+                </div>
+              </v-card-title>
+              <v-card-text>
+                <publishLogs />
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
       </v-container>
     </v-content>
     <template>
-      <v-dialog v-model="userNotAdminDialog" max-width="290">
+      <v-dialog
+        v-model="userNotAdminDialog"
+        max-width="290"
+      >
         <v-card>
-          <v-card-title class="headline">Current User is not an Administrator</v-card-title>
-          <v-card-text>{{alertMessage}}</v-card-text>
+          <v-card-title class="headline">
+            Current User is not an Administrator
+          </v-card-title>
+          <v-card-text>{{ alertMessage }}</v-card-text>
           <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="green darken-1" flat="flat" @click="redirectHome">Exit</v-btn>
+            <v-spacer />
+            <v-btn
+              color="green darken-1"
+              text="text"
+              @click="redirectHome"
+            >
+              Exit
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -119,14 +186,6 @@ import catalogTree from './CatalogTree.vue'
 import publishLogs from './PublishLogs.vue'
 
 export default {
-  beforeMount() {
-    const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
-    // detect if query param isAdminUserLoggedIn is true
-    if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
-      this.setUserData()
-      this.$store.state.isAdminUserLoggedIn = true
-    }
-  },
   components: {
     autodeskTree,
     catalogTree,
@@ -143,6 +202,14 @@ export default {
     successMessage: '',
     webhooks: []
   }),
+  beforeMount() {
+    const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
+    // detect if query param isAdminUserLoggedIn is true
+    if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
+      this.setUserData()
+      this.$store.state.isAdminUserLoggedIn = true
+    }
+  },
   methods: {
     encodeBase64,
     async findCatalogItemByName(name) {

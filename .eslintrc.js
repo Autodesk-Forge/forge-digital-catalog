@@ -4,18 +4,21 @@ module.exports = {
         node: true
     },
     extends: [
-        "plugin:security:recommended",
-        "plugin:vue/essential"
+        "plugin:vue/recommended"
     ],
     parserOptions: {
         ecmaVersion: 2017,
         parser: 'babel-eslint',
         sourceType: 'module'
     },
+    plugins: ['vue', 'vuetify'],
     rules: {
-        'no-console': 'off',
-        'semi': 0
+        'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+        'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+        'semi': 0,
+        'vuetify/grid-unknown-attributes': 'error',
+        'vuetify/no-deprecated-classes': 'error',
+        'vuetify/no-legacy-grid': 'error'
     },
-    root: true,
-    plugins: ['security', 'vue']
+    root: true
 }

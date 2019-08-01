@@ -1,21 +1,45 @@
 <template>
-    <div>
-        <v-alert v-model="alert" dismissible type="error">{{alertMessage}}</v-alert>
-        <div id="forgeViewer"></div>
-        <animationPanel v-if="this.$store.state.featureToggles.animation" />
-    </div>
+  <div>
+    <v-alert
+      v-model="alert"
+      dismissible
+      type="error"
+    >
+      {{ alertMessage }}
+    </v-alert>
+    <div
+      ref="forgeViewer"
+      class="forgeViewer"
+    />
+    <animationPanel v-if="this.$store.state.featureToggles.animation" />
+  </div>
 </template>
 
 <script>
 import animationPanel from './AnimationPanel.vue'
 import config from './../config'
-let viewer
 
 export default {
+    components: {
+        animationPanel
+    },
+    data() {
+        return {
+            alert: false,
+            alertMessage: '',
+            documentId: '',
+            viewer: null,
+            viewerConfig: {
+                extensions: ['Autodesk.Fusion360.Animation']
+            }
+        }
+    },
+    watch: {
+        documentId: 'loadDocument'
+    },
     mounted: async function () {
         const vm = this
-        await this.getForgeToken()
-        this.$root.$on('selectedCatalogItem', async function () {
+        this.$root.$on('selectedCatalogItem', async function (e) {
             this.$log.info('... received selectedCatalogItem event')
             if (this.$store.state.selectedCatalog.length > 0) {
                 const res = await this.$axios({
@@ -23,14 +47,31 @@ export default {
                     url: new URL(`/api/catalog/file/id/${this.$store.state.selectedCatalog[0]}`, config.koahost).href
                 })
                 if (res.status === 200 && res.data.svfUrn) {
+                    this.$store.dispatch('setShowCatalogTree', false)
                     this.$root.$emit('clearStoryboards')
                     this.$store.dispatch('setSvfUrn', res.data.svfUrn)
                     const options = {
-                        accessToken: this.$store.state.viewerToken,
+                        viewerSciprtURL: config.viewerSciprtURL,
+                        viewerCSSURL: config.viewerCSSURL,
+                        getAccessToken: async (onGetAccessToken) => {
+                            try {
+                                const res = await this.$axios({
+                                    method: 'GET',
+                                    url: new URL('/api/forge/authenticate/viewer', config.koahost).href + `?sb=${e[0]}`
+                                })
+                                if (res.status === 200) {
+                                    vm.$store.dispatch('setViewerToken', res.data.access_token)
+                                    onGetAccessToken(res.data.access_token,86400)
+                                }
+                            } catch (err) {
+                                this.alert = true
+                                this.alertMessage = err
+                            }
+                        },
                         env: 'AutodeskProduction'
                     }
-                    Autodesk.Viewing.Initializer(options, vm.onInitialized)
-                }
+                vm.initViewer(options, (await caches.keys()).includes(e[0]) && !(await caches.keys()).includes('Forge-Digital-Catalog'))
+              }
             }
         })
         this.$root.$on('selectedStoryboard', function () {
@@ -41,27 +82,38 @@ export default {
             }
         })
     },
-    components: {
-        animationPanel
-    },
-    data() {
-        return {
-            alert: false,
-            alertMessage: '',
-            documentId: '',
-            viewerConfig: { 
-                extensions: ['Autodesk.Fusion360.Animation'] 
-            }
-        }
-    },
     methods: {
+        initViewer(options, forceLoad){
+          return Promise.all([new Promise(res=>{
+           if(!forceLoad&&typeof Autodesk == 'object'&&Autodesk.Viewing)res()
+            else{
+            const link  = document.createElement('link')
+             link.rel  = 'stylesheet'
+             link.type = 'text/css'
+             link.href = options.viewerCSSURL
+             link.onload = ()=>res()
+             document.head.append(link)
+           }
+           }), new Promise(res=>{
+             if(!forceLoad&&typeof Autodesk == 'object'&&Autodesk.Viewing)res()
+             else{
+               const script = document.createElement('script')
+               script.onload = ()=>res()
+               script.src = options.viewerSciprtURL
+               document.head.append(script)
+             }
+           })]).then(()=>{
+             Autodesk.Viewing.Initializer(options, this.onInitialized)
+             this.$store.dispatch('setShowCatalogTree', true)
+           })
+        },
         clearModelInViewer () {
             try {
-                const thisViewer = viewer.getCurrentViewer()
-                if (thisViewer && thisViewer.model) {
+                if (this.viewer.model) {
                     this.$log.info('... unloading current model from Autodesk Viewer')
-                    thisViewer.tearDown()
-                    thisViewer.setUp(this.viewerConfig)
+                    this.viewer.finish()
+                    this.viewer = new Autodesk.Viewing.Private.GuiViewer3D(this.$refs.forgeViewer, {extensions:['Autodesk.Fusion360.Animation']})
+                    this.viewer.start()
                 }
             } catch (err) {
                 this.alert = true
@@ -70,34 +122,8 @@ export default {
         },
         clearViewer () {
             try {
-                if (viewer != null) {
-                    let thisViewer = viewer.getCurrentViewer()
-                    if (thisViewer) {
-                        thisViewer.tearDown()
-                        thisViewer.finish()
-                        thisViewer = null
-                        /**
-                         * workaround below is directly manipulating the DOM, 
-                         * which could cause re-render issues
-                         * better approach is to switch component using :is
-                         */
-                        // const div = document.querySelector('#forgeViewer')
-                        // Array.prototype.slice.call(div.children).forEach(function () { div.removeChild(child) }) 
-                    }
-                }
-            } catch (err) {
-                this.alert = true
-                this.alertMessage = err
-            }
-        },
-        async getForgeToken () {
-            try {
-                const res = await this.$axios({
-                    method: 'GET',
-                    url: new URL('/api/forge/authenticate/viewer', config.koahost).href
-                })
-                if (res.status === 200) {
-                    this.$store.dispatch('setViewerToken', res.data.access_token)
+                if (this.viewewr != null) {
+                    this.viewer.finish()
                 }
             } catch (err) {
                 this.alert = true
@@ -122,7 +148,7 @@ export default {
         loadDocument () {
             try {
                 this.documentId = `urn:${this.$store.state.svfUrn}`
-                viewer.loadDocument(
+                Autodesk.Viewing.Document.load(
                     this.documentId,
                     this.onDocumentLoadSuccess,
                     this.onDocumentLoadFailure
@@ -134,8 +160,7 @@ export default {
         },
         loadModel (path) {
             try {
-                const viewer3D = viewer.getCurrentViewer()
-                viewer3D.loadModel(path, {}, this.onModelLoaded)
+                this.viewer.loadModel(path, {}, this.onModelLoaded)
             } catch (err) {
                 this.alert = true
                 this.alertMessage = err
@@ -146,16 +171,7 @@ export default {
         },
         async onDocumentLoadSuccess (doc) {
             try {
-                /* We could still make use of Document.getSubItemsWithProperties()
-                   However, when using a ViewingApplication, we have access to the **bubble** attribute,
-                   which references the root node of a graph that wraps each object from the Manifest JSON. */
-                const viewables = viewer.bubble.search({ 'type': 'geometry' })
-                if (viewables.length === 0) {
-                    this.$log.error('Document contains no viewables.')
-                    return
-                }
-                // Choose any of the available viewables
-                await this.selectItem(doc, viewables)
+                await this.selectItem(doc)
             } catch (err) {
                 this.alert = true
                 this.alertMessage = err
@@ -164,11 +180,8 @@ export default {
         onInitialized () {
             try {
                 this.clearViewer()
-                viewer = new Autodesk.Viewing.ViewingApplication('forgeViewer')
-                viewer.registerViewer(
-                    viewer.k3D,
-                    Autodesk.Viewing.Private.GuiViewer3D
-                )
+                this.viewer = new Autodesk.Viewing.Private.GuiViewer3D(this.$refs.forgeViewer, {extensions:['Autodesk.Fusion360.Animation']})
+                this.viewer.start()
                 this.loadDocument()
             } catch (err) {
                 this.alert = true
@@ -191,17 +204,10 @@ export default {
         onModelLoaded (model) {
             return
         },
-        async selectItem (doc, viewables) {
+        async selectItem (doc) {
             try {
-                viewer.selectItem(
-                    viewables[0].data,
-                    this.onItemLoadSuccess,
-                    this.onItemLoadFail
-                )
-                if (viewables.length > 1) {
-                    const path = doc.getViewablePath(viewables[0])
-                    await this.setAnimations(doc, path)
-                }
+                await this.viewer.loadDocumentNode(doc, doc.getRoot().getDefaultGeometry())
+                this.setAnimations(doc)
             } catch (err) {
                 this.alert = true
                 this.alertMessage = err
@@ -210,27 +216,27 @@ export default {
         async setAnimations(doc, path) {
             try {
                 this.$store.dispatch('setSaving', { animations: true })
-                const subFolders = Autodesk.Viewing.Document.getSubItemsWithProperties(
-                    doc.getRootItem(), {
+                const subFolders = doc.getRoot().search( {
                         role: 'animation',
                         type: 'folder'
-                    }, 
+                    },
                     true
                 )
-                if (subFolders.length < 1) {
-                    return
-                }
+                let animations = []
+                if (subFolders.length) {
+
                 const children = subFolders[0].children
-                const animations = await Promise.all(children.map(async (id, i) => {
+                animations = await Promise.all(children.map(async (id, i) => {
                     const subModel = children[i]
                     const imageDataUri = await this.getStoryBoardImageDataUri(doc,subModel)
                     const viewablePath = doc.getViewablePath(subModel)
                     return Promise.resolve({
                         imageDataUri,
-                        name: id.name,
+                        name: id.name(),
                         path: viewablePath
                     })
                 }))
+              }
                 this.$store.dispatch('setAnimations', animations)
             } catch (err) {
                 this.alert = true
@@ -240,15 +246,12 @@ export default {
                 this.$root.$emit('setAnimations', this.$store.state.animations)
             }
         }
-    },
-    watch: {
-        documentId: 'loadDocument'
     }
 }
 </script>
 
 <style>
-#forgeViewer {
+.forgeViewer {
   position: relative;
   width: 100%;
   height: 600px;

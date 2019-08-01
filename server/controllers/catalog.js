@@ -6,7 +6,7 @@ axios.defaults.withCredentials = true
 axios.defaults.crossDomain = true
 
 const CatalogDb = require('../models/catalog')
-const handleError = require('./handle-error')
+const handleError = require('../helpers/handle-error')
 
 let ret = {
   status: 520,

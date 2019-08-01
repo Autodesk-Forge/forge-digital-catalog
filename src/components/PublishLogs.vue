@@ -1,41 +1,53 @@
 <template>
-    <div>
-        <v-alert v-model="alert" dismissible type="error">
-            {{alertMessage}}
-        </v-alert>
-        <v-data-table
-            class="elevation-1"
-            :headers="headers"
-            :items="logs"
-            :pagination.sync="pagination"
-        >
-            <template v-slot:items="props">
-                <td>{{ props.item.startDate }}</td>
-                <td class="text-xs-right wrapText">{{ props.item.endDate }}</td>
-                <td class="text-xs-right wrapText">{{ props.item.name }}</td>
-                <td class="text-xs-right wrapText">{{ props.item.designUrn }}</td>
-                <td class="text-xs-right wrapText">{{ props.item.path }}</td>
-                <td class="text-xs-right wrapText">{{ props.item.svfUrn }}</td>
-                <td class="text-xs-right wrapText">{{ props.item.status }}</td>
-                <td class="text-xs-right wrapText">{{ props.item.submittedBy }}</td>
-            </template>
-        </v-data-table>
+  <div>
+    <v-alert
+      v-model="alert"
+      dismissible
+      type="error"
+    >
+      {{ alertMessage }}
+    </v-alert>
+    <v-data-table
+      class="elevation-1"
+      :headers="headers"
+      :items="logs"
+      :items-per-page="itemsPerPage"
+      :page.sync="page"
+      :sort-by.sync="sortBy"
+      :sort-desc.sync="descending"
+      hide-default-footer
+      @page-count="pageCount = $event"
+    >
+      <v-pagination v-model="page" />
+      <template v-slot:item.svfUrn="{ item }">
+        <v-col class="wrapText">
+          {{ item.svfUrn }}
+        </v-col>
+      </template>
+      <template v-slot:item.designUrn="{ item }">
+        <v-col class="wrapText">
+          {{ item.designUrn }}
+        </v-col>
+      </template>
+    </v-data-table>
+    <div class="text-center pt-2">
+      <v-pagination
+        v-model="page"
+        :length="pageCount"
+      />
     </div>
+  </div>
 </template>
 
 <script>
 import config from './../config'
 export default {
-    beforeMount () {
-    const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
-    // detect if query param isAdminUserLoggedIn is true
-    if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
-            this.getPublisherLogs()
-        }
-    },
     data: () => ({
         alert: false,
+         itemsPerPage: 2,
         alertMessage: '',
+        descending: true,
+        itemsPerPage: 2,
         headers: [
             {
                 text: 'Start Date',
@@ -66,12 +78,17 @@ export default {
             }
         ],
         logs: [],
-        pagination: {
-            descending: true,
-            rowsPerPage: 2,
-            sortBy: 'startDate'
-        }
+        page: 1,
+        pageCount: 0,
+        sortBy: "startDate"
     }),
+    beforeMount () {
+    const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
+    // detect if query param isAdminUserLoggedIn is true
+    if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
+            this.getPublisherLogs()
+        }
+    },
     methods: {
         async getPublisherLogs () {
             try {
@@ -119,8 +136,10 @@ export default {
 </script>
 
 <style>
-.wrapText { 
+.wrapText {
     max-width: 100px;
-    word-wrap: break-word 
+    max-height: 50px;
+    overflow-y: scroll;
+    word-wrap: break-word
 }
 </style>

@@ -8,7 +8,7 @@ axios.defaults.crossDomain = true
 
 const Settings = require('../models/admin')
 const Publisher = require('../models/publish')
-const handleError = require('./handle-error')
+const handleError = require('../helpers/handle-error')
 
 const { getToken } = require('./auth')
 const { setCatalogRootFolder, updateCatalogFileSVF } = require('./catalog')

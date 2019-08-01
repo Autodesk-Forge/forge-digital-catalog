@@ -10,8 +10,13 @@
         hide-details
         clearable
         clear-icon="mdi-close-circle-outline"
-      ></v-text-field>
-      <v-checkbox v-model="caseSensitive" dark hide-details label="Case sensitive search"></v-checkbox>
+      />
+      <v-checkbox
+        v-model="caseSensitive"
+        dark
+        hide-details
+        label="Case sensitive search"
+      />
     </v-sheet>
     <v-treeview
       :load-children="fetchModels"
@@ -23,8 +28,17 @@
       transition
     >
       <template v-slot:prepend="{ item }">
-        <input type="checkbox" v-bind:value="item.id" v-model="selectedModel">
-        <v-icon v-if="!item.children" :color="active ? 'primary' : ''">icon-cloud-icon-blue</v-icon>
+        <input
+          v-model="selectedModel"
+          type="checkbox"
+          :value="item.id"
+        >
+        <v-icon
+          v-if="!item.children"
+          :color="active ? 'primary' : ''"
+        >
+          icon-cloud-icon-blue
+        </v-icon>
       </template>
     </v-treeview>
   </v-card>
@@ -34,6 +48,18 @@
 import config from './../config'
 
 export default {
+  data: () => ({
+    active: [],
+    alert: false,
+    alertMessage: 'No error!',
+    defaultHubProject: 'Undefined',
+    isDefaultHubProjectDefined: false,
+    open: [],
+    models: [],
+    selectedModel: [],
+    search: null,
+    caseSensitive: false
+  }),
   computed: {
     items() {
       return [
@@ -63,18 +89,11 @@ export default {
         : undefined
     }
   },
-  data: () => ({
-    active: [],
-    alert: false,
-    alertMessage: 'No error!',
-    defaultHubProject: 'Undefined',
-    isDefaultHubProjectDefined: false,
-    open: [],
-    models: [],
-    selectedModel: [],
-    search: null,
-    caseSensitive: false
-  }),
+  watch: {
+    selectedModel(models) {
+      this.$store.dispatch('setSelectedModel', models)
+    }
+  },
   methods: {
     async fetchItemVersions(item) {
       try {
@@ -233,11 +252,6 @@ export default {
       this.selectedModel = [...this.active]
     }
 
-  },
-  watch: {
-    selectedModel(models) {
-      this.$store.dispatch('setSelectedModel', models)
-    }
   }
 }
 </script>

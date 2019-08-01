@@ -92,6 +92,9 @@ export default new Vuex.Store({
     },
     setApplicationName({ commit }, appName) {
       commit('setApplicationName', appName)
+    },
+    setShowCatalogTree({ commit }, show){
+      commit('setShowCatalogTree', show)
     }
 
   },
@@ -184,6 +187,9 @@ export default new Vuex.Store({
     },
     setApplicationName(state, appName) {
       state.applicationName =  appName
+    },
+    setShowCatalogTree(state, show) {
+      state.showCatalogTree =  show
     }
   },
   state: {
@@ -243,6 +249,7 @@ export default new Vuex.Store({
       newCatalogItem: false,
       newWebHook: false
     },
+    showCatalogTree: true,
     selectedCatalog: {},
     selectedModel: {},
     selectedStoryboard: {},

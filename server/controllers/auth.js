@@ -2,7 +2,7 @@ const axios = require('axios')
 const qs = require('querystring')
 
 const config = require('config')
-const handleError = require('./handle-error')
+const handleError = require('../helpers/handle-error')
 
 let ret = {
   status: 520,

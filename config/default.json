@@ -42,6 +42,7 @@
     "API_auth_host": "https://developer.api.autodesk.com/authentication/v1",
     "API_data_host": "https://developer.api.autodesk.com/data/v1",
     "API_derivative_host": "https://developer.api.autodesk.com/modelderivative/v2",
+    "API_derivative_service": "https://developer.api.autodesk.com/derivativeservice/v2",
     "API_oss_host": "https://developer.api.autodesk.com/oss/v2",
     "API_project_host": "https://developer.api.autodesk.com/project/v1",
     "API_webhook_host": "https://developer.api.autodesk.com/webhooks/v1",

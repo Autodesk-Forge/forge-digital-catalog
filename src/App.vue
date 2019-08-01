@@ -1,22 +1,34 @@
 <template>
   <v-app id="digital-catalog">
-    <v-toolbar app>
+    <v-app-bar app>
       <v-toolbar-title class="headline text-uppercase">
         <span>
-          <div class="title">{{this.applicationName}}</div>
+          <div class="title">{{ applicationName }}</div>
         </span>
-        <!--<span class="font-weight-light">MATERIAL DESIGN</span>-->
       </v-toolbar-title>
-      
-<v-layout align-center justify-center>
-        <v-img :src="this.companyLogo" class="my-3" position='center center' max-width="150" max-height="50"></v-img>
-</v-layout>
-      <v-btn flat href="https://forge.autodesk.com" target="_blank" rel="noreferrer">
+      <v-row
+        align="center"
+        justify="center"
+      >
+        <v-img
+          :src="companyLogo"
+          class="my-3"
+          position="center center"
+          max-width="150"
+          max-height="50" 
+        />
+      </v-row>
+      <v-btn
+        text
+        href="https://forge.autodesk.com"
+        target="_blank"
+        rel="noreferrer"
+      >
         <span class="mr-2">Autodesk Forge</span>
       </v-btn>
-    </v-toolbar>
+    </v-app-bar>
     <v-content>
-      <router-view></router-view>
+      <router-view />
     </v-content>
   </v-app>
 </template>
@@ -25,15 +37,15 @@
 import config from './config'
 
 export default {
-  beforeMount() {
-    this.getCompanyLogo();
-    this.getApplicationName();
-  },
+  name: 'DigitalCatalogApp',
   data: () => ({
     applicationName: '',
     companyLogo: ''
   }),
-  name: 'DigitalCatalogApp',
+  beforeMount() {
+    this.getCompanyLogo();
+    this.getApplicationName();
+  },
   methods: {
     async getApplicationName() {
       try {

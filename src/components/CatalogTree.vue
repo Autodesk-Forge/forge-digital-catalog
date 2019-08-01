@@ -3,17 +3,31 @@
     <v-sheet class="pa-3 primary lighten-2">
       <v-text-field
         v-model="search"
-        label="Search Catalog"
+        :label="$t('catalog.searchCatalog')"
         dark
         flat
         solo-inverted
         hide-details
         clearable
         clear-icon="mdi-close-circle-outline"
-      ></v-text-field>
-      <v-checkbox v-model="caseSensitive" dark hide-details label="Case sensitive search"></v-checkbox>
+      />
+      <v-row justify="space-between">
+        <v-checkbox
+          v-model="caseSensitive"
+          dark
+          hide-details
+          label="Case sensitive search"
+        />
+      <!--<v-switch
+           color='indigo'
+           v-model="catalog_cached"
+           @change="catalogCacheChanged"
+          label="Cache"
+      ></v-switch>-->
+      </v-row>
     </v-sheet>
     <v-treeview
+      v-if="showTree"
       ref="theCatalogTree"
       checkbox
       :load-children="fetchCatalog"
@@ -27,20 +41,40 @@
       <template v-slot:prepend="{ item }">
         <!--v-checkbox @change="onChange" @blur="onChange" ></v-checkbox-->
         <input
-          type="checkbox"
-          v-bind:value="item.id"
           v-model="selectedCatalog"
+          type="checkbox"
+          :value="item.id"
           :disabled="anySelected(item.id)"
+          @input="selectedCatalogChanged"
         >
         <v-icon
           v-if="!item.children"
           :color="active ? 'primary' : ''"
-        >icon-autodesk-volume-icon-gray</v-icon>
+        >
+          icon-autodesk-volume-icon-gray
+        </v-icon>
       </template>
       <template v-slot:label="{ item }">
-        <v-flex @contextmenu="showContextMenu($event, item)">{{item.name}}</v-flex>
+        <v-col @contextmenu="showContextMenu($event, item)">
+          {{ item.name }}
+        <!--  <v-flex v-if="item.children">{{item.name}}</v-flex>
+        <v-switch
+      v-else
+       :value="item.id"
+       v-model="cachedIDs"
+       @change="viewerCacheChanged($event,item.id)"
+      :label="item.name + '('+(cachedIDs.includes(item.id)?'Cached':'Uncached')+')'"
+        ></v-switch>
+      </v-flex> -->
+        </v-col>
       </template>
+      <template v-slot:append="{ item }" />
     </v-treeview>
+    <v-progress-circular
+      v-else
+      :size="50"
+      indeterminate
+    />
     <v-menu
       v-model="showMenu"
       :position-x="menuoptions.x"
@@ -49,51 +83,85 @@
       offset-y
     >
       <v-list>
-        <v-list-tile v-for="(item, index) in this.currentMenuOptions" :key="index">
+        <v-list-item
+          v-for="(item, index) in currentMenuOptions"
+          :key="index"
+        >
           <div v-if="item.title.indexOf('Create')!==-1">
-            <v-list-tile-content>
-              <v-list-tile-title v-html="item.title" @click="createDialog = !createDialog"></v-list-tile-title>
-            </v-list-tile-content>
+            <v-list-item-content>
+              <v-list-item-title
+                @click="createDialog = !createDialog"
+                v-html="item.title"
+              />
+            </v-list-item-content>
           </div>
           <div v-else-if="item.title.indexOf('Delete Folder')!==-1">
-            <v-list-tile-content>
-              <v-list-tile-title v-html="item.title" @click="deleteDialog = !deleteDialog"></v-list-tile-title>
-            </v-list-tile-content>
+            <v-list-item-content>
+              <v-list-item-title
+                @click="deleteDialog = !deleteDialog"
+                v-html="item.title"
+              />
+            </v-list-item-content>
           </div>
           <div v-else-if="item.title.indexOf('Rename Folder')!==-1">
-            <v-list-tile-content>
-              <v-list-tile-title
-                v-html="item.title"
+            <v-list-item-content>
+              <v-list-item-title
                 @click="renameFolderDialog = !renameFolderDialog"
-              ></v-list-tile-title>
-            </v-list-tile-content>
+                v-html="item.title"
+              />
+            </v-list-item-content>
           </div>
           <div v-else-if="item.title.indexOf('Delete File')!==-1">
-            <v-list-tile-content>
-              <v-list-tile-title v-html="item.title" @click="deleteFileDialog = !deleteFileDialog"></v-list-tile-title>
-            </v-list-tile-content>
+            <v-list-item-content>
+              <v-list-item-title
+                @click="deleteFileDialog = !deleteFileDialog"
+                v-html="item.title"
+              />
+            </v-list-item-content>
           </div>
-        </v-list-tile>
+        </v-list-item>
       </v-list>
     </v-menu>
-    <v-dialog v-model="createDialog" max-width="500px">
+    <v-dialog
+      v-model="createDialog"
+      max-width="500px"
+    >
       <v-card>
         <v-card-title>Create Folder</v-card-title>
         <v-card-text>
-          <v-text-field label="Folder Name" v-model="folderName" @input="up"></v-text-field>
-          <v-text-field label="Path" v-model="folderPath" :readonly="true"></v-text-field>
+          <v-text-field
+            v-model="folderName"
+            label="Folder Name"
+            @input="up"
+          />
+          <v-text-field
+            v-model="folderPath"
+            label="Path"
+            :readonly="true"
+          />
         </v-card-text>
         <v-card-actions>
           <v-btn
             color="primary"
-            flat
+            text
             @click="() => { createDialog=false; saveNewFolder(contextItem) }"
-          >Save</v-btn>
-          <v-btn color="primary" flat @click="createDialog=false">Cancel</v-btn>
+          >
+            Save
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="createDialog=false"
+          >
+            Cancel
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="deleteDialog" max-width="500px">
+    <v-dialog
+      v-model="deleteDialog"
+      max-width="500px"
+    >
       <v-card>
         <v-card-title>Delete Folder</v-card-title>
         <v-card-text>
@@ -104,45 +172,83 @@
         <v-card-actions>
           <v-btn
             color="primary"
-            flat
+            text
             @click="() => { deleteDialog=false; deleteFolder(contextItem) }"
-          >OK</v-btn>
-          <v-btn color="primary" flat @click="deleteDialog=false">Cancel</v-btn>
+          >
+            OK
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="deleteDialog=false"
+          >
+            Cancel
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="renameFolderDialog" max-width="500px">
+    <v-dialog
+      v-model="renameFolderDialog"
+      max-width="500px"
+    >
       <v-card>
         <v-card-title>Rename Folder</v-card-title>
         <v-card-text>
-          <v-text-field label="New Folder Name" v-model="folderName" @input="up"></v-text-field>
-          <v-text-field label="Path" v-model="folderPath" :readonly="true"></v-text-field>
+          <v-text-field
+            v-model="folderName"
+            label="New Folder Name"
+            @input="up"
+          />
+          <v-text-field
+            v-model="folderPath"
+            label="Path"
+            :readonly="true"
+          />
         </v-card-text>
         <v-card-actions>
           <v-btn
             color="primary"
-            flat
+            text
             @click="() => { renameFolderDialog=false; renameFolder(contextItem) }"
-          >OK</v-btn>
-          <v-btn color="primary" flat @click="renameFolderDialog=false">Cancel</v-btn>
+          >
+            OK
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="renameFolderDialog=false"
+          >
+            Cancel
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="deleteFileDialog" max-width="500px">
+    <v-dialog
+      v-model="deleteFileDialog"
+      max-width="500px"
+    >
       <v-card>
         <v-card-title>Delete File</v-card-title>
         <v-card-text>
           <div>
-            <div>Are you sure you want to delete {{this.$store.state.selectedCatalog.name}}?</div>
+            <div>Are you sure you want to delete {{ this.$store.state.selectedCatalog.name }}?</div>
           </div>
         </v-card-text>
         <v-card-actions>
           <v-btn
             color="primary"
-            flat
+            text
             @click="() => { deleteFileDialog=false; deleteFile(contextItem) }"
-          >OK</v-btn>
-          <v-btn color="primary" flat @click="deleteFileDialog=false">Cancel</v-btn>
+          >
+            OK
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="deleteFileDialog=false"
+          >
+            Cancel
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -157,36 +263,19 @@
 
 import Filter from 'bad-words'
 import config from './../config'
+const Digital_Catalog_Name  = 'Forge-Catalog-Cache'
+const Default_Cache_Name = 'Forge-Digital-Catalog'
+const catalogCacheOptions = {[Digital_Catalog_Name]:[new RegExp(new URL('/api/catalog/', config.koahost).href.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")+'.*'), new RegExp(new URL('/api/fusion/thumbnail', config.koahost).href.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")+'.*')]}
+
+const derivativeCacheOptions = [new RegExp(/https:\/\/developer\.api\.autodesk\.com\/derivativeservice\/v2\/.*/)]
+const viewerCacheOptions = {[Default_Cache_Name]:[new RegExp(/https:\/\/developer\.api\.autodesk\.com\/modelderivative\/v2\/viewers\/.*/),new RegExp(/https:\/\/fonts\.autodesk\.com\/.*/)]}
 
 let filter = new Filter()
 
 export default {
-  computed: {
-    items() {
-      return [
-        {
-          children: this.catalog,
-          id: 1,
-          name: 'Root Folder',
-          path: null,
-          type: 'folder',
-          folderName: this.folderName,
-          fodlerPath: this.folderPath
-        }
-      ]
-    },
-    selected() {
-      if (!this.active.length) return undefined
-      const id = this.active[0]
-      return this.catalog.find(item => item.id === id)
-    },
-    filter() {
-      return this.caseSensitive
-        ? (item, search, textKey) => item[textKey].indexOf(search) > -1
-        : undefined
-    }
-  },
-  data: () => ({
+  data:  () => ({
+    catalog_cached: false,
+    cachedIDs:[],
     active: [],
     alert: false,
     alertMessage: 'No error!',
@@ -213,7 +302,71 @@ export default {
     showMenu: false,
     search: null
   }),
+  computed: {
+    items() {
+      return [
+        {
+          children: this.catalog,
+          id: 1,
+          name: 'Root Folder',
+          path: null,
+          type: 'folder',
+          folderName: this.folderName,
+          fodlerPath: this.folderPath
+        }
+      ]
+    },
+    showTree(){
+       return this.$store.state.showCatalogTree
+    },
+    selected() {
+      if (!this.active.length) return undefined
+      const id = this.active[0]
+      return this.catalog.find(item => item.id === id)
+    },
+    filter() {
+      return this.caseSensitive
+        ? (item, search, textKey) => item[textKey].indexOf(search) > -1
+        : undefined
+    }
+  },
+  watch: {
+    selectedCatalog(catalog) {
+      const vm = this
+      setTimeout(()=>{
+        vm.$store.dispatch('setSelectedCatalog', catalog)
+        vm.$root.$emit('selectedCatalogItem', catalog)
+      }, 100) //wait for caching options to be posted to service worker
+    }
+  },
+  mounted: async function () {
+    // if(!(await navigator.serviceWorker.getRegistrations()).length){
+    //   await navigator.serviceWorker.register('/registerServiceWorker.js')
+    //   await new Promise(r=>setTimeout(r,1000)) //overcome strange issue where serviceWorker refuses to be immediately available despite claiming all clients in the install phase
+    //
+    // }
+    // this.cachedIDs = await caches.keys()
+    // this.catalog_cached = this.cachedIDs.includes(Digital_Catalog_Name)
+    //
+    // navigator.serviceWorker.controller.postMessage({operation:'OPTIONS', options:{'ADD_ALWAYSCACHE':{  alwaysCache:[Default_Cache_Name]}, 'ADD_CACHEDKEYS':{cachedKeys:viewerCacheOptions}, 'SET_OPTIONS':{options:{debug:true}}}})
+    // this.catalogCacheChanged()
+  },
+  destroyed: function(){
+    if(navigator.serviceWorker.controller)
+    navigator.serviceWorker.controller.postMessage({operation:'ADD_LOADINGKEYS',loadingKeys:[],clearKeys:true})
+  },
   methods: {
+    selectedCatalogChanged(e){
+      // const id = e.target.value
+      // navigator.serviceWorker.controller.postMessage({operation:'OPTIONS', options:{[e.target.checked?'ADD_LOADINGKEYS':'REMOVE_LOADINGKEYS']:{  loadingKeys:[id]}, [this.cachedIDs.includes(id)?'ADD_CACHEDKEYS':'REMOVE_CACHEDKEYS']:{cachedKeys: {[id]:[...derivativeCacheOptions,  new URL('/api/forge/authenticate/viewer', config.koahost).href + `?sb=${id}`] }}}})
+    },
+    viewerCacheChanged(e,id){
+      if(!e.includes(id))
+      navigator.serviceWorker.controller.postMessage({operation:'REMOVE_CACHEDKEYS',cachedKeys:{[id]:null}})
+    },
+    catalogCacheChanged(e){
+       navigator.serviceWorker.controller.postMessage(this.catalog_cached?{operation: 'OPTIONS', options:{ ADD_CACHEDKEYS: {cachedKeys:catalogCacheOptions}, ADD_LOADINGKEYS:{loadingKeys:[Digital_Catalog_Name]}}}:{operation:'REMOVE_CACHEDKEYS',cachedKeys:catalogCacheOptions})
+    },
     anySelected(itemID) {
       if (this.selectedCatalog.length > 0 && this.selectedCatalog[0] !== itemID) {
         return true
@@ -475,12 +628,6 @@ export default {
         await this.refreshChildren(this.catalog[elementToChange])
         await this.fetchCatalog(this.catalog[elementToChange])
       }
-    }
-  },
-  watch: {
-    selectedCatalog(catalog) {
-      this.$store.dispatch('setSelectedCatalog', catalog)
-      this.$root.$emit('selectedCatalogItem')
     }
   }
 }

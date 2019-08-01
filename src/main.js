@@ -1,23 +1,20 @@
-import '../public/css/Glyphter.css'
-
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import '@mdi/font/css/materialdesignicons.css'
 
 import Vue from 'vue'
 import './plugins/axios'
-import './plugins/vuetify'
+import i18n from '@/plugins/i18n'
+import vuetify from './plugins/vuetify'
 import App from './App.vue'
 import router from './router'
 import store from './store'
 import './registerServiceWorker'
 import VueMq from 'vue-mq'
-import VueLogger from 'vuejs-logger';
+import VueLogger from 'vuejs-logger'
 
-const isProduction = process.env.NODE_ENV === 'production';
- 
 const options = {
     isEnabled: true,
-    logLevel : isProduction ? 'error' : 'debug',
+    logLevel : (process.env.NODE_ENV === 'production') ? 'error' : 'debug',
     stringifyArguments : false,
     showLogLevel : true,
     showMethodName : true,
@@ -45,7 +42,9 @@ Vue.config.warnHandler = (msg, vm, trace) => {
 }
 
 new Vue({
+  i18n,
   router,
   store,
-  render: h => h(App),
+  vuetify,
+  render: h => h(App)
 }).$mount('#app')

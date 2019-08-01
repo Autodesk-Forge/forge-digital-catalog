@@ -1,31 +1,36 @@
 <template>
-  <v-layout>
-    <v-flex>
+  <v-row>
+    <v-col>
       <v-card flat>
         <v-content>
-          <v-container fluid grid-list-md>
-            <v-layout row wrap>
-              <v-flex 
-                xs12
-                md6
-                lg3
+          <v-container
+            fluid
+          >
+            <v-row>
+              <v-col 
                 v-for="storyboard in animations"
                 :key="storyboard.name"
+                cols="12"
+                md="6"
+                lg="3"
                 @click="loadAnimationSvf(storyboard)"
               >
                 <v-chip>
                   <v-avatar>
-                    <img alt="storyboard.name" :src="storyboard.imageDataUri">
+                    <img
+                      alt="storyboard.name"
+                      :src="storyboard.imageDataUri"
+                    >
                   </v-avatar>
                   {{ storyboard.name }}
                 </v-chip>
-              </v-flex>
-            </v-layout>
+              </v-col>
+            </v-row>
           </v-container>
         </v-content>
       </v-card>
-    </v-flex>
-  </v-layout>
+    </v-col>
+  </v-row>
 </template>
 
 <style>
@@ -34,6 +39,11 @@
 
 <script>
 export default {
+  data() {
+    return {
+      animations: []
+    }
+  },
   mounted: async function () {
     this.$root.$on('clearStoryboards', () => {
       this.$log.info('... clearing animation panel')
@@ -43,11 +53,6 @@ export default {
       this.$log.info('... received setAnimations event')
       this.animations = animations
     })
-  },
-  data() {
-    return {
-      animations: []
-    }
   },
   methods: {
     async loadAnimationSvf(storyboard) {
