@@ -23,7 +23,7 @@ const {
     setWebHook,
     translateJob,
     updateSvfUrnInCatalogItem
- } = require('../server/controllers/admin')
+ } = require('../src/server/controllers/admin')
 
 /**
  * To do something once before all the tests run

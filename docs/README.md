@@ -109,7 +109,7 @@ This section will guide you through getting the code up and running on your own 
 
 ## Build and Test
 
-Because our frontend app (./src) is developed separately from our backend (./server) - i.e. our backend exposes an
+Because our frontend app (./src/client) is developed separately from our backend (./src/server) - i.e. our backend exposes an
 API for our frontend to talk to, then our frontend is essentially a purely static app. We can deploy
 the built content in the ```www``` directory to any static file server, but we need to make sure to set the correct
 publicPath. 

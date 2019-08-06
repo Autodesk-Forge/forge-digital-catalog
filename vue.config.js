@@ -21,7 +21,7 @@ module.exports = {
     outputDir:'./www',
     pages: {
         index: {
-            entry: './src/main.js',
+            entry: './src/client/main.js',
             filename: 'index.html',
             template: './public/index.html',
             title: 'Digital Catalog'
