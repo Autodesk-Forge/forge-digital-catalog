@@ -32,12 +32,12 @@
             cols="12"
             lg="5"
           >
-            <v-expansion-panel 
+            <v-expansion-panels 
               v-model="panel"
               expand
               popout
             >
-              <v-expansion-panel-content>
+              <v-expansion-panel>
                 <template v-slot:header>
                   <div>Catalog</div>
                 </template>
@@ -48,8 +48,8 @@
                     </v-card-text>
                   </v-card>
                 </v-container>
-              </v-expansion-panel-content>
-              <v-expansion-panel-content>
+              </v-expansion-panel>
+              <v-expansion-panel>
                 <template v-slot:header>
                   <div>Forge Viewer</div>
                 </template>
@@ -60,15 +60,15 @@
                     </v-card-text>
                   </v-card>
                 </v-container>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </v-col>
         </v-row>
       </v-container>
     </v-content>
     <v-content v-if="$mq === 'laptop' || $mq === 'desktop'">
       <v-container fluid>
-        <v-row class="text-center" >
+        <v-row class="text-center">
           <v-col cols="4">
             <v-container style="height:800px;max-height:900px;overflow-y:scroll">
               <v-card height="100%">
