@@ -379,7 +379,31 @@ async function updateCatalogFile(payload, ossDesignUrn) {
   }
 }
 
-async function updateCatalogFileSVF(payload, svfUrn) {
+async function updateCatalogFileGltf(payload, gltf) {
+  try {
+    const catalogFile = await CatalogDb.findOneAndUpdate(
+      payload,
+      {
+        gltf
+      },
+      {
+        new: true,
+        upsert: true
+      }
+    ).exec()
+    if (catalogFile) {
+      ret = {
+        status: 200,
+        message: catalogFile
+      }
+    }
+    return ret
+  } catch (err) {
+    return handleError(err)
+  }
+}
+
+async function updateCatalogFileSvf(payload, svfUrn) {
   try {
     const catalogFile = await CatalogDb.findOneAndUpdate(
       payload,
@@ -421,5 +445,6 @@ module.exports = {
   setCatalogFolder,
   setCatalogRootFolder,
   updateCatalogFile,
-  updateCatalogFileSVF
+  updateCatalogFileGltf,
+  updateCatalogFileSvf
 }

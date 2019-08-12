@@ -43,16 +43,16 @@ This web application can act as a foundation for more advanced workflows, such a
 ## Site
 
 ### Landing Page
-![Landing Page](/public/thumbnail.png)
+![Landing Page](/src/client/public/thumbnail.png)
 
 ### Administration Console
-![Admin Page](/public/settings.png)
+![Admin Page](/src/client/public/settings.png)
 
 ### Publisher Console
-![Publisher Page](/public/publisher.png)
+![Publisher Page](/src/client/public/publisher.png)
 
 ### Interactive Instructions
-![Animation Page](/public/interactive_instructions.png)
+![Animation Page](/src/client/public/interactive_instructions.png)
 
 ### Live Demo
 

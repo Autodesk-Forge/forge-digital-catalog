@@ -119,6 +119,14 @@
               />
             </v-list-item-content>
           </div>
+          <div v-else-if="item.title.indexOf('Download Gltf')!==-1">
+            <v-list-item-content>
+              <v-list-item-title
+                @click="downloadGltfFileDialog = !downloadGltfFileDialog"
+                v-html="item.title"
+              />
+            </v-list-item-content>
+          </div>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -252,11 +260,35 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog
+      v-model="downloadGltfFileDialog"
+      max-width="500px"
+    >
+      <v-card>
+        <v-card-title>Download Gltf Files</v-card-title>
+        <v-card-actions>
+          <v-btn
+            color="primary"
+            text
+            @click="() => { downloadGltfFileDialog=false; downloadGltfFiles(contextItem) }"
+          >
+            OK
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="downloadGltfFileDialog=false"
+          >
+            Cancel
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
 <style>
-@import "../../../public/css/TreeFormat.css";
+@import "../../../src/client/public/css/TreeFormat.css";
 </style>
 
 <script>
@@ -288,13 +320,14 @@ export default {
     currentParent: '',
     deleteDialog: false,
     deleteFileDialog: false,
+    downloadGltfFileDialog: false,
     folderName: '',
     folderPath: '',
     maximumFolderLength: 30,
     menuoptions: {
       items: [{ title: 'Create Folder' }, { title: 'Delete Folder' }],
       folder: [{ title: 'Create Folder' }, { title: 'Delete Folder' }, { title: 'Rename Folder' }],
-      file: [{ title: 'Delete File' }]
+      file: [{ title: 'Delete File' }, { title: 'Download Gltf'}]
     },
     open: [],
     renameFolderDialog: false,
@@ -428,6 +461,32 @@ export default {
           this.refreshParent(this.folderPath)
         }
         this.folderName = ""
+      } catch (err) {
+        this.alert = true
+        this.alertMessage = err
+      }
+    },
+    async downloadGltfFiles(item) {
+      try {
+        const res = await this.$axios({
+          method: 'GET',
+          url: new URL(`/api/catalog/file/id/${item.id}`, config.koahost).href
+        })
+        if (res.status === 200) {
+          const downloadRes = await this.$axios({
+            method: 'GET',
+            responseType: 'blob',
+            url: new URL(`/api/oss/download/bucket/${res.data.gltf.bucketKey}/object/${res.data.gltf.objectKey}`, config.koahost).href
+          })
+          if (downloadRes.status === 200) {
+            const url = window.URL.createObjectURL(new Blob([downloadRes.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', res.data.gltf.objectKey)
+            document.body.appendChild(link)
+            link.click()
+          }
+        }
       } catch (err) {
         this.alert = true
         this.alertMessage = err

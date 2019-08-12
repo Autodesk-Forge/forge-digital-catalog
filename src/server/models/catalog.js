@@ -1,6 +1,29 @@
 const mongoose = require('mongoose')
 
 const CatalogSchema = new mongoose.Schema({
+    gltf: {
+        bucketKey: {
+            type: String
+        },
+        contentType: {
+            type: String
+        },
+        location: {
+            type: String
+        },
+        objectId: {
+            type: String
+        },
+        objectKey: {
+            type: String
+        },
+        sha1: {
+            type: String
+        },
+        size: {
+            type: String
+        }
+    },
     isFile: {
         required: 'Must specify if file or folder',
         type: Boolean

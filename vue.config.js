@@ -23,7 +23,7 @@ module.exports = {
         index: {
             entry: './src/client/main.js',
             filename: 'index.html',
-            template: './public/index.html',
+            template: './src/client/public/index.html',
             title: 'Digital Catalog'
         }
     }

@@ -2,6 +2,7 @@ const archiver = require('archiver')
 const axios = require('axios')
 const config = require('config')
 const fs = require('fs')
+const fsExtra = require('fs-extra')
 const logger = require('koa-log4').getLogger('admin')
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug' }
 const path = require('path')
@@ -9,15 +10,22 @@ const path = require('path')
 axios.defaults.withCredentials = true
 axios.defaults.crossDomain = true
 
+const { convertToGltf } = require('./arvr-toolkit')
+const { 
+  getCatalogFileByOSSDesignUrn, 
+  setCatalogRootFolder, 
+  updateCatalogFileGltf, 
+  updateCatalogFileSvf 
+} = require('./catalog')
+
 const Settings = require('../models/admin')
 const Publisher = require('../models/publish')
-const handleError = require('../helpers/error-handler')
 
 const { getToken } = require('../helpers/auth')
-const { convertToGltf } = require('./arvr-toolkit')
-const { getCatalogFileByOSSDesignUrn, setCatalogRootFolder, updateCatalogFileSVF } = require('./catalog')
-const { getManifest, traverseManifest } = require('../helpers/forge')
+const handleError = require('../helpers/error-handler')
 const { uploadZipObject } = require('../helpers/file-handler')
+const { getManifest, traverseManifest } = require('../helpers/forge')
+const { optimizeGltf } = require('../helpers/gltf-handler')
 
 let ret = {
   status: 520,
@@ -25,37 +33,79 @@ let ret = {
 }
 
 /**
+ * Removes the folder and files under /tmp/cache
+ */
+async function clearCache() {
+  try {
+    await fsExtra.remove('/tmp/cache')
+  } catch (err) {
+    logger.error(err)
+  }
+}
+
+/**
+ * Archives and uploads optimized Gltf files to OSS bucket
+ * @param {*} urn 
+ */
+async function compressGltfOutput(urn) {
+  try {
+    const outputFolder = path.join('/tmp', 'cache')
+    const urnFolder = path.join(outputFolder, urn)
+    const optimizedFilePaths = []
+    listFilesInDirectory(urnFolder, filePath => {
+      if (filePath.includes('-optimized.')) {
+        optimizedFilePaths.push(filePath)
+        optimizedFilePaths.push(filePath.replace('.gltf', '.bin'))
+        optimizedFilePaths.push(path.join(path.dirname(filePath), 'props.db'))
+      }
+    })
+    const catalogFile = await getCatalogFileByOSSDesignUrn(urn)
+    await createArchive(catalogFile.message.svfUrn, optimizedFilePaths)
+  } catch(err) {
+    return handleError(err)
+  }
+}
+
+/**
  * Compress the glTF output files into an archive 
  * @param {*} fileNames 
  */
-async function compressGltfOutput(archiveName, fileNames) {
-  return new Promise((resolve, reject) => {
-    let zipFileName = path.basename(archiveName, path.extname(archiveName))
-    const output = fs.createWriteStream(`/tmp/cache/${zipFileName}_gltf.zip`)
-    const archive = archiver('zip', { zlib: { level: 9} })
-    output.on('close', () => {
-      logger.info(`... Compressed all files [${archive.pointer()} total bytes]`)
-      resolve(archive.pointer())
-    })
-    output.on('end', () => {
-      logger.info('... data has been drained')
-    })
-    output.on('warning', err => {
-      if (err.code === 'ENOENT') {
-        logger.warn(`Warning occurred while compressing the files: ${err}`)
-      } else {
+async function createArchive(archiveName, fileNames) {
+  try {
+    return new Promise((resolve, reject) => {
+      let zipFileName = path.basename(archiveName, path.extname(archiveName))
+      const archiveFile = `/tmp/cache/${zipFileName}_gltf.zip`
+      if (fs.existsSync(archiveFile)) fs.unlinkSync(archiveFile)
+      const output = fs.createWriteStream(archiveFile)
+      const archive = archiver('zip', { zlib: { level: 9} })
+      output.on('close', () => {
+        logger.info(`... Compressed all files [${archive.pointer()} total bytes]`)
+        resolve(archive.pointer())
+      })
+      output.on('end', () => {
+        logger.info('... data has been drained')
+      })
+      output.on('warning', err => {
+        if (err.code === 'ENOENT') {
+          logger.warn(`Warning occurred while compressing the files: ${err}`)
+        } else {
+          logger.warn(err)
+          reject(err)
+        }
+      })
+      output.on('error', err => {
+        logger.error(err)
         reject(err)
-      }
+      })
+      archive.pipe(output)
+      fileNames.forEach(filePath => {
+        archive.file(filePath, { name: path.basename(filePath) })
+      })
+      archive.finalize()
     })
-    output.on('error', err => {
-      reject(err)
-    })
-    archive.pipe(output)
-    fileNames.forEach(filePath => {
-      archive.file(filePath, { name: path.basename(filePath) })
-    })
-    archive.finalize()
-  })
+  } catch (err) {
+    return handleError(err)
+  }
 }
 
 /**
@@ -84,6 +134,7 @@ async function deleteWebHook(hookId, retry = 0) {
     }
     return ret
   } catch (err) {
+    logger.error(err)
     if (retry < 3) {
       await deleteWebHook(hookId, retry++)
     }
@@ -272,6 +323,7 @@ async function getTranslateJobStatus(base64Urn, retry = 0) {
     }
     return ret
   } catch (err) {
+    logger.error(err)
     if (retry < 3) {
       await getTranslateJobStatus(base64Urn, retry++)
     }
@@ -303,6 +355,7 @@ async function getWebHooks(retry = 0) {
     }
     return ret
   } catch (err) {
+    logger.error(err)
     if (retry < 3) {
       await getWebHooks(retry++)
     }
@@ -348,6 +401,26 @@ function listFilesInDirectory(dir, callback) {
       let isDirectory = fs.statSync(dirPath).isDirectory()
       isDirectory ? listFilesInDirectory(dirPath, callback) : callback(path.join(dir, f))
     })
+  } catch (err) {
+    return handleError(err)
+  }
+}
+
+async function optimizeGltfOutput(urn) {
+  try {
+    const outputFolder = path.join('/tmp', 'cache')
+    const urnFolder = path.join(outputFolder, urn)
+    const gltfFilePaths = []
+    listFilesInDirectory(urnFolder, filePath => {
+      if (path.extname(filePath).toLowerCase() === '.gltf' && !filePath.endsWith('-optimized.gltf')) {
+        gltfFilePaths.push(filePath)
+      }
+    })
+    await Promise.all(gltfFilePaths.map(async (filePath) => {
+      logger.info(`... Optimizing glTF output of file: ${filePath}`)
+      await optimizeGltf(filePath)
+      return Promise.resolve(filePath)
+    }))
   } catch (err) {
     return handleError(err)
   }
@@ -600,6 +673,7 @@ async function setWebHook(retry = 0) {
     }
     return ret
   } catch (err) {
+    logger.error(err)
     if (retry < 3) {
       await setWebHook(retry++)
     }
@@ -638,6 +712,7 @@ async function translateJob(payload, retry = 0) {
     }
     return ret
   } catch (err) {
+    logger.error(err)
     if (retry < 3) {
       await translateJob(payload, retry++)
     }
@@ -650,9 +725,8 @@ async function translateJob(payload, retry = 0) {
  * @param {*} urn 
  * @param {*} retry 
  */
-async function translateSVFtoGLTFJob(urn, retry = 0) {
+async function translateSvftoGltf(urn) {
   try {
-    logger.info(`... Initiating translation to glTF format`)
     const token = await getToken()
     const catalogFile = await getCatalogFileByOSSDesignUrn(urn)
     const manifest = await getManifest(catalogFile.message.svfUrn, token.message.access_token)
@@ -665,30 +739,11 @@ async function translateSVFtoGLTFJob(urn, retry = 0) {
     const outputFolder = path.join('/tmp', 'cache')
     const urnFolder = path.join(outputFolder, urn)
     if (!fs.existsSync(urnFolder)) fs.mkdirSync(urnFolder, { recursive: true })
-    const translations = await Promise.all(guids.map(async guid => {
+    await Promise.all(guids.map(async guid => {
       logger.info(`... Starting translation to glTF of viewable guid: ${guid}`)
       return await convertToGltf(catalogFile.message.svfUrn, guid, token.message.access_token, urnFolder)
     }))
-    const fileNames = []
-    listFilesInDirectory(urnFolder, filePath => {
-      fileNames.push(filePath)
-    })
-    const zipFileSize = await compressGltfOutput(catalogFile.message.svfUrn, fileNames)
-    if (zipFileSize > 0) {
-      logger.info('... Uploading glTF files to bucket')
-      // upload zipfile to OSS bucket
-      const zipFileName = `${catalogFile.message.svfUrn}_gltf.zip`
-      const uploadZipRes = await uploadZipObject(zipFileName, zipFileSize)
-      console.info(`translateSVFtoGLTFJob: zipFile: ${JSON.stringify(uploadZipRes)}`)
-      // console.info(`translateSVFtoGLTFJob: upload: ${JSON.stringify(upload)}`)
-      // update Catalog item metadata
-      
-    }
-    return translations
   } catch (err) {
-    if (retry < 3) {
-      await translateSVFtoGLTFJob(urn, retry++)
-    }
     return handleError(err)
   }
 }
@@ -726,23 +781,62 @@ async function updatePublishLogEntry(payload, status, svfUrn) {
  * Updates Catalog Item in MongoDB with new SVF urn
  * @param {*} resourceUrn 
  */
-async function updateSvfUrnInCatalogItem (resourceUrn, retry = 0) {
+async function updateSvfUrnInCatalogItem (resourceUrn) {
   try {
     let asciiResourceUrn = await Buffer.from(resourceUrn, 'base64')
     if (asciiResourceUrn) {
       asciiResourceUrn = asciiResourceUrn.toString('ascii')
-      await updateCatalogFileSVF({ isFile: true, ossDesignUrn: asciiResourceUrn }, resourceUrn)
+      await updateCatalogFileSvf({ isFile: true, ossDesignUrn: asciiResourceUrn }, resourceUrn)
       await updatePublishLogEntry({ 'job.input.designUrn': asciiResourceUrn }, 'FINISHED', resourceUrn)
       const featureToggles = await getFeatureToggles()
       if (featureToggles.status === 200 && featureToggles.message[0].featureToggles.arvr_toolkit) {
-        const translateGltfJob = await translateSVFtoGLTFJob(asciiResourceUrn)
-        logger.info(`updateSVFUrnInCatalogItem: translateJob: ${JSON.stringify(translateGltfJob)}`)
+        await translateSvftoGltf(asciiResourceUrn)
+        logger.info('... Successfully translated CAD model to SVF and glTF formats')
+        await optimizeGltfOutput(asciiResourceUrn)
+        logger.info('... Successfully optimized all glTF files')
+        await compressGltfOutput(asciiResourceUrn)
+        logger.info('... Successfully compressed Gltf files')
+        await uploadGltfArchiveToBucket(asciiResourceUrn)
+        logger.info('... Successfully uploaded Gltf archive')
+        await clearCache()
       }
     }
   } catch (err) {
-    if (retry < 3) {
-      await updateSvfUrnInCatalogItem(resourceUrn, retry++)
-    }
+    return handleError(err)
+  }
+}
+
+/**
+ * Upload Gltf archive to OSS bucket
+ * @param {*} urn 
+ */
+async function uploadGltfArchiveToBucket(urn) {
+  try {
+      const outputFolder = path.join('/tmp', 'cache')
+      const catalogFile = await getCatalogFileByOSSDesignUrn(urn)
+      const zipFileName = `${catalogFile.message.svfUrn}_gltf.zip`
+      let zipFileSize
+      listFilesInDirectory(outputFolder, filePath => {
+        if (filePath.endsWith(zipFileName)) {
+          const stats = fs.statSync(filePath)
+          zipFileSize = stats.size
+        }
+      })
+      logger.info(`... Uploading glTF archive ${zipFileName} to bucket [${zipFileSize} total bytes]`)
+      const uploadZipRes = await uploadZipObject(zipFileName, zipFileSize)
+      if (uploadZipRes.status === 200) {
+        const payload = {
+          isFile: true,
+          isPublished: true,
+          ossDesignUrn: urn, 
+          svfUrn: catalogFile.message.svfUrn
+        }
+        const catalogItem = await updateCatalogFileGltf(payload, uploadZipRes.message)
+        if (catalogItem.status === 200) {
+          logger.info('... Updated catalog item with glTF data')
+        } 
+      }
+  } catch (err) {
     return handleError(err)
   }
 }

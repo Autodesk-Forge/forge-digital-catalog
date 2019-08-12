@@ -254,7 +254,7 @@
                     </v-list-item-action>
                     <v-list-item-content @click="animation = !animation">
                       <v-list-item-title>Fusion Animation</v-list-item-title>
-                      <v-list-item-subtitle>Enable support for Fusion360 authored animations</v-list-item-subtitle>
+                      <v-list-item-subtitle>Enables support for Fusion360 authored animations</v-list-item-subtitle>
                     </v-list-item-content>
                   </v-list-item>
                   <v-list-item>
@@ -755,12 +755,12 @@ export default {
     },
     readFileAsync(file) {
       return new Promise((resolve, reject) => {
-        let reader = new FileReader();
+        let reader = new FileReader()
         reader.onload = () => {
-          resolve(reader.result);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+          resolve(reader.result)
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
       })
     },
     async saveCompanyLogo(imageSrc) {

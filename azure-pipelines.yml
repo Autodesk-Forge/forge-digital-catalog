@@ -30,7 +30,6 @@ steps:
       config/setAdmin.js
       docs/**
       !**\node_modules\**
-      public/**
       src/**
       .eslintrc.js
       .gitignore

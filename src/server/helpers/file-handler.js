@@ -647,7 +647,7 @@ async function uploadLargeFile(token, bucketKey, objectName, objectSize, retry =
  * @param {*} fileSize 
  * @param {*} retry 
  */
-async function uploadZipObject(archiveName, fileSize, retry = 0) {
+async function uploadZipObject(archiveName, fileSize) {
   try {
     const mimeType = getMimeType(archiveName)
     const readFile = util.promisify(fs.readFile)
@@ -680,9 +680,7 @@ async function uploadZipObject(archiveName, fileSize, retry = 0) {
     }
     return ret
   } catch (err) {
-    if (retry < 3) {
-      await uploadZipObject(objectName, fileSize, retry++)
-    }
+    logger.error(err)
     return handleError(err)
   }
 }

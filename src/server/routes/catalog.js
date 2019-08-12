@@ -19,7 +19,7 @@ const {
     setCatalogFile,
     setCatalogFolder,
     updateCatalogFile,
-    updateCatalogFileSVF
+    updateCatalogFileSvf
 } = require('../controllers/catalog.js')
 
 /**
@@ -170,7 +170,7 @@ router.put(
     '/file/svf/*',
     async ctx => {
         const svfUrn = url.parse(ctx.request.url).pathname.replace('/api/catalog/file/svf/', '')
-        const file = await updateCatalogFileSVF(ctx.request.body, svfUrn)
+        const file = await updateCatalogFileSvf(ctx.request.body, svfUrn)
         if (file) {
             ctx.status = file.status
             ctx.body = file.message

@@ -34,7 +34,7 @@
 </template>
 
 <style>
-@import "../../../public/css/TreeFormat.css";
+@import "../../../src/client/public/css/TreeFormat.css";
 </style>
 
 <script>

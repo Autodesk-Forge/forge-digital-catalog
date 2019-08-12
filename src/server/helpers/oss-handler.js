@@ -114,6 +114,13 @@ async function getBucketInfo(token, bucketKey, retry = 0) {
       return ret
     } catch (err) {
       if (retry < 3) {
+        if (err.response.status === 404) {
+          ret = {
+            status: err.response.status,
+            message: err.response.message
+          }
+          return ret
+        }
         await getBucketInfo(token, bucketKey, retry++)
       }
       return handleError(err)

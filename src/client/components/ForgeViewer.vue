@@ -51,7 +51,7 @@ export default {
                     this.$root.$emit('clearStoryboards')
                     this.$store.dispatch('setSvfUrn', res.data.svfUrn)
                     const options = {
-                        viewerSciprtURL: config.viewerSciprtURL,
+                        viewerScriptURL: config.viewerScriptURL,
                         viewerCSSURL: config.viewerCSSURL,
                         getAccessToken: async (onGetAccessToken) => {
                             try {
@@ -99,7 +99,7 @@ export default {
              else{
                const script = document.createElement('script')
                script.onload = ()=>res()
-               script.src = options.viewerSciprtURL
+               script.src = options.viewerScriptURL
                document.head.append(script)
              }
            })]).then(()=>{
