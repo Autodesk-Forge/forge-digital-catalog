@@ -127,8 +127,8 @@ async function finalizePublishJob (resourceUrn) {
           logger.info('... Successfully compressed Gltf files')
           await uploadGltfArchiveToBucket(asciiResourceUrn)
           logger.info('... Successfully uploaded Gltf archive')
-          await clearCache()
-          logger.info('... Successfully cleared temporary cache')
+          /*  await clearCache()
+          logger.info('... Successfully cleared temporary cache') */
         }
       }
     } catch (err) {

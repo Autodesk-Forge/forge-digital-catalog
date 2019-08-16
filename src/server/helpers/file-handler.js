@@ -246,7 +246,7 @@ async function getUploadStatus (token, bucketKey, objectName, sessionId, retry =
  */
 async function makeZipArchive(parentName, fileNames) {
   return new Promise((resolve, reject) => {
-    const output = fs.createWriteStream(`/tmp/${path.parse(parentName).name}.zip`)
+    const output = fs.createWriteStream(`/tmp/cache/${path.parse(parentName).name}.zip`)
     const archive = archiver('zip', { zlib: { level: 9} })
     output.on('close', () => {
       logger.info(`... Compressed all files [${archive.pointer()} total bytes]`)
@@ -267,7 +267,7 @@ async function makeZipArchive(parentName, fileNames) {
     })
     archive.pipe(output)
     fileNames.forEach(file => {
-      const filePath = `/tmp/${file}`
+      const filePath = `/tmp/cache/${file}`
       archive.file(filePath, { name: file })
     })
     archive.finalize()
@@ -293,7 +293,7 @@ async function moveAndCompressFusionFiles(session, objectName, payload, retry = 
       if (jobInfoResults.message.data[0].type === 'downloads') {
         logger.info(`... Fusion Archive is downloadable from ${jobInfoResults.message.data[0].relationships.storage.meta.link.href}`)
         const file = await saveF3ZFile(session, objectName, jobInfoResults.message.data[0].relationships.storage.meta.link.href)
-        // unzip the archive file in /tmp and read downloadAs value from DesignDescription.json
+        // unzip the archive file in /tmp/cache and read downloadAs value from DesignDescription.json
         if (file.status === 200 && file.filesize > 0) {
           let archiveName = objectName.replace('.f3d', '.zip')
           archiveName = `${path.parse(archiveName).name}.zip`
@@ -339,7 +339,7 @@ async function moveAndCompressInventorFiles(session, bucketKey, objectName, payl
     payload.refs.push(parentRef)
     const downloadAll = await downloadCADReferences(session, payload)
     if (downloadAll) {
-      logger.info('... all reference files downloaded to /tmp')
+      logger.info('... all reference files downloaded to /tmp/cache')
       const fileNames = setCADReferenceFilesList(payload)
       const zipFileSize = await makeZipArchive(objectName, fileNames)
       if (zipFileSize > 0) {
@@ -385,7 +385,7 @@ async function moveAndCompressSolidWorksFiles(session, bucketKey, objectName, pa
     payload.refs.push(parentRef)
     const downloadAll = await downloadCADReferences(session, payload)
     if (downloadAll) {
-      logger.info('... all reference files downloaded to /tmp')
+      logger.info('... all reference files downloaded to /tmp/cache')
       const fileNames = setCADReferenceFilesList(payload)
       const zipFileSize = await makeZipArchive(objectName, fileNames)
       if (zipFileSize > 0) {
@@ -569,7 +569,7 @@ async function pollDownloadJobInfo(session, href) {
 }
 
 /**
- * Save Fusion Archive File under /tmp
+ * Save Fusion Archive File under /tmp/cache
  * On local Node.js server
  * @param {*} session 
  * @param {*} objectName
@@ -594,7 +594,7 @@ async function saveF3ZFile(session, objectName, href, retry = 0) {
       * Instead it generates a file with F3D file extension
       * We need to rename the file from .f3d to .f3z
       */
-      const f3zFile = `/tmp/${objectName.replace('.f3d', '.zip')}`
+      const f3zFile = `/tmp/cache/${objectName.replace('.f3d', '.zip')}`
       const writeFile = util.promisify(fs.writeFile)
       await writeFile(f3zFile, buffer)
       const stats = fs.statSync(f3zFile)
@@ -664,12 +664,7 @@ async function uploadZipObject(archiveName, fileSize) {
   try {
     const mimeType = getMimeType(archiveName)
     const readFile = util.promisify(fs.readFile)
-    let data
-    if (archiveName.includes('_gltf')) {
-      data = await readFile(`/tmp/cache/${archiveName}`)
-    } else {
-      data = await readFile(`/tmp/${archiveName}`)
-    }
+    const data = await readFile(`/tmp/cache/${archiveName}`)
     if (data) {
       const twoLeggedToken = await getToken('oss')
       const uploadRes = await axios({ 

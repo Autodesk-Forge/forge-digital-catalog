@@ -707,7 +707,7 @@ export default {
           },
           output: {
             destination: { region: '' },
-            formats: [{ type: 'obj'}, { type: 'svf', views: ['2d', '3d'] }]
+            formats: [{ type: 'svf', views: ['2d', '3d'] }]
           },
           misc: { workflow: '' }
         } // workflow and region will be set by the server controller

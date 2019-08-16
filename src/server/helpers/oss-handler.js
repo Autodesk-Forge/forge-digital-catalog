@@ -4,6 +4,7 @@ const fs = require('fs')
 const handleError = require('./error-handler')
 const logger = require('koa-log4').getLogger('oss-handler')
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug' }
+const path = require('path')
 const util = require('util')
 
 const Token = require('../auth/token')
@@ -71,7 +72,9 @@ async function downloadObject(session, bucketKey, objectName, srcFileName, retry
     })
     if (res.status === 200 || res.status === 206) {
       const buffer = Buffer.from(res.data, 'null')
-      const outputFile = `/tmp/${srcFileName}`
+      const outputDir = path.join('/tmp', 'cache')
+      if (!fs.existsSync(outputDir)) { fs.mkdirSync(outputDir)}
+      const outputFile = `${outputDir}/${srcFileName}`
       const writeFile = util.promisify(fs.writeFile)
       const tmpFile = await writeFile(outputFile, buffer)
       if (tmpFile) {
