@@ -95,8 +95,9 @@ async function get3DViewableFilesByGuid(svfUrn, guid, retry = 0) {
         }
         return ret
     } catch (err) {
+        retry++
         if (retry < 3) {
-            await get3DViewableFilesByGuid(svfUrn, guid, retry++)
+            await get3DViewableFilesByGuid(svfUrn, guid, retry)
         }
         return handleError(err)
     }
@@ -126,8 +127,9 @@ async function get3DViewableResourceByGuid(svfUrn, guid, resource, retry = 0) {
         }
         return ret
     } catch (err) {
+        retry++
         if (retry < 3) {
-            await get3DViewableResourceByGuid(svfUrn, guid, resource, retry++)
+            await get3DViewableResourceByGuid(svfUrn, guid, resource, retry)
         }
         return handleError(err)
     }
@@ -156,8 +158,9 @@ async function get3DViewablesGuids(svfUrn, retry = 0) {
         }
         return ret
     } catch (err) {
+        retry++
         if (retry < 3) {
-            await get3DViewablesGuids(svfUrn, retry++)
+            await get3DViewablesGuids(svfUrn, retry)
         }
         return handleError(err)
     }
@@ -169,7 +172,7 @@ async function get3DViewablesGuids(svfUrn, retry = 0) {
  * @param {*} guid 
  * @param {*} retry 
  */
-async function translateSVFToglTF(svfUrn, guid, retry = 0) {
+async function translateSvfToGltf(svfUrn, guid, retry = 0) {
     try {
         const folder = path.join('/tmp/cache', svfUrn, guid)
         if (!fs.existsSync(folder)) {
@@ -181,7 +184,7 @@ async function translateSVFToglTF(svfUrn, guid, retry = 0) {
             const token = await getToken()
             const accessToken = token.message.access_token.replace('Bearer ', '')
             const model = await deserialize(svfUrn, accessToken, guid, log)
-            logger.info(`translateSVFToglTF: model: ${model}`)
+            logger.info(`translateSvfToGltf: model: ${model}`)
             serialize(model, path.join(folder, 'output'))
             const bytesWritten = fs.writeFileSync(path.join(folder, 'props.db'), model.propertydb) // TODO: store property db just once per URN
             if (bytesWritten) {
@@ -199,8 +202,9 @@ async function translateSVFToglTF(svfUrn, guid, retry = 0) {
         }
         return ret
     } catch (err) {
+        retry++
         if (retry < 3) {
-            await translateSVFToglTF(svfUrn, guid, retry++)
+            await translateSvfToGltf(svfUrn, guid, retry)
         }
         return handleError(err)
     }
@@ -212,5 +216,5 @@ module.exports = {
     get3DViewableFilesByGuid,
     get3DViewableResourceByGuid,
     get3DViewablesGuids,
-    translateSVFToglTF
+    translateSvfToGltf
 }

@@ -21,6 +21,8 @@ const authRoutes = require('./routes/auth')
 const catalogRoutes = require('./routes/catalog')
 const fusionRoutes = require('./routes/fusion')
 const ossRoutes = require('./routes/oss')
+const publishRoutes = require('./routes/publish')
+const webHooksRoutes = require('./routes/webhooks')
 
 const logger = log4js.getLogger('app')
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug' }
@@ -57,6 +59,16 @@ mongoose
 
 app.on('ready', () => {
     app.keys = [process.env.FORGE_CLIENT_ID || config.get('oauth2.clientID')]
+    app.use(async (ctx, next) => {
+        try {
+            await next()
+        } catch (err) {
+            const { message, status, statusCode } = err
+            ctx.status = statusCode || status || 500
+            ctx.body = message
+            ctx.app.emit('error', err, ctx)
+        }
+    })
     app.use(bodyParser())
     app.use(compress({
         flush: require('zlib').Z_SYNC_FLUSH,
@@ -80,6 +92,8 @@ app.on('ready', () => {
     app.use(catalogRoutes.routes())
     app.use(fusionRoutes.routes())
     app.use(ossRoutes.routes())
+    app.use(publishRoutes.routes())
+    app.use(webHooksRoutes.routes())
     if (process.env.NODE_ENV === 'production') { 
         app.use(historyApiFallback({ whiteList: ['/api'] }))
         app.use(serve('./www'))

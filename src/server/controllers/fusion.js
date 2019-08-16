@@ -57,8 +57,9 @@ async function getFolderContents(session, projectId, folderId, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getFolderContents(session, projectId, folderId, retry++)
+      await getFolderContents(session, projectId, folderId, retry)
     }
     return handleError(err)
   }
@@ -93,8 +94,9 @@ async function getHubs(session, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getHubs(session, retry++)
+      await getHubs(session, retry)
     }
     return handleError(err)
   }
@@ -134,7 +136,8 @@ async function getItemVersionInfo(session, projectId, versionId, retry = 0) {
     return ret
   } catch (err) {
     if (retry < 3) {
-      await getItemVersionInfo(session, projectId, versionId, retry++)
+      retry++
+      await getItemVersionInfo(session, projectId, versionId, retry)
     }
     return handleError(err)
   }
@@ -166,8 +169,9 @@ async function getItemVersions(session, projectId, itemId, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getItemVersions(session, projectId, itemId, retry++)
+      await getItemVersions(session, projectId, itemId, retry)
     }
     return handleError(err)
   }
@@ -199,8 +203,9 @@ async function getProject(session, hubId, projectId, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getProject(session, hubId, projectId, retry++)
+      await getProject(session, hubId, projectId, retry)
     }
     return handleError(err)
   }
@@ -231,8 +236,9 @@ async function getProjects(session, hubId, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getProjects(session, hubId, retry++)
+      await getProjects(session, hubId, retry)
     }
     return handleError(err)
   }
@@ -264,8 +270,9 @@ async function getThumbnail(urn, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getThumbnail(urn, retry++)
+      await getThumbnail(urn, retry)
     }
     return handleError(err)
   }
@@ -299,8 +306,9 @@ async function getUserProfile(session, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getUserProfile(session, retry++)
+      await getUserProfile(session, retry)
     }
     return handleError(err)
   }
@@ -332,8 +340,9 @@ async function getVersionRefs(session, projectId, versionId, retry=0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getVersionRefs(session, projectId, versionId, retry++)
+      await getVersionRefs(session, projectId, versionId, retry)
     }
     return handleError(err)
   }

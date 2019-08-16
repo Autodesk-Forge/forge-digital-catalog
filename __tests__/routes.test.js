@@ -3,26 +3,10 @@ const mongoose = require('mongoose')
 const config = require('config')
 
 const { 
-    deleteWebHook,
     getApplicationName,
     getCompanyLogo,
     getFeatureToggles,
-    getFileFormatToggles,
-    getPublishLogs,
-    getSettingByNameAndEmail,
-    getSysAdmins,
-    getTranslateJobStatus,
-    getWebHooks,
-    setAndUpdateDefaultHubProject,
-    setApplicationName,
-    setCompanyLogo,
-    setFeatureToggles,
-    setFileFormatToggles,
-    setPublishLog,
-    setSysAdmins,
-    setWebHook,
-    translateJob,
-    updateSvfUrnInCatalogItem
+    getFileFormatToggles
  } = require('../src/server/controllers/admin')
 
 /**

@@ -87,7 +87,7 @@
           v-for="(item, index) in currentMenuOptions"
           :key="index"
         >
-          <div v-if="item.title.indexOf('Create')!==-1">
+          <div v-if="item.title.indexOf($t('catalog.createFolder'))!==-1">
             <v-list-item-content>
               <v-list-item-title
                 @click="createDialog = !createDialog"
@@ -95,7 +95,7 @@
               />
             </v-list-item-content>
           </div>
-          <div v-else-if="item.title.indexOf('Delete Folder')!==-1">
+          <div v-else-if="item.title.indexOf($t('catalog.deleteFolder'))!==-1">
             <v-list-item-content>
               <v-list-item-title
                 @click="deleteDialog = !deleteDialog"
@@ -103,7 +103,7 @@
               />
             </v-list-item-content>
           </div>
-          <div v-else-if="item.title.indexOf('Rename Folder')!==-1">
+          <div v-else-if="item.title.indexOf($t('catalog.renameFolder'))!==-1">
             <v-list-item-content>
               <v-list-item-title
                 @click="renameFolderDialog = !renameFolderDialog"
@@ -111,7 +111,7 @@
               />
             </v-list-item-content>
           </div>
-          <div v-else-if="item.title.indexOf('Delete File')!==-1">
+          <div v-else-if="item.title.indexOf($t('catalog.deleteFile'))!==-1">
             <v-list-item-content>
               <v-list-item-title
                 @click="deleteFileDialog = !deleteFileDialog"
@@ -119,7 +119,7 @@
               />
             </v-list-item-content>
           </div>
-          <div v-else-if="item.title.indexOf('Download Gltf')!==-1">
+          <div v-else-if="item.title.indexOf($t('catalog.downloadGltf'))!==-1">
             <v-list-item-content>
               <v-list-item-title
                 @click="downloadGltfFileDialog = !downloadGltfFileDialog"
@@ -135,7 +135,7 @@
       max-width="500px"
     >
       <v-card>
-        <v-card-title>Create Folder</v-card-title>
+        <v-card-title>{{ $t('catalog.createFolder') }}</v-card-title>
         <v-card-text>
           <v-text-field
             v-model="folderName"
@@ -154,14 +154,14 @@
             text
             @click="() => { createDialog=false; saveNewFolder(contextItem) }"
           >
-            Save
+            {{ $t('general.save') }}
           </v-btn>
           <v-btn
             color="primary"
             text
             @click="createDialog=false"
           >
-            Cancel
+            {{ $t('general.cancel') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -171,10 +171,10 @@
       max-width="500px"
     >
       <v-card>
-        <v-card-title>Delete Folder</v-card-title>
+        <v-card-title>{{ $t('catalog.deleteFolder') }}</v-card-title>
         <v-card-text>
           <div>
-            <div>Are you sure you want to delete?</div>
+            <div>{{ $t('general.confirmDelete') }}</div>
           </div>
         </v-card-text>
         <v-card-actions>
@@ -183,14 +183,14 @@
             text
             @click="() => { deleteDialog=false; deleteFolder(contextItem) }"
           >
-            OK
+            {{ $t('general.accept') }}
           </v-btn>
           <v-btn
             color="primary"
             text
             @click="deleteDialog=false"
           >
-            Cancel
+            {{ $t('general.cancel') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -200,7 +200,7 @@
       max-width="500px"
     >
       <v-card>
-        <v-card-title>Rename Folder</v-card-title>
+        <v-card-title>{{ $t('catalog.renameFolder') }}</v-card-title>
         <v-card-text>
           <v-text-field
             v-model="folderName"
@@ -219,14 +219,14 @@
             text
             @click="() => { renameFolderDialog=false; renameFolder(contextItem) }"
           >
-            OK
+            {{ $t('general.accept') }}
           </v-btn>
           <v-btn
             color="primary"
             text
             @click="renameFolderDialog=false"
           >
-            Cancel
+            {{ $t('general.cancel') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -236,10 +236,10 @@
       max-width="500px"
     >
       <v-card>
-        <v-card-title>Delete File</v-card-title>
+        <v-card-title>{{ $t('catalog.deleteFile') }}</v-card-title>
         <v-card-text>
           <div>
-            <div>Are you sure you want to delete {{ this.$store.state.selectedCatalog.name }}?</div>
+            <div>{{ $t('general.confirmDelete') }}</div>
           </div>
         </v-card-text>
         <v-card-actions>
@@ -248,14 +248,14 @@
             text
             @click="() => { deleteFileDialog=false; deleteFile(contextItem) }"
           >
-            OK
+            {{ $t('general.accept') }}
           </v-btn>
           <v-btn
             color="primary"
             text
             @click="deleteFileDialog=false"
           >
-            Cancel
+            {{ $t('general.cancel') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -265,21 +265,21 @@
       max-width="500px"
     >
       <v-card>
-        <v-card-title>Download Gltf Files</v-card-title>
+        <v-card-title>{{ $t('catalog.downloadGltf') }}</v-card-title>
         <v-card-actions>
           <v-btn
             color="primary"
             text
             @click="() => { downloadGltfFileDialog=false; downloadGltfFiles(contextItem) }"
           >
-            OK
+            {{ $t('general.accept') }}
           </v-btn>
           <v-btn
             color="primary"
             text
             @click="downloadGltfFileDialog=false"
           >
-            Cancel
+            {{ $t('general.cancel') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -324,11 +324,7 @@ export default {
     folderName: '',
     folderPath: '',
     maximumFolderLength: 30,
-    menuoptions: {
-      items: [{ title: 'Create Folder' }, { title: 'Delete Folder' }],
-      folder: [{ title: 'Create Folder' }, { title: 'Delete Folder' }, { title: 'Rename Folder' }],
-      file: [{ title: 'Delete File' }, { title: 'Download Gltf'}]
-    },
+    menuoptions: {},
     open: [],
     renameFolderDialog: false,
     selectedCatalog: [],
@@ -373,6 +369,11 @@ export default {
     }
   },
   mounted: async function () {
+    this.menuoptions = {
+      file: [{ title: this.$t('catalog.deleteFile') }, { title: this.$t('catalog.downloadGltf') }],
+      folder: [{ title: this.$t('catalog.createFolder') }, { title: this.$t('catalog.deleteFolder') }, { title: this.$t('catalog.renameFolder') }],
+      items: [{ title: this.$t('catalog.createFolder') }, { title: this.$t('catalog.deleteFolder') }]
+    }
     // if(!(await navigator.serviceWorker.getRegistrations()).length){
     //   await navigator.serviceWorker.register('/registerServiceWorker.js')
     //   await new Promise(r=>setTimeout(r,1000)) //overcome strange issue where serviceWorker refuses to be immediately available despite claiming all clients in the install phase

@@ -1,26 +1,26 @@
 <template>
   <div>
     <v-toolbar>
-      <v-toolbar-title>Publisher Console</v-toolbar-title>
+      <v-toolbar-title>{{ $t('publish.toolbarTitle') }}</v-toolbar-title>
       <v-spacer />
       <v-toolbar-items class="hidden-sm-and-down">
         <v-btn
           text
           @click="goToHome"
         >
-          Home
+          {{ $t('admin.home') }}
         </v-btn>
         <v-btn
           text
           @click="goToAdminConsole"
         >
-          Administration
+          {{ $t('publish.admin') }}
         </v-btn>
         <v-btn
           text
           @click="goToHelp"
         >
-          Help
+          {{ $t('general.help') }}
         </v-btn>
         <v-btn
           v-if="!this.$store.state.isAdminUserLoggedIn"
@@ -101,7 +101,7 @@
                     rounded=""
                     @click="publish"
                   >
-                    Publish
+                    {{ $t('publish.publish') }}
                   </v-btn>
                   <v-btn
                     v-if="!active"
@@ -110,7 +110,7 @@
                     rounded=""
                     @click="publish"
                   >
-                    Publish
+                    {{ $t('publish.publish') }}
                   </v-btn>
                 </v-col>
               </v-card-actions>
@@ -140,7 +140,7 @@
               <v-card-title primary-title>
                 <div>
                   <h3 class="headline mb-0">
-                    Publisher Logs
+                    {{ $t('publish.publisherLogs') }}
                   </h3>
                 </div>
               </v-card-title>
@@ -159,7 +159,7 @@
       >
         <v-card>
           <v-card-title class="headline">
-            Current User is not an Administrator
+            {{ $t('publish.notAdmin') }}
           </v-card-title>
           <v-card-text>{{ alertMessage }}</v-card-text>
           <v-card-actions>
@@ -169,7 +169,7 @@
               text="text"
               @click="redirectHome"
             >
-              Exit
+              {{ $t('general.exit') }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -707,7 +707,7 @@ export default {
           },
           output: {
             destination: { region: '' },
-            formats: [{ type: 'svf', views: ['2d', '3d'] }]
+            formats: [{ type: 'obj'}, { type: 'svf', views: ['2d', '3d'] }]
           },
           misc: { workflow: '' }
         } // workflow and region will be set by the server controller

@@ -1,20 +1,20 @@
 <template>
   <div>
     <v-toolbar>
-      <v-toolbar-title>Viewer Console</v-toolbar-title>
+      <v-toolbar-title>{{ $t('viewer.toolbarTitle') }}</v-toolbar-title>
       <v-spacer />
       <v-btn
         v-if="$mq === 'laptop' || $mq === 'desktop'"
         text
         @click="goToAdminConsole"
       >
-        Admin Login
+        {{ $t('viewer.adminLogin') }}
       </v-btn>
       <v-btn
         text
         @click="goToHelp"
       >
-        Help
+        {{ $t('general.help') }}
       </v-btn>
     </v-toolbar>
     <v-alert

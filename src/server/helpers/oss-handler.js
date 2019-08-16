@@ -42,8 +42,9 @@ async function createBucket(token, bucketKey, retry = 0) {
       }
       return ret
     } catch (err) {
+      retry++
       if (retry < 3) {
-        await createBucket(token, bucketKey, retry++)
+        await createBucket(token, bucketKey, retry)
       }
       return handleError(err)
     }
@@ -82,8 +83,9 @@ async function downloadObject(session, bucketKey, objectName, srcFileName, retry
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await downloadObject(session, bucketKey, objectName, srcFileName, retry++)
+      await downloadObject(session, bucketKey, objectName, srcFileName, retry)
     }
     return handleError(err)
   }
@@ -113,6 +115,7 @@ async function getBucketInfo(token, bucketKey, retry = 0) {
       }
       return ret
     } catch (err) {
+      retry++
       if (retry < 3) {
         if (err.response.status === 404) {
           ret = {
@@ -121,7 +124,7 @@ async function getBucketInfo(token, bucketKey, retry = 0) {
           }
           return ret
         }
-        await getBucketInfo(token, bucketKey, retry++)
+        await getBucketInfo(token, bucketKey, retry)
       }
       return handleError(err)
     }

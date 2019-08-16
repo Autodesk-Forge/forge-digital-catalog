@@ -1,5 +1,8 @@
 'use strict'
 
+const logger = require('koa-log4').getLogger('fusion')
+if (process.env.NODE_ENV === 'development') { logger.level = 'debug' }
+
 const Router = require('koa-router')
 
 const router = new Router({ prefix: '/api/fusion' })
@@ -29,10 +32,16 @@ const {
 router.post(
   '/download/fusion/projects/:projectId/versions/:versionId',
   async ctx => {
-    const download = await downloadFile(ctx.session, ctx.params.projectId, ctx.params.versionId)
-    if (download) {
-      ctx.status = download.status
-      ctx.body = download.message
+    try {
+      const download = await downloadFile(ctx.session, ctx.params.projectId, ctx.params.versionId)
+      if (download) {
+        ctx.status = download.status
+        ctx.body = download.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while downloading the Fusion archive'
     }
   }
 )
@@ -43,10 +52,16 @@ router.post(
 router.get(
   '/download/projects/:projectId/downloads/:downloadId',
   async ctx => {
-    const status = await getDownloadInfo(ctx.session, ctx.params.projectId, ctx.params.downloadId)
-    if (status) {
-      ctx.status = status.status
-      ctx.body = status.message
+    try {
+      const status = await getDownloadInfo(ctx.session, ctx.params.projectId, ctx.params.downloadId)
+      if (status) {
+        ctx.status = status.status
+        ctx.body = status.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving download details'
     }
   }
 )
@@ -57,10 +72,16 @@ router.get(
 router.post(
   '/transfer/bucket/:bucketKey/object/:objectName',
   async ctx => {
-    const transfer = await moveObject(ctx.session, ctx.params.bucketKey, ctx.params.objectName, ctx.request.body)
-    if (transfer) {
-      ctx.status = transfer.status
-      ctx.body = transfer.message
+    try {
+      const transfer = await moveObject(ctx.session, ctx.params.bucketKey, ctx.params.objectName, ctx.request.body)
+      if (transfer) {
+        ctx.status = transfer.status
+        ctx.body = transfer.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while moving object to bucket'
     }
   }
 )
@@ -71,10 +92,16 @@ router.post(
 router.get(
   '/thumbnail/:urn',
   async ctx => {
-    const thumbnail = await getThumbnail(ctx.params.urn)
-    if (thumbnail) {
-      ctx.status = thumbnail.status
-      ctx.body = thumbnail.message
+    try {
+      const thumbnail = await getThumbnail(ctx.params.urn)
+      if (thumbnail) {
+        ctx.status = thumbnail.status
+        ctx.body = thumbnail.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while downloading thumbnail'
     }
   }
 )
@@ -85,10 +112,16 @@ router.get(
 router.get(
   '/user/profile',
   async ctx => {
-    const profile = await getUserProfile(ctx.session)
-    if (profile) {
-      ctx.status = profile.status
-      ctx.body = profile.message
+    try {
+      const profile = await getUserProfile(ctx.session)
+      if (profile) {
+        ctx.status = profile.status
+        ctx.body = profile.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving user profile'
     }
   }
 )
@@ -99,10 +132,16 @@ router.get(
 router.get(
   '/hubs',
   async ctx => {
-    const hubs = await getHubs(ctx.session)
-    if (hubs) {
-      ctx.status = hubs.status
-      ctx.body = hubs.message
+    try {
+      const hubs = await getHubs(ctx.session)
+      if (hubs) {
+        ctx.status = hubs.status
+        ctx.body = hubs.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving hubs'
     }
   }
 )
@@ -113,10 +152,16 @@ router.get(
 router.get(
   '/hubs/:hubId/projects/:projectId',
   async ctx => {
-    const project = await getProject(ctx.session, ctx.params.hubId, ctx.params.projectId)
-    if (project) {
-      ctx.status = project.status
-      ctx.body = project.message
+    try {
+      const project = await getProject(ctx.session, ctx.params.hubId, ctx.params.projectId)
+      if (project) {
+        ctx.status = project.status
+        ctx.body = project.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving project'
     }
   }
 )
@@ -127,10 +172,16 @@ router.get(
 router.get(
   '/hubs/:hubId/projects',
   async ctx => {
-    const projects = await getProjects(ctx.session, ctx.params.hubId)
-    if (projects) {
-      ctx.status = projects.status
-      ctx.body = projects.message
+    try {
+      const projects = await getProjects(ctx.session, ctx.params.hubId)
+      if (projects) {
+        ctx.status = projects.status
+        ctx.body = projects.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving projects'
     }
   }
 )
@@ -141,10 +192,16 @@ router.get(
 router.get(
   '/projects/:projectId/folders/:folderId/contents',
   async ctx => {
-    const folderContents = await getFolderContents(ctx.session, ctx.params.projectId, ctx.params.folderId)
-    if (folderContents) {
-      ctx.status = folderContents.status
-      ctx.body = folderContents.message
+    try {
+      const folderContents = await getFolderContents(ctx.session, ctx.params.projectId, ctx.params.folderId)
+      if (folderContents) {
+        ctx.status = folderContents.status
+        ctx.body = folderContents.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving folder contents'
     }
   }
 )
@@ -155,10 +212,16 @@ router.get(
 router.get(
   '/projects/:projectId/versions/:versionId',
   async ctx => {
-    const version = await getItemVersionInfo(ctx.session, ctx.params.projectId, ctx.params.versionId)
-    if (version) {
-      ctx.status = version.status
-      ctx.body = version.message
+    try {
+      const version = await getItemVersionInfo(ctx.session, ctx.params.projectId, ctx.params.versionId)
+      if (version) {
+        ctx.status = version.status
+        ctx.body = version.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving item version details'
     }
   }
 )
@@ -170,10 +233,16 @@ router.get(
 router.get(
   '/projects/:projectId/versions/:versionId/formats',
   async ctx => {
-    const formats = await downloadFormats(ctx.session, ctx.params.projectId, ctx.params.versionId)
-    if (formats) {
-      ctx.status = formats.status
-      ctx.body = formats.message
+    try {
+      const formats = await downloadFormats(ctx.session, ctx.params.projectId, ctx.params.versionId)
+      if (formats) {
+        ctx.status = formats.status
+        ctx.body = formats.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving supported file formats'
     }
   }
 )
@@ -184,10 +253,16 @@ router.get(
 router.get(
   '/projects/:projectId/items/:itemId/versions',
   async ctx => {
-    const itemVersions = await getItemVersions(ctx.session, ctx.params.projectId, ctx.params.itemId)
-    if (itemVersions) {
-      ctx.status = itemVersions.status
-      ctx.body = itemVersions.message
+    try {
+      const itemVersions = await getItemVersions(ctx.session, ctx.params.projectId, ctx.params.itemId)
+      if (itemVersions) {
+        ctx.status = itemVersions.status
+        ctx.body = itemVersions.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving item versions'
     }
   }
 )
@@ -198,10 +273,16 @@ router.get(
 router.get(
   '/projects/:projectId/versions/:versionId/refs',
   async ctx => {
-    const versionRefs = await getVersionRefs(ctx.session, ctx.params.projectId, ctx.params.versionId)
-    if (versionRefs) {
-      ctx.status = versionRefs.status
-      ctx.body = versionRefs.message
+    try {
+      const versionRefs = await getVersionRefs(ctx.session, ctx.params.projectId, ctx.params.versionId)
+      if (versionRefs) {
+        ctx.status = versionRefs.status
+        ctx.body = versionRefs.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving version references'
     }
   }
 )

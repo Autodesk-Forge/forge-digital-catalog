@@ -1,26 +1,26 @@
 <template>
   <div>
     <v-toolbar>
-      <v-toolbar-title>Settings Administration</v-toolbar-title>
+      <v-toolbar-title>{{ $t('admin.toolbarTitle') }}</v-toolbar-title>
       <v-spacer />
       <v-toolbar-items class="hidden-sm-and-down">
         <v-btn
           text
           @click="goToHome"
         >
-          Home
+          {{ $t('admin.home') }}
         </v-btn>
         <v-btn
           text
           @click="goToPublisherConsole"
         >
-          Publisher Console
+          {{ $t('admin.publisher') }}
         </v-btn>
         <v-btn
           text
           @click="goToHelp"
         >
-          Help
+          {{ $t('general.help') }}
         </v-btn>
         <v-btn
           v-if="!this.$store.state.isAdminUserLoggedIn"
@@ -29,7 +29,7 @@
           @click="login"
         >
           <v-icon>person</v-icon>
-          <span class="hidden-md-and-down">Login</span>
+          <span class="hidden-md-and-down">{{ $t('general.login') }}</span>
         </v-btn>
         <v-btn
           v-if="this.$store.state.isAdminUserLoggedIn"
@@ -38,7 +38,7 @@
           @click="logout"
         >
           <v-icon>power_settings_new</v-icon>
-          <span class="hidden-md-and-down">Logout</span>
+          <span class="hidden-md-and-down">{{ $t('general.logout') }}</span>
         </v-btn>
         <span v-if="this.$store.state.isAdminUserLoggedIn">
           <v-progress-circular
@@ -73,7 +73,7 @@
         dark
         @click="alert=true"
       >
-        Clear Alerts
+        {{ $t('admin.clearAlerts') }}
       </v-btn>
     </div>
     <v-content>
@@ -84,7 +84,7 @@
               <v-card-title primary-title>
                 <div>
                   <h3 class="headline mb-0">
-                    Application Name
+                    {{ $t('admin.appName') }}
                   </h3>
                 </div>
               </v-card-title>
@@ -99,7 +99,7 @@
                       color="primary"
                       @click="() => { saveApplicationName(applicationName) }"
                     >
-                      Save
+                      {{ $t('general.save') }}
                     </v-btn>
                   </ul>
                 </v-container>
@@ -111,7 +111,7 @@
               <v-card-title primary-title>
                 <div>
                   <h3 class="headline mb-0">
-                    Company Logo
+                    {{ $t('admin.companyLogo') }}
                   </h3>
                 </div>
               </v-card-title>
@@ -143,7 +143,7 @@
                 <v-card-title primary-title>
                   <div>
                     <h3 class="headline mb-0">
-                      Default Hub & Project
+                      {{ $t('admin.defaultHubProject') }}
                     </h3>
                     <div>{{ defaultHubProject[0].hub }} | {{ defaultHubProject[0].project }}</div>
                   </div>
@@ -155,7 +155,7 @@
                     dark
                     @click="isDefaultHubProjectDefined=false"
                   >
-                    Reset
+                    {{ $t('general.reset') }}
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -170,7 +170,7 @@
                   :complete="step > 1"
                   step="1"
                 >
-                  Select default hub
+                  {{ $t('admin.selectDefaultHub') }}
                   <small>{{ selectedHub }}</small>
                 </v-stepper-step>
                 <v-stepper-content step="1">
@@ -191,17 +191,17 @@
                     color="primary"
                     @click="() => { step=2; getProjects(selectedHub) }"
                   >
-                    Continue
+                    {{ $t('general.continue') }}
                   </v-btn>
                   <v-btn text>
-                    Cancel
+                    {{ $t('general.cancel') }}
                   </v-btn>
                 </v-stepper-content>
                 <v-stepper-step
                   :complete="step > 2"
                   step="2"
                 >
-                  Select default project
+                  {{ $t('admin.selectDefaultProject') }}
                   <small>{{ selectedProject }}</small>
                 </v-stepper-step>
                 <v-stepper-content step="2">
@@ -222,10 +222,10 @@
                         color="primary"
                         @click="() => { step=3; saveDefaultHubProject(selectedHub, selectedProject) }"
                       >
-                        Save
+                        {{ $t('general.save') }}
                       </v-btn>
                       <v-btn text>
-                        Cancel
+                        {{ $t('general.cancel') }}
                       </v-btn>
                     </v-card-actions>
                   </v-card>
@@ -238,7 +238,7 @@
               <v-card-title primary-title>
                 <div>
                   <h3 class="headline mb-0">
-                    Global Settings
+                    {{ $t('admin.globalSettings') }}
                   </h3>
                 </div>
               </v-card-title>
@@ -247,14 +247,14 @@
                   subheader
                   two-line
                 >
-                  <v-subheader>Feature Toggles</v-subheader>
+                  <v-subheader>{{ $t('admin.featureToggles') }}</v-subheader>
                   <v-list-item>
                     <v-list-item-action>
                       <v-checkbox v-model="animation" />
                     </v-list-item-action>
                     <v-list-item-content @click="animation = !animation">
-                      <v-list-item-title>Fusion Animation</v-list-item-title>
-                      <v-list-item-subtitle>Enables support for Fusion360 authored animations</v-list-item-subtitle>
+                      <v-list-item-title>{{ $t('admin.fusionAnimation') }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ $t('admin.fusionAnimationSubTitle') }}</v-list-item-subtitle>
                     </v-list-item-content>
                   </v-list-item>
                   <v-list-item>
@@ -262,11 +262,11 @@
                       <v-checkbox v-model="arvr" />
                     </v-list-item-action>
                     <v-list-item-content @click="arvr = !arvr">
-                      <v-list-item-title>AR/VR Toolkit (Beta)</v-list-item-title>
-                      <v-list-item-subtitle>Enables AR/VR Toolkit</v-list-item-subtitle>
+                      <v-list-item-title>{{ $t('admin.arvrToolkit') }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ $t('admin.arvrToolkitSubTitle') }}</v-list-item-subtitle>
                     </v-list-item-content>
                   </v-list-item>
-                  <v-list-item>
+                  <!-- <v-list-item>
                     <v-list-item-action>
                       <v-checkbox
                         v-model="twin"
@@ -277,7 +277,7 @@
                       <v-list-item-title>Virtual Operations (Beta)</v-list-item-title>
                       <v-list-item-subtitle>Enables digital twin features</v-list-item-subtitle>
                     </v-list-item-content>
-                  </v-list-item>
+                  </v-list-item> -->
                 </v-list>
               </v-container>
               <v-card-actions>
@@ -285,7 +285,7 @@
                   color="primary"
                   @click="() => { saveFeatureToggles(animation, arvr, twin) }"
                 >
-                  Save
+                  {{ $t('general.save') }}
                 </v-btn>
               </v-card-actions>
             </v-card>
@@ -295,7 +295,7 @@
               <v-card-title primary-title>
                 <div>
                   <h3 class="headline mb-0">
-                    Supported File Formats
+                    {{ $t('admin.supportedFormats') }}
                   </h3>
                 </div>
               </v-card-title>
@@ -378,7 +378,7 @@
                       formats.step
                     )}"
                 >
-                  Save
+                  {{ $t('general.save') }}
                 </v-btn>
               </v-card-actions>
             </v-card>
@@ -405,7 +405,7 @@
                     small
                     @click="deleteWebHook(item.id)"
                   >
-                    delete
+                    {{ $t('general.delete') }}
                   </v-icon>
                 </template>
               </v-data-table>
@@ -414,7 +414,7 @@
                   color="primary"
                   @click="setWebHook"
                 >
-                  New WebHook
+                  {{ $t('admin.newWebHook') }}
                 </v-btn>
               </v-card-actions>
             </v-card>

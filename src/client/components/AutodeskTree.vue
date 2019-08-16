@@ -3,7 +3,7 @@
     <v-sheet class="pa-3 primary lighten-2">
       <v-text-field
         v-model="search"
-        label="Search Autodesk Models"
+        :label="$t('fusion.searchModel')"
         dark
         flat
         solo-inverted

@@ -39,8 +39,9 @@ async function getToken(mode, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getToken(mode, retry++)
+      await getToken(mode, retry)
     }
     return handleError(err)
   }
@@ -75,8 +76,9 @@ async function refreshToken(token, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await refreshToken(retry++)
+      await refreshToken(retry)
     }
     return handleError(err)
   }

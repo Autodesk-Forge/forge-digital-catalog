@@ -27,8 +27,9 @@ async function downloadCADReferences(session, payload, retry = 0) {
       }))
       return downloadPromises
     } catch (err) {
+      retry++
       if (retry < 3) {
-        await downloadCADReferences(session, payload, retry++)
+        await downloadCADReferences(session, payload, retry)
       }
       return handleError(err)
     }
@@ -51,8 +52,9 @@ function setCADReferenceFilesList(payload, retry = 0) {
         return fileNames
       }, [])
     } catch (err) {
+      retry++
       if (retry < 3) {
-        setCADReferenceFilesList(payload, retry++)
+        setCADReferenceFilesList(payload, retry)
       }
       return handleError(err)
     }

@@ -23,33 +23,34 @@ let ret = {
  * @param {*} retry 
  */
 async function downloadObject(bucketKey, objectKey, retry = 0) {
-    try {
-        const token = await getToken()
-        const res = await axios({
-            headers: {
-              Authorization: `Bearer ${token.message.access_token}`
-            },
-            method: 'GET',
-            responseType: 'arraybuffer',
-            url: `${config.get('API_oss_host')}/buckets/${bucketKey}/objects/${objectKey}`
-          })
-          if (res.status === 200 || res.status === 206) {
-            const buffer = Buffer.from(res.data, 'null')
-            ret = {
-              status: res.status,
-              message: buffer
-            }
-          }
-          return ret
-    } catch (err) {
-        if (retry < 3) {
-            await downloadObject(bucketKey, objectKey, retry++)
-          }
-          return handleError(err)
+  try {
+    const token = await getToken()
+    const res = await axios({
+      headers: {
+        Authorization: `Bearer ${token.message.access_token}`
+      },
+      method: 'GET',
+      responseType: 'arraybuffer',
+      url: `${config.get('API_oss_host')}/buckets/${bucketKey}/objects/${objectKey}`
+    })
+    if (res.status === 200 || res.status === 206) {
+      const buffer = Buffer.from(res.data, 'null')
+        ret = {
+          status: res.status,
+          message: buffer
+      }
     }
+    return ret
+  } catch (err) {
+    retry++
+    if (retry < 3) {
+      await downloadObject(bucketKey, objectKey, retry)
+    }
+    return handleError(err)
+  }
 }
 
 // add the methods to the module export
 module.exports = {
-    downloadObject
-  }
+  downloadObject
+}

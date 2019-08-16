@@ -69,8 +69,9 @@ async function downloadFile(session, projectId, versionId, fileType, retry = 0) 
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await downloadFile(session, projectId, versionId, fileType, retry++)
+      await downloadFile(session, projectId, versionId, fileType, retry)
     }
     return handleError(err)
   }
@@ -103,8 +104,9 @@ async function downloadFormats(session, projectId, versionId, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await downloadFormats(session, projectId, versionId, retry++)
+      await downloadFormats(session, projectId, versionId, retry)
     }
     return handleError(err)
   }
@@ -136,8 +138,9 @@ async function getDownloadInfo(session, projectId, downloadId, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getDownloadInfo(session, projectId, downloadId, retry++)
+      await getDownloadInfo(session, projectId, downloadId, retry)
     }
     return handleError(err)
   }
@@ -169,8 +172,9 @@ async function getDownloadJobInfo(session, href, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getDownloadJobInfo(session, href, retry++)
+      await getDownloadJobInfo(session, href, retry)
     }
     return handleError(err)
   }
@@ -226,8 +230,9 @@ async function getUploadStatus (token, bucketKey, objectName, sessionId, retry =
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await getUploadStatus(token, bucketKey, objectName, sessionId, retry++)
+      await getUploadStatus(token, bucketKey, objectName, sessionId, retry)
     }
     return handleError(err)
   }
@@ -304,8 +309,9 @@ async function moveAndCompressFusionFiles(session, objectName, payload, retry = 
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await moveAndCompressFusionFiles(session, objectName, payload, retry++)
+      await moveAndCompressFusionFiles(session, objectName, payload, retry)
     }
     return handleError(err)
   }
@@ -349,8 +355,9 @@ async function moveAndCompressInventorFiles(session, bucketKey, objectName, payl
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await moveAndCompressInventorFiles(session, bucketKey, objectName, payload, retry++)
+      await moveAndCompressInventorFiles(session, bucketKey, objectName, payload, retry)
     }
     return handleError(err)
   }
@@ -394,8 +401,9 @@ async function moveAndCompressSolidWorksFiles(session, bucketKey, objectName, pa
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await moveAndCompressSolidWorksFiles(session, bucketKey, objectName, payload, retry++)
+      await moveAndCompressSolidWorksFiles(session, bucketKey, objectName, payload, retry)
     }
     return handleError(err)
   }
@@ -426,8 +434,9 @@ async function moveObject(session, bucketKey, objectName, payload, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await moveObject(session, bucketKey, objectName, payload, retry++)
+      await moveObject(session, bucketKey, objectName, payload, retry)
     }
     return handleError(err)
   }
@@ -477,8 +486,9 @@ async function moveSingleObject(session, bucketKey, objectName, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await moveSingleObject(session, bucketKey, objectName, retry++)
+      await moveSingleObject(session, bucketKey, objectName, retry)
     }
     return handleError(err)
   }
@@ -530,8 +540,9 @@ async function moveObjectWithRefs(session, bucketKey, objectName, payload, retry
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await moveObjectWithRefs(session, bucketKey, objectName, payload, retry++)
+      await moveObjectWithRefs(session, bucketKey, objectName, payload, retry)
     }
     return handleError(err)
   }
@@ -598,8 +609,9 @@ async function saveF3ZFile(session, objectName, href, retry = 0) {
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await saveF3ZFile(session, objectName, url, retry++)
+      await saveF3ZFile(session, objectName, url, retry)
     }
     return handleError(err)
   }
@@ -634,8 +646,9 @@ async function uploadLargeFile(token, bucketKey, objectName, objectSize, retry =
     }
     return ret
   } catch (err) {
+    retry++
     if (retry < 3) {
-      await uploadLargeFile(token, bucketKey, objectName, objectSize, retry++)
+      await uploadLargeFile(token, bucketKey, objectName, objectSize, retry)
     }
     return handleError(err)
   }
@@ -680,7 +693,6 @@ async function uploadZipObject(archiveName, fileSize) {
     }
     return ret
   } catch (err) {
-    logger.error(err)
     return handleError(err)
   }
 }

@@ -1,5 +1,8 @@
 'use strict'
 
+const logger = require('koa-log4').getLogger('auth')
+if (process.env.NODE_ENV === 'development') { logger.level = 'debug' }
+
 const passport = require('koa-passport')
 const Router = require('koa-router')
 
@@ -18,10 +21,16 @@ const { getToken, refreshToken } = require('../helpers/auth')
 router.get(
   '/authenticate/:mode',
   async ctx => {
-    const accessToken = await getToken(ctx.params.mode)
-    if (accessToken) {
-      ctx.status = accessToken.status
-      ctx.body = accessToken.message
+    try {
+      const accessToken = await getToken(ctx.params.mode)
+      if (accessToken) {
+        ctx.status = accessToken.status
+        ctx.body = accessToken.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving access token'
     }
   }
 )
@@ -55,7 +64,7 @@ router.get(
     return passport.authenticate(
       'oauth2',
       async (err, user) => {
-        if (err) ctx.throw(err)
+        if (err) ctx.throw(500, err)
         const tokenSession = new Token(ctx.session)
         await ctx.login(user)
         let forgeSession = {
@@ -89,10 +98,16 @@ router.get(
 router.get(
   '/logout',
   ctx => {
-    ctx.logout()
-    ctx.body = {
-      success: true,
-      message: 'Log out operation complete'
+    try {
+      ctx.logout()
+      ctx.body = {
+        success: true,
+        message: 'Log out operation complete'
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while logging out'
     }
   }
 )
@@ -108,10 +123,16 @@ router.get(
 router.post(
   '/auth/refreshtoken/:refreshToken',
   async ctx => {
-    const token = await refreshToken(ctx.params.refreshToken)
-    if (token) {
-      ctx.status = token.status
-      ctx.body = token.message
+    try {
+      const token = await refreshToken(ctx.params.refreshToken)
+      if (token) {
+        ctx.status = token.status
+        ctx.body = token.message
+      }
+    } catch (err) {
+      logger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while refreshing access tokenD'
     }
   }
 )
