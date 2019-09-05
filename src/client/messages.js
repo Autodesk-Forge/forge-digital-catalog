@@ -2,7 +2,7 @@ export default {
   de: {
     admin: {
       appName: 'Name der Applikation',
-      arvrToolkit: 'AR/VR Toolkit (Beta)',
+      arvrToolkit: 'AR/VR Toolkit',
       arvrToolkitSubTitle: 'Aktiviert AR/VR Toolkit',
       clearAlerts: 'Meldungen ausblenden',
       companyLogo: 'Firmen Logo',
@@ -58,7 +58,7 @@ export default {
   en: {
     admin: {
       appName: 'Application Name',
-      arvrToolkit: 'AR/VR Toolkit (Beta)',
+      arvrToolkit: 'AR/VR Toolkit',
       arvrToolkitSubTitle: 'Enables AR/VR Toolkit',
       clearAlerts: 'Clear Alerts',
       companyLogo: 'Company Logo',
@@ -170,7 +170,7 @@ export default {
   ja: {
     admin: {
       appName: 'Application Name',
-      arvrToolkit: 'AR/VR Toolkit (Beta)',
+      arvrToolkit: 'AR/VR Toolkit',
       arvrToolkitSubTitle: 'Enables AR/VR Toolkit',
       clearAlerts: 'Clear Alerts',
       companyLogo: 'Company Logo',
@@ -226,7 +226,7 @@ export default {
   cn: {
     admin: {
       appName: 'Application Name',
-      arvrToolkit: 'AR/VR Toolkit (Beta)',
+      arvrToolkit: 'AR/VR Toolkit',
       arvrToolkitSubTitle: 'Enables AR/VR Toolkit',
       clearAlerts: 'Clear Alerts',
       companyLogo: 'Company Logo',

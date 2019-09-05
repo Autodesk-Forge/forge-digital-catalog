@@ -54,4 +54,4 @@ const CatalogSchema = new mongoose.Schema({
     }
 })
 
-module.exports = Item = mongoose.model('catalog', CatalogSchema)
+module.exports = mongoose.model('catalog', CatalogSchema)

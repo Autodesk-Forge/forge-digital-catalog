@@ -45,4 +45,4 @@ const SettingsSchema = new mongoose.Schema({
   }
 })
 
-module.exports = Settings = mongoose.model('settings', SettingsSchema)
+module.exports = mongoose.model('settings', SettingsSchema)

@@ -37,4 +37,4 @@ const PublishSchema = new mongoose.Schema({
     }
 })
 
-module.exports = Publish = mongoose.model('publishjobs', PublishSchema)
+module.exports = mongoose.model('publishjobs', PublishSchema)

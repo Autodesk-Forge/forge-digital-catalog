@@ -38,8 +38,8 @@ async function dedupe (buffers) {
         const bufferViewWrappers = gltf.bufferViews.map(bufferView => {
             const buffer = buffers[bufferView.buffer]
             const byteLength = bufferView.byteLength || 0
-            const byteOffset = bufferView.byteOffset || 0
-            const data = buffer.slice(byteOffset, byteOffset + byteLength)
+            const bVByteOffset = bufferView.byteOffset || 0
+            const data = buffer.slice(bVByteOffset, bVByteOffset + byteLength)
             if (data.byteLength !== byteLength) {
                 throw new Error('mismatch byteLength')
             }
@@ -273,7 +273,7 @@ function toAttributeWrappers (buffers, bufferViews, accessors) {
         var elementBytes = TypedArray.BYTES_PER_ELEMENT
         var itemBytes = elementBytes * itemSize
         var byteStride = 0
-        var normalized = accessor.normalized === true
+        /* var normalized = accessor.normalized === true */
         // The buffer is not interleaved if the stride is the item size in bytes.
         if (byteStride && byteStride !== itemBytes) {
             throw new Error('Stride not yet supported!')

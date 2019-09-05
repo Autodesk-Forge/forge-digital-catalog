@@ -11,7 +11,7 @@
 }
 [class*='icon-']:before{
 	display: inline-block;
-   font-family: 'Glyphter';
+   font-family: 'Glyphter', serif;
    font-style: normal;
    font-weight: normal;
    line-height: 1;

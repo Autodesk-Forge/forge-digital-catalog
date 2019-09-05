@@ -72,7 +72,7 @@ router.post('/webhooks', async ctx => {
 /**
  * Translation Webhook Callback
  */
-router.post('/webhook/callback', async ctx => {
+router.post('/webhook/callback', async (ctx, next) => {
     try {
       ctx.status = 200
       ctx.body = {}
@@ -83,10 +83,9 @@ router.post('/webhook/callback', async ctx => {
         logger.info('... translation completed, finalizing the publishing job')
         finalizePublishJob(ctx.request.body.payload.URN)
       }
+      next()
     } catch (err) {
       logger.error(err)
-      ctx.status = 500
-      ctx.body = 'A server error occurred while finalizing the publishing job'
     }
 })
 
