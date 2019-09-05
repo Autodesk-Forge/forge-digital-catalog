@@ -44,8 +44,6 @@
     "node-zip": "1.1.1",
     "passport-oauth2": "1.5.0",
     "register-service-worker": "1.6.2",
-    "sql-template-strings": "2.2.2",
-    "sqlite": "3.0.3",
     "validator": "11.1.0",
     "vue": "2.6.10",
     "vue-i18n": "8.14.0",
