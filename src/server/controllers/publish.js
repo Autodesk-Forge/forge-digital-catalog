@@ -2,7 +2,6 @@ const archiver = require('archiver')
 const axios = require('axios')
 const config = require('config')
 const fs = require('fs')
-const fsExtra = require('fs-extra')
 const logger = require('koa-log4').getLogger('publish')
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug' }
 const path = require('path')
@@ -31,17 +30,6 @@ let ret = {
 }
 
 /**
- * Removes the folder and files under /tmp/cache
- */
-async function clearCache() {
-    try {
-      await fsExtra.remove('/tmp/cache')
-    } catch (err) {
-      logger.error(err)
-    }
-}
-
-/**
  * Archives and uploads optimized Gltf files to OSS bucket
  * @param {*} urn 
  */
@@ -54,6 +42,7 @@ async function compressGltfOutput(urn) {
         if (filePath.includes('-optimized.')) {
           optimizedFilePaths.push(filePath)
           optimizedFilePaths.push(filePath.replace('.gltf', '.bin'))
+          optimizedFilePaths.push(path.join(path.dirname(filePath), 'output.metadata.json'))
           optimizedFilePaths.push(path.join(path.dirname(filePath), 'props.db'))
         }
       })
@@ -127,8 +116,6 @@ async function finalizePublishJob (resourceUrn) {
           logger.info('... Successfully compressed Gltf files')
           await uploadGltfArchiveToBucket(asciiResourceUrn)
           logger.info('... Successfully uploaded Gltf archive')
-          /*  await clearCache()
-          logger.info('... Successfully cleared temporary cache') */
         }
       }
     } catch (err) {

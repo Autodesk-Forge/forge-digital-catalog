@@ -35,6 +35,7 @@ class Serializer {
             fs.closeSync(this.bufferFD)
             this.bufferFD = null
         }
+        fs.writeFileSync(`${rootfile}.metadata.json`, JSON.stringify(model.metadata, null, 4))
     }
     serializeScene(model, manifest, rootfile) {
         let scene = {

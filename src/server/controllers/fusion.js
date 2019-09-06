@@ -35,9 +35,12 @@ async function getFolderContents(session, projectId, folderId, retry = 0) {
       if (fileFormats.message[0].fileFormatToggles.fusion) {
         filters += ',items:autodesk.fusion360:Design'
       }
-      if (fileFormats.message[0].fileFormatToggles.inventor 
+      if (fileFormats.message[0].fileFormatToggles.creo 
+        || fileFormats.message[0].fileFormatToggles.inventor 
         || fileFormats.message[0].fileFormatToggles.navisworks
-        || fileFormats.message[0].fileFormatToggles.revit) {
+        || fileFormats.message[0].fileFormatToggles.obj
+        || fileFormats.message[0].fileFormatToggles.solidworks
+        || fileFormats.message[0].fileFormatToggles.step) {
         filters += ',items:autodesk.core:File'
       }
     }
@@ -50,9 +53,70 @@ async function getFolderContents(session, projectId, folderId, retry = 0) {
       url: `${config.get('API_data_host')}/projects/${projectId}/folders/${folderId}/contents?filter[extension.type]=${filters}`
     })
     if (res.status === 200) {
+      const items = {}
+      items.data = []
+      const folderDocs = res.data.data.filter(item => {
+        return item.type === 'folders'
+      })
+      items.data.push(...folderDocs)
+      if (fileFormats.message[0].fileFormatToggles.creo) {
+        const creoDocs = res.data.data.filter(item => {
+          return item.type === 'items' 
+              && (item.attributes.displayName.toLowerCase().endsWith('.asm')
+              || item.attributes.displayName.toLowerCase().endsWith('.drw')
+              || item.attributes.displayName.toLowerCase().endsWith('.prt'))
+        })
+        items.data.push(...creoDocs)
+      }
+      if (fileFormats.message[0].fileFormatToggles.fusion) {
+        const fusionDocs = res.data.data.filter(item => {
+          return item.attributes.extension.type === 'items:autodesk.fusion360:Design'
+        })
+        items.data.push(...fusionDocs)
+      }
+      if (fileFormats.message[0].fileFormatToggles.inventor) {
+        const inventorDocs = res.data.data.filter(item => {
+          return item.type === 'items' 
+              && (item.attributes.displayName.toLowerCase().endsWith('.iam')
+              || item.attributes.displayName.toLowerCase().endsWith('.idw')
+              || item.attributes.displayName.toLowerCase().endsWith('.ipt'))
+        })
+        items.data.push(...inventorDocs)
+      }
+      if (fileFormats.message[0].fileFormatToggles.navisworks) {
+        const navisworksDocs = res.data.data.filter(item => {
+          return item.type === 'items' 
+              && item.attributes.displayName.toLowerCase().endsWith('.nwd')
+        })
+        items.data.push(...navisworksDocs)
+      }
+      if (fileFormats.message[0].fileFormatToggles.obj) {
+        const objDocs = res.data.data.filter(item => {
+          return item.type === 'items' 
+              && item.attributes.displayName.toLowerCase().endsWith('.obj')
+        })
+        items.data.push(...objDocs)
+      }
+      if (fileFormats.message[0].fileFormatToggles.solidworks) {
+        const solidworksDocs = res.data.data.filter(item => {
+          return item.type === 'items' 
+              && (item.attributes.displayName.toLowerCase().endsWith('.sldasm')
+              || item.attributes.displayName.toLowerCase().endsWith('.slddrw')
+              || item.attributes.displayName.toLowerCase().endsWith('.sldprt'))
+        })
+        items.data.push(...solidworksDocs)
+      }
+      if (fileFormats.message[0].fileFormatToggles.step) {
+        const stepDocs = res.data.data.filter(item => {
+          return item.type === 'items' 
+              && (item.attributes.displayName.toLowerCase().endsWith('.step')
+              || item.attributes.displayName.toLowerCase().endsWith('.stp'))
+        })
+        items.data.push(...stepDocs)
+      }
       ret = {
         status: 200,
-        message: res.data
+        message: items
       }
     }
     return ret

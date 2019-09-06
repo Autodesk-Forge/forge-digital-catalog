@@ -1,4 +1,5 @@
 const axios = require('axios')
+const fsExtra = require('fs-extra')
 const logger = require('koa-log4').getLogger('admin')
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug' }
 
@@ -15,6 +16,17 @@ const handleError = require('../helpers/error-handler')
 let ret = {
   status: 520,
   message: 'Unknown Error'
+}
+
+/**
+ * Removes the folder and files under /tmp/cache
+ */
+async function clearCache() {
+  try {
+    await fsExtra.remove('/tmp/cache')
+  } catch (err) {
+    logger.error(err)
+  }
 }
 
 /**
@@ -358,6 +370,7 @@ async function setSysAdmins(body) {
 }
 
 module.exports = {
+  clearCache,
   getApplicationName,
   getCompanyLogo,
   getFeatureToggles,

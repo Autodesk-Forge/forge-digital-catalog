@@ -41,7 +41,7 @@ const { getToken } = require('./helpers/auth')
 const { createBucket, getBucketInfo } = require('./helpers/oss-handler')
 
 // Create webAdmins setting
-const { initializeDb } = require('./controllers/admin')
+const { clearCache, initializeDb } = require('./controllers/admin')
 
 mongoose
     .connect(
@@ -125,7 +125,10 @@ app.on('ready', () => {
             default: 
                 logger.error('Something went wrong trying to retrieve bucket info.')
         }
+        await clearCache()
+        logger.info('... Successfully cleared temporary cache')
         await initializeDb()
+        logger.info('... Successfully initialized the database')
         logger.info(`... Listening on port ${port}`)
     })
 })
