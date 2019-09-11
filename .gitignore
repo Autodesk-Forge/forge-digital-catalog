@@ -3,6 +3,7 @@ node_modules
 www/
 .scannerwork
 scanner.sh
+coverage
 
 # local env files
 .env.local
