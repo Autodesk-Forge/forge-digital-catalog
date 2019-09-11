@@ -22,7 +22,7 @@ MongoClient.connect(url, function(connectErr, db) {
       theAdmins = result[0].webAdmins
       console.log('Current Web Admins are:')
       console.log('-----------------------')
-      for (var i = 0; i < theAdmins.length; i++) {
+      for (let i = 0; i < theAdmins.length; i++) {
         console.log(theAdmins[i])
       }
       executeNextPart()

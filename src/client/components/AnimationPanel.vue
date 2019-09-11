@@ -6,26 +6,24 @@
           <v-container
             fluid
           >
-            <v-row>
-              <v-col 
-                v-for="storyboard in animations"
+            <v-chip-group
+              active-class="primary--text"
+              :column="true"
+            >
+              <v-chip 
+                v-for="storyboard in animations" 
                 :key="storyboard.name"
-                cols="12"
-                md="6"
-                lg="3"
                 @click="loadAnimationSvf(storyboard)"
               >
-                <v-chip>
-                  <v-avatar>
-                    <img
-                      alt="storyboard.name"
-                      :src="storyboard.imageDataUri"
-                    >
-                  </v-avatar>
-                  {{ storyboard.name }}
-                </v-chip>
-              </v-col>
-            </v-row>
+                <v-avatar>
+                  <img
+                    alt="storyboard.name"
+                    :src="storyboard.imageDataUri"
+                  >
+                </v-avatar>
+                {{ storyboard.name }}
+              </v-chip>
+            </v-chip-group>
           </v-container>
         </v-content>
       </v-card>
@@ -44,7 +42,7 @@ export default {
       animations: []
     }
   },
-  mounted: async function () {
+  mounted: function () {
     this.$root.$on('clearStoryboards', () => {
       this.$log.info('... clearing animation panel')
       this.animations = []
@@ -55,7 +53,7 @@ export default {
     })
   },
   methods: {
-    async loadAnimationSvf(storyboard) {
+    loadAnimationSvf(storyboard) {
       try {
         this.$store.dispatch('setSelectedStoryboard', storyboard)
         this.$root.$emit('selectedStoryboard', storyboard)

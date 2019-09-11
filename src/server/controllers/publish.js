@@ -233,7 +233,7 @@ async function optimizeGltfOutput(urn) {
 /** 
  * Sets Publish Log Entry
  */
-async function setPublishLog(body) {
+function setPublishLog(body) {
     try {
       const log = new Publisher(body)
       log.save((err, logEntry) => {

@@ -15,7 +15,7 @@ const {
 beforeAll(() => {
     mongoose.connect(
         config.get('db.url'), {
-            useNewUrlParser: false
+            useNewUrlParser: true
         }
     )
     .then(() => {

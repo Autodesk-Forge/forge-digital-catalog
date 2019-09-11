@@ -72,7 +72,7 @@ router.post('/webhooks', async ctx => {
 /**
  * Translation Webhook Callback
  */
-router.post('/webhook/callback', async (ctx, next) => {
+router.post('/webhook/callback', (ctx, next) => {
     try {
       ctx.status = 200
       ctx.body = {}

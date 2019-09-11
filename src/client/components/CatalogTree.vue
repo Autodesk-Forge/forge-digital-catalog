@@ -368,7 +368,7 @@ export default {
       }, 100) //wait for caching options to be posted to service worker
     }
   },
-  mounted: async function () {
+  mounted: function () {
     this.menuoptions = {
       file: [{ title: this.$t('catalog.deleteFile') }, { title: this.$t('catalog.downloadGltf') }],
       folder: [{ title: this.$t('catalog.createFolder') }, { title: this.$t('catalog.deleteFolder') }, { title: this.$t('catalog.renameFolder') }],
@@ -563,10 +563,9 @@ export default {
       }
     },
     async renameFolder(item) {
-      var modifiedName = filter.clean(this.folderName)
+      let modifiedName = filter.clean(this.folderName)
       modifiedName = modifiedName.length>this.maximumFolderLength ? modifiedName.substring(0,this.maximumFolderLength) : modifiedName
       this.$log.debug('... New Name is:' + modifiedName)
-
       try {
         const oldName = this.$store.state.selectedCatalog.name
         const res = await this.$axios({
@@ -589,7 +588,7 @@ export default {
       }
     },
     async saveNewFolder(parent) {
-      var modifiedName = filter.clean(this.folderName)
+      let modifiedName = filter.clean(this.folderName)
       modifiedName = modifiedName.length>this.maximumFolderLength ? modifiedName.substring(0,this.maximumFolderLength) : modifiedName
       this.$log.debug('... New Name is:' + modifiedName)
 

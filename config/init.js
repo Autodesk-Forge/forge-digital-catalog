@@ -5,7 +5,7 @@ const fs = require('fs')
 const URL = require('url').URL
 const validator = require('validator')
 
-if (!validator.isURL(process.env.FORGE_CALLBACK_URL)) {
+if (!process.env.FORGE_CALLBACK_URL.includes('localhost') && !validator.isURL(process.env.FORGE_CALLBACK_URL)) {
   throw new Error('FORGE_CALLBACK_URL is not a valid url')
 }
 

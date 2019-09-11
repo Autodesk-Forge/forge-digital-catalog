@@ -25,11 +25,10 @@ self.addEventListener('fetch',  async event => {
 
 self.addEventListener('message', async event => {
     console.log('Message event', event.data)
-    switch (event.data.operation) {
-        case 'OPTIONS':
-          Object.keys(event.data.options).forEach(k=>setOptions(Object.assign(event.data.options[k], {operation:k})))
-          break
-        default: setOptions(event.data)
+    if (event.data.operation === 'OPTIONS') {
+      Object.keys(event.data.options).forEach(k=>setOptions(Object.assign(event.data.options[k], {operation:k})))
+    } else {
+      setOptions(event.data)
     }
 })
 

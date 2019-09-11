@@ -4,14 +4,14 @@
 ![Node.js](https://img.shields.io/badge/node-%3E%3D%2010.0.0-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-[![Viewer](https://img.shields.io/badge/Viewer-v6-green.svg)](http://developer.autodesk.com/)
+[![Viewer](https://img.shields.io/badge/Viewer-v7-green.svg)](http://developer.autodesk.com/)
 [![Data-Management](https://img.shields.io/badge/Data%20Management-v1-green.svg)](http://autodesk-forge.github.io)
 [![OSS](https://img.shields.io/badge/OSS-v2-green.svg)](http://autodesk-forge.github.io)
 [![Model-Derivative](https://img.shields.io/badge/Model%20Derivative-v2-green.svg)](http://autodesk-forge.github.io)
 
 [![koa2](https://img.shields.io/badge/koa-2-green.svg)](https://github.com/koajs/koa)
 ![vue2](https://img.shields.io/badge/vue-2.6.6-green.svg)
-[![vuetify](https://img.shields.io/badge/Vuetify-1.3-blue.svg)](https://github.com/vuetifyjs/vuetify)
+[![vuetify](https://img.shields.io/badge/Vuetify-2.0-blue.svg)](https://github.com/vuetifyjs/vuetify)
 [![oauth](https://img.shields.io/badge/passport--oauth-1-brightgreen.svg)](https://github.com/jaredhanson/passport-oauth)<br/>
 
 ![Intermediate](https://img.shields.io/badge/Level-Intermediate-blue.svg)
@@ -54,6 +54,14 @@ This web application can act as a foundation for more advanced workflows, such a
 ### Interactive Instructions
 ![Animation Page](/_media/interactive_instructions.png)
 
+### AR/VR Toolkit
+
+The AR/VR Toolkit feature enables translation of SVF to [glTF](https://www.khronos.org/gltf/) file format. 
+
+![ARVR Page](/_media/arvr_toolkit.png)
+
+To learn how to author augmented reality machine instructions, please go to: [Augmented Virtual Reality](arvr)
+
 ### Live Demo
 
 [Digital Catalog](https://forge-digital-catalog.herokuapp.com)
@@ -79,32 +87,38 @@ This section will guide you through getting the code up and running on your own 
 2.	Software dependencies
 
     ```@koa/cors: "3.0.0"```\
-    ```@@mdi/font: "3.8.95"```\
-    ```archiver: "3.0.0"```\
+    ```@mdi/font: "4.3.95"```\
+    ```archiver: "3.1.1"```\
+    ```arraybuffer-equal: "1.0.4"```\
     ```axios: "0.19.0"```\
-    ```bad-words: "3.0.2"```\
-    ```config: "3.2.1"```\
-    ```koa: "2.7.0"```\
+    ```bad-words: "3.0.3"```\
+    ```config: "3.2.2"```\
+    ```deep-equal: "1.1.0"```\
+    ```fs-extra: "8.1.0"```\
+    ```koa: "2.8.1"```\
     ```koa-bodyparser: "4.2.1"```\
     ```koa-compress: "3.0.0"```\
-    ```koa-helmet: "4.2.0"```\
+    ```koa-helmet: "5.1.0"```\
     ```koa-log4: "2.3.2"```\
     ```koa-passport: "4.1.3"```\
     ```koa-router: "7.4.0"```\
-    ```koa-session: "5.12.2"```\
+    ```koa-session: "5.12.3"```\
     ```koa-static: "5.0.0"```\
     ```koa2-connect-history-api-fallback: "0.1.2"```\
-    ```log4js: "4.5.1"```\
+    ```log4js: "5.1.0"```\
     ```material-design-icons-iconfont: "5.0.1"```\
     ```mongodb-uri: "0.9.7"```\
-    ```mongoose: "5.6.5"```\
+    ```mongoose: "5.6.13"```\
+    ```node-zip: "1.1.1"```\
     ```passport-oauth2: "1.5.0"```\
     ```register-service-worker: "1.6.2"```\
     ```validator: "11.1.0"```\
     ```vue: "2.6.10"```\
+    ```vue-i18n: "8.14.0"```\
     ```vue-mq: "1.0.1"```\
-    ```vue-router: "3.0.7"```\
-    ```vuetify: "1.5.16"```\
+    ```vue-router: "3.1.3"```\
+    ```vuejs-logger: "1.5.3"```\
+    ```vuetify: "2.0.15"```\
     ```vuex: "3.1.1"```
 
 ## Build and Test

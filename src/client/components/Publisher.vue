@@ -586,7 +586,7 @@ export default {
           startDate: this.$store.state.startDate,
           submittedBy: this.$store.state.user.fullName
         }
-        const res = this.$axios({
+        const res = await this.$axios({
           data: payload,
           method: 'POST',
           url: new URL('/api/admin/publish/logs', config.koahost).href
@@ -607,7 +607,7 @@ export default {
         }
       }
     },
-    async setReferenceTree(refsRawData, parentName) {
+    setReferenceTree(refsRawData, parentName) {
       try {
         const refs = refsRawData.reduce((result, val) => {
           if (val.relationships && val.relationships.storage && val.attributes.displayName !== parentName) {

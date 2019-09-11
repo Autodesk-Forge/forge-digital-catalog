@@ -4,6 +4,7 @@ module.exports = {
         node: true
     },
     extends: [
+        "plugin:promise/recommended",
         "plugin:vue/recommended"
     ],
     parserOptions: {
@@ -11,7 +12,7 @@ module.exports = {
         parser: 'babel-eslint',
         sourceType: 'module'
     },
-    plugins: ['vue', 'vuetify'],
+    plugins: ['promise', 'vue', 'vuetify'],
     rules: {
         'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',

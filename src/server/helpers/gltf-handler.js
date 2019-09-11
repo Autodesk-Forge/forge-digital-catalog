@@ -244,9 +244,9 @@ function resolveURL(url, basePath) {
 }
 
 function toArrayBuffer (buf) {
-    var ab = new ArrayBuffer(buf.length)
-    var view = new Uint8Array(ab)
-    for (var i = 0; i < buf.length; ++i) {
+    let ab = new ArrayBuffer(buf.length)
+    let view = new Uint8Array(ab)
+    for (let i = 0; i < buf.length; ++i) {
       view[i] = buf[i]
     }
     return ab
@@ -266,14 +266,14 @@ function toAttributeWrappers (buffers, bufferViews, accessors) {
         }
     })
     return accessors.map(accessor => {
-        var bufferView = wrappers[accessor.bufferView].data
-        var itemSize = WEBGL_TYPE_SIZES[accessor.type]
-        var TypedArray = WEBGL_COMPONENT_TYPES[accessor.componentType]
+        const bufferView = wrappers[accessor.bufferView].data
+        const itemSize = WEBGL_TYPE_SIZES[accessor.type]
+        const TypedArray = WEBGL_COMPONENT_TYPES[accessor.componentType]
         // For VEC3: itemSize is 3, elementBytes is 4, itemBytes is 12.
-        var elementBytes = TypedArray.BYTES_PER_ELEMENT
-        var itemBytes = elementBytes * itemSize
-        var byteStride = 0
-        /* var normalized = accessor.normalized === true */
+        const elementBytes = TypedArray.BYTES_PER_ELEMENT
+        const itemBytes = elementBytes * itemSize
+        const byteStride = 0
+        /* const normalized = accessor.normalized === true */
         // The buffer is not interleaved if the stride is the item size in bytes.
         if (byteStride && byteStride !== itemBytes) {
             throw new Error('Stride not yet supported!')

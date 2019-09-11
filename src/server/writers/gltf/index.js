@@ -190,27 +190,25 @@ class Serializer {
         return mesh
     }
     serializeMaterial(mat, model, manifest, rootfile) {
-        //console.log(JSON.stringify(mat))
-        switch (mat.definition) {
-            case 'SimplePhong':
-                if (mat.properties.colors && mat.properties.colors.generic_diffuse) {
-                    const color = mat.properties.colors.generic_diffuse.values[0]
-                    return {
-                        pbrMetallicRoughness: {
-                            baseColorFactor: [color.r, color.g, color.b, color.a],
-                            //baseColorTexture: {},
-                            //metallicRoughnessTexture: {},
-                            metallicFactor: 0,
-                            roughnessFactor: 1
-                        }
+        if (mat.definition === 'SimplePhong') {
+            if (mat.properties.colors && mat.properties.colors.generic_diffuse) {
+                const color = mat.properties.colors.generic_diffuse.values[0]
+                return {
+                    pbrMetallicRoughness: {
+                        baseColorFactor: [color.r, color.g, color.b, color.a],
+                        //baseColorTexture: {},
+                        //metallicRoughnessTexture: {},
+                        metallicFactor: 0,
+                        roughnessFactor: 1
                     }
-                } else {
-                    console.warn('Could not obtain diffuse color', mat)
-                    return {}
                 }
-            default:
-                console.warn('Unknown material definition', mat.definition)
+            } else {
+                console.warn('Could not obtain diffuse color', mat)
                 return {}
+            }
+        } else {
+            console.warn('Unknown material definition', mat.definition)
+            return {}
         }
     }
 }

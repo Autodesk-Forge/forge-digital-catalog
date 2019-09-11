@@ -79,7 +79,7 @@ function findViewables(manifest, mime) {
  * @param {*} guid 
  * @param {*} retry 
  */
-async function get3DViewableFilesByGuid(svfUrn, guid, retry = 0) {
+function get3DViewableFilesByGuid(svfUrn, guid, retry = 0) {
     try {
         const folder = path.join(__dirname, 'cache', svfUrn, guid)
         if (fs.existsSync(folder)) {
@@ -97,7 +97,7 @@ async function get3DViewableFilesByGuid(svfUrn, guid, retry = 0) {
     } catch (err) {
         retry++
         if (retry < 3) {
-            await get3DViewableFilesByGuid(svfUrn, guid, retry)
+            get3DViewableFilesByGuid(svfUrn, guid, retry)
         }
         return handleError(err)
     }
@@ -110,7 +110,7 @@ async function get3DViewableFilesByGuid(svfUrn, guid, retry = 0) {
  * @param {*} resource 
  * @param {*} retry 
  */
-async function get3DViewableResourceByGuid(svfUrn, guid, resource, retry = 0) {
+function get3DViewableResourceByGuid(svfUrn, guid, resource, retry = 0) {
     try {
         const folder = path.join(__dirname, 'cache', svfUrn, guid)
         const file = path.join(folder, resource)
@@ -129,7 +129,7 @@ async function get3DViewableResourceByGuid(svfUrn, guid, resource, retry = 0) {
     } catch (err) {
         retry++
         if (retry < 3) {
-            await get3DViewableResourceByGuid(svfUrn, guid, resource, retry)
+            get3DViewableResourceByGuid(svfUrn, guid, resource, retry)
         }
         return handleError(err)
     }
