@@ -6,7 +6,8 @@ const {
     getApplicationName,
     getCompanyLogo,
     getFeatureToggles,
-    getFileFormatToggles
+    getFileFormatToggles,
+    getSettingByNameAndEmail
  } = require('../src/server/controllers/admin')
 
 /**
@@ -90,6 +91,19 @@ describe(
             const formats = await getFileFormatToggles()
             expect(formats.status).toEqual(200)
             expect(typeof formats).toEqual('object')
+        })
+    }
+)
+
+describe(
+    'Get Setting by Name and Email',
+    () => {
+        test('Get Settings by Name and Email', async () => {
+            const name = 'defaultHubProject'
+            const email = 'bastien.mazeran@autodesk.com'
+            const setting = await getSettingByNameAndEmail(name, email)
+            expect(setting.status).toEqual(200)
+            expect(typeof setting).toEqual('object')
         })
     }
 )
