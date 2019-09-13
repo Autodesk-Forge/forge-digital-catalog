@@ -14,8 +14,8 @@
     "setadmin": "node config/setAdmin.js",
     "start": "NODE_ENV=production node src/server",
     "test": "NODE_ENV=test jest",
+    "windev": "set NODE_ENV=development&& nodemon src/server",
     "wintest": "set NODE_ENV=test&& jest",
-    "windev": "set NODE_ENV=development&& npm run dev",
     "winserve": "set NODE_ENV=development&& vue-cli-service serve"
   },
   "dependencies": {

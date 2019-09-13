@@ -171,7 +171,16 @@ async function initializeDb() {
     const fileFormats = await getFileFormatToggles()
     if (fileFormats.status === 200 && fileFormats.message.length === 0) {
       logger.info('... Initializing supported file formats')
-      await setFileFormatToggles({ creo: false, fusion: false, inventor: false, navisworks: false, obj: false, solidworks: false, step: false })
+      await setFileFormatToggles({ 
+        creo: false, 
+        fbx: false,
+        fusion: false, 
+        inventor: false, 
+        navisworks: false, 
+        obj: false, 
+        solidworks: false, 
+        step: false 
+      })
     }
   } catch (err) {
     return handleError(err)
@@ -315,6 +324,7 @@ async function setFileFormatToggles(body) {
         name: 'fileFormatToggles',
         fileFormatToggles: {
           creo: body.creo,
+          fbx: body.fbx,
           fusion: body.fusion,
           inventor: body.inventor,
           navisworks: body.navisworks,

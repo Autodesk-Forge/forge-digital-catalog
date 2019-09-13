@@ -43,8 +43,8 @@ export default {
     companyLogo: ''
   }),
   beforeMount() {
-    this.getCompanyLogo();
-    this.getApplicationName();
+    this.getCompanyLogo()
+    this.getApplicationName()
   },
   methods: {
     async getApplicationName() {

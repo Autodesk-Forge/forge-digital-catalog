@@ -36,6 +36,7 @@ async function getFolderContents(session, projectId, folderId, retry = 0) {
         filters += ',items:autodesk.fusion360:Design'
       }
       if (fileFormats.message[0].fileFormatToggles.creo 
+        || fileFormats.message[0].fileFormatToggles.fbx
         || fileFormats.message[0].fileFormatToggles.inventor 
         || fileFormats.message[0].fileFormatToggles.navisworks
         || fileFormats.message[0].fileFormatToggles.obj
@@ -67,6 +68,13 @@ async function getFolderContents(session, projectId, folderId, retry = 0) {
               || item.attributes.displayName.toLowerCase().endsWith('.prt'))
         })
         items.data.push(...creoDocs)
+      }
+      if (fileFormats.message[0].fileFormatToggles.fbx) {
+        const fbxDocs = res.data.data.filter(item => {
+          return item.type === 'items' 
+              && item.attributes.displayName.toLowerCase().endsWith('.fbx')
+        })
+        items.data.push(...fbxDocs)
       }
       if (fileFormats.message[0].fileFormatToggles.fusion) {
         const fusionDocs = res.data.data.filter(item => {

@@ -9,7 +9,7 @@ const { MaterialReader } = require('./material-reader')
 async function getViewable(urn, token, guid) {
     const manifest = await getManifest(urn, token)
     let node = null
-    traverseManifest(manifest, function(n) { if (n.guid === guid) node = n; })
+    traverseManifest(manifest, function(n) { if (n.guid === guid) node = n })
     if (!node) {
         return null
     }
@@ -29,7 +29,7 @@ async function getViewable(urn, token, guid) {
 async function getPropertyDatabase(urn, token) {
     const manifest = await getManifest(urn, token)
     let node = null
-    traverseManifest(manifest, function(n) { if (n.mime === 'application/autodesk-db') node = n; })
+    traverseManifest(manifest, function(n) { if (n.mime === 'application/autodesk-db') node = n })
     if (!node) {
         return null
     }

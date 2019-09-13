@@ -167,7 +167,7 @@ export default {
             }
         },
         onDocumentLoadFailure (viewerErrorCode) {
-            this.$log.error(`onDocumentLoadFailure() - errorCode: ${viewerErrorCode}`);
+            this.$log.error(`onDocumentLoadFailure() - errorCode: ${viewerErrorCode}`)
         },
         async onDocumentLoadSuccess (doc) {
             try {

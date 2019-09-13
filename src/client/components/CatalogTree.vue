@@ -288,7 +288,7 @@
 </template>
 
 <style>
-@import "../../../src/client/public/css/TreeFormat.css";
+@import "../../../src/client/public/css/TreeFormat.css"
 </style>
 
 <script>
@@ -546,7 +546,7 @@ export default {
             }
           })
           const onPublishMenu = this.$route.path.includes('publish')
-          const newChildren = children.filter(child => (child.isFile && child.isPublished) || !child.isFile);
+          const newChildren = children.filter(child => (child.isFile && child.isPublished) || !child.isFile)
           if (onPublishMenu) {
             if (children) {
               item.children.push(...children)

@@ -16,11 +16,11 @@ The digital catalog app publisher console can be configured to become the transl
 
 To enable this translation feature, simply login to the Administrative console and turn on the feature toggle *AR/VR Toolkit*.
 
-![ARVR Toolkit](../_media/arvr_toolkit.png)
+![ARVR Toolkit](/_media/arvr_toolkit.png)
 
 To generate glTF files, simply publish a CAD model to the catalog and once the translation completes, the admin user can download the glTF output via a right-click on the catalog item displayed in the publisher console.
 
-![download glTF](../_media/download_gltf.png)
+![download glTF](/_media/download_gltf.png)
 
 The glTF files can be emailed to the person who will author the animations.
 

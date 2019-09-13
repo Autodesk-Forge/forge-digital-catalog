@@ -311,6 +311,15 @@
                 </v-list-item>
                 <v-list-item>
                   <v-list-item-action>
+                    <v-checkbox v-model="formats.fbx" />
+                  </v-list-item-action>
+                  <v-list-item-content @click="formats.fbx = !formats.fbx">
+                    <v-list-item-title>3ds Max, Maya, MotionBuilder, Mudbox</v-list-item-title>
+                    <v-list-item-subtitle>.FBX</v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-action>
                     <v-checkbox v-model="formats.fusion" />
                   </v-list-item-action>
                   <v-list-item-content @click="formats.fusion = !formats.fusion">
@@ -370,6 +379,7 @@
                   @click="() => { 
                     saveFileFormats(
                       formats.creo,
+                      formats.fbx,
                       formats.fusion,
                       formats.inventor,
                       formats.navisworks,
@@ -439,6 +449,7 @@ export default {
     defaultHubProject: 'Undefined',
     formats: {
       creo: false,
+      fbx: false,
       fusion: false,
       inventor: false,
       navisworks: false,
@@ -609,6 +620,7 @@ export default {
         if (res.status === 200 && res.data.length > 0) {
           this.$log.info('... retrieved file format toggles in database.')
           this.formats.creo = res.data[0].fileFormatToggles.creo
+          this.formats.fbx = res.data[0].fileFormatToggles.fbx
           this.formats.fusion = res.data[0].fileFormatToggles.fusion
           this.formats.inventor = res.data[0].fileFormatToggles.inventor
           this.formats.navisworks = res.data[0].fileFormatToggles.navisworks
@@ -617,6 +629,7 @@ export default {
           this.formats.step = res.data[0].fileFormatToggles.step
           this.$store.dispatch('setFileFormatToggles', {
             creo: res.data[0].fileFormatToggles.creo,
+            fbx: res.data[0].fileFormatToggles.fbx,
             fusion: res.data[0].fileFormatToggles.fusion,
             inventor: res.data[0].fileFormatToggles.inventor,
             navisworks: res.data[0].fileFormatToggles.navisworks,
@@ -878,12 +891,13 @@ export default {
         this.$store.dispatch('setSaving', { featureToggleSetting: false })
       }
     },
-    async saveFileFormats(creo, fusion, inventor, navisworks, obj, solidworks, step) {
+    async saveFileFormats(creo, fbx, fusion, inventor, navisworks, obj, solidworks, step) {
       try {
         this.$store.dispatch('setSaving', { fileFormatSetting: true })
         const res = await this.$axios({
           data: {
             creo,
+            fbx,
             fusion,
             inventor,
             navisworks,
@@ -897,6 +911,7 @@ export default {
         if (res.status === 200) {
           this.$log.info('... saved file formats toggles in database.')
           this.formats.creo = res.data.fileFormatToggles.creo
+          this.formats.fbx = res.data.fileFormatToggles.fbx
           this.formats.fusion = res.data.fileFormatToggles.fusion
           this.formats.inventor = res.data.fileFormatToggles.inventor
           this.formats.navisworks = res.data.fileFormatToggles.navisworks
@@ -905,6 +920,7 @@ export default {
           this.formats.step = res.data.fileFormatToggles.step
           this.$store.dispatch('setFileFormatToggles', {
             creo: res.data.fileFormatToggles.creo,
+            fbx: res.data.fileFormatToggles.fbx,
             fusion: res.data.fileFormatToggles.fusion,
             inventor: res.data.fileFormatToggles.inventor,
             navisworks: res.data.fileFormatToggles.navisworks,
@@ -966,7 +982,7 @@ export default {
     },
     async showFile() {
       try {
-        const imageFile = document.querySelector('input[type=file]').files[0];
+        const imageFile = document.querySelector('input[type=file]').files[0]
         const contentBuffer = await this.readFileAsync(imageFile)
         await this.saveCompanyLogo(contentBuffer)
       } catch (err) {
