@@ -27,3 +27,6 @@ yarn-error.log*
 /config/production.json
 /config/test.json
 *.sh
+
+# NPM registry
+.npmrc

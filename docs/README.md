@@ -87,7 +87,7 @@ This section will guide you through getting the code up and running on your own 
 2.	Software dependencies
 
     ```@koa/cors: "3.0.0"```\
-    ```@mdi/font: "4.3.95"```\
+    ```@mdi/font: "4.4.95"```\
     ```archiver: "3.1.1"```\
     ```arraybuffer-equal: "1.0.4"```\
     ```axios: "0.19.0"```\
@@ -108,17 +108,17 @@ This section will guide you through getting the code up and running on your own 
     ```log4js: "5.1.0"```\
     ```material-design-icons-iconfont: "5.0.1"```\
     ```mongodb-uri: "0.9.7"```\
-    ```mongoose: "5.6.13"```\
+    ```mongoose: "5.7.0"```\
     ```node-zip: "1.1.1"```\
     ```passport-oauth2: "1.5.0"```\
     ```register-service-worker: "1.6.2"```\
     ```validator: "11.1.0"```\
     ```vue: "2.6.10"```\
-    ```vue-i18n: "8.14.0"```\
+    ```vue-i18n: "8.14.1"```\
     ```vue-mq: "1.0.1"```\
     ```vue-router: "3.1.3"```\
     ```vuejs-logger: "1.5.3"```\
-    ```vuetify: "2.0.15"```\
+    ```vuetify: "2.0.17"```\
     ```vuex: "3.1.1"```
 
 ## Build and Test
@@ -157,6 +157,23 @@ This will create a new directory ```./www``` with the static files.
 
 If you run into an error connecting to MongoDB, make sure you specify the database name in your connection string.
 `mongoose.connect('mongodb://username:password@host:port/database?options...', {useNewUrlParser: true});`
+
+### Test build
+
+1. Set environment variables
+
+    ```FORGE_CALLBACK_URL=http://localhost:3000/api/forge/callback/oauth``` \
+    ```FORGE_CLIENT_ID=<Your Forge Client ID>``` \
+    ```FORGE_CLIENT_SECRET=<Your Forge Client Secret>``` \
+    ```MONGODB_URI=<Your MongoDB Uri>``` \
+    ```NODE_ENV=test``` \
+    ```USE_LOAD_BALANCER=false```
+
+2. Run the tests
+
+    ```npm run init```\
+    ```npm run test``` (on mac) \
+    ```npm run wintest``` (on windows)
 
 ### Production build
 
