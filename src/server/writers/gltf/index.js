@@ -38,7 +38,6 @@ class Serializer {
         manifest.scenes.push(scene)
         fs.writeFileSync(rootfile + '.gltf', JSON.stringify(manifest, null, 2))
         this.dbidStream.end()
-
         if (this.bufferFD) {
             fs.closeSync(this.bufferFD)
             this.bufferFD = null
@@ -124,6 +123,7 @@ class Serializer {
             manifest.buffers.push(this.buffer)
             this.bufferFD = fs.openSync(rootfile + '.' + this.bufferID + '.bin', 'w')
         }
+        const hasUVs = fragmesh.uvmaps && fragmesh.uvmaps.length > 0
         const indexBufferViewID = manifest.bufferViews.length
         let indexBufferView = {
             buffer: this.bufferID,
@@ -145,13 +145,16 @@ class Serializer {
             byteLength: -1
         }
         manifest.bufferViews.push(normalBufferView)
-        const uvBufferViewID = manifest.bufferViews.length
-        let uvBufferView = {
-            buffer: this.bufferID,
-            byteOffset: -1,
-            byteLength: -1
+        let uvBufferViewID, uvBufferView
+        if (hasUVs) {
+            uvBufferViewID = manifest.bufferViews.length
+            uvBufferView = {
+                buffer: this.bufferID,
+                byteOffset: -1,
+                byteLength: -1
+            }
+            manifest.bufferViews.push(uvBufferView)
         }
-        manifest.bufferViews.push(uvBufferView)
         const indexAccessorID = manifest.accessors.length
         let indexAccessor = {
             bufferView: indexBufferViewID,
@@ -178,23 +181,26 @@ class Serializer {
             type: 'VEC3'
         }
         manifest.accessors.push(normalAccessor)
-        const uvAccessorID = manifest.accessors.length
-        let uvAccessor = {
-            bufferView: uvBufferViewID,
-            componentType: 5126, // FLOAT
-            count: -1,
-            type: 'VEC2'
-        }
-        manifest.accessors.push(uvAccessor)
         let mesh = {
             primitives: [{
                 attributes: {
                     POSITION: positionAccessorID,
-                    NORMAL: normalAccessorID,
-                    TEXCOORD_0: uvAccessorID
+                    NORMAL: normalAccessorID
                 },
                 indices: indexAccessorID
             }]
+        }
+        let uvAccessorID, uvAccessor
+        if (hasUVs) {
+            uvAccessorID = manifest.accessors.length
+            uvAccessor = {
+                bufferView: uvBufferViewID,
+                componentType: 5126, // FLOAT
+                count: -1,
+                type: 'VEC2'
+            }
+            manifest.accessors.push(uvAccessor)
+            mesh.primitives[0].attributes.TEXCOORD_0 = uvAccessorID
         }
         // Indices
         const indices = Buffer.from(fragmesh.indices.buffer)
@@ -226,7 +232,7 @@ class Serializer {
             this.buffer.byteLength += normals.byteLength
         }
         // UVs (only the first UV map if there's one)
-        if (fragmesh.uvmaps && fragmesh.uvmaps.length > 0) {
+        if (hasUVs) {
             const uvs = Buffer.from(fragmesh.uvmaps[0].uvs.buffer)
             fs.writeSync(this.bufferFD, uvs)
             uvAccessor.count = uvs.byteLength / 4 / 2
@@ -238,6 +244,7 @@ class Serializer {
     }
 
     serializeMaterial(mat, model, manifest, rootfile) {
+        //console.log(JSON.stringify(mat))
         if (mat.definition === 'SimplePhong') {
             if (mat.properties.colors && mat.properties.colors.generic_diffuse) {
                 const color = mat.properties.colors.generic_diffuse.values[0]
