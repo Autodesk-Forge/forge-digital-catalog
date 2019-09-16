@@ -13,11 +13,17 @@ class Serializer {
         this.buffer = null
         this.bufferID = -1
         this.bufferFD = null
+        const dbidFilename = path.join(path.dirname(rootfile), 'dbids.bin')
+        this.dbidStream = fs.createWriteStream(dbidFilename)
         let manifest = {
             asset: {
                 version: '2.0',
                 generator: 'svf-to-gltf',
                 copyright: '2018 (c) Autodesk'
+            },
+            extras: {
+                dbidBufferUri: path.basename(dbidFilename),
+                dbidByteSize: 4
             },
             buffers: [],
             bufferViews: [],
@@ -31,12 +37,15 @@ class Serializer {
         const scene = this.serializeScene(model, manifest, rootfile)
         manifest.scenes.push(scene)
         fs.writeFileSync(rootfile + '.gltf', JSON.stringify(manifest, null, 2))
+        this.dbidStream.end()
+
         if (this.bufferFD) {
             fs.closeSync(this.bufferFD)
             this.bufferFD = null
         }
         fs.writeFileSync(`${rootfile}.metadata.json`, JSON.stringify(model.metadata, null, 4))
     }
+
     serializeScene(model, manifest, rootfile) {
         let scene = {
             name: 'main-scene',
@@ -54,6 +63,7 @@ class Serializer {
         }
         return scene
     }
+
     serializeFragment(fragment, model, manifest, rootfile) {
         let node = {}
         if (fragment.transform) {
@@ -70,7 +80,15 @@ class Serializer {
                 node.rotation = [q.x, q.y, q.z, q.w]
             }
             if ('matrix' in fragment.transform) {
-                console.error('matrix not supported yet!')
+                const m = fragment.transform.matrix
+                const t = fragment.transform.t
+                node.matrix = [
+                    m[0], m[3], m[6], 0,
+                    m[1], m[4], m[7], 0,
+                    m[2], m[5], m[8], 0,
+                    t.x, t.y, t.z, 1
+                ] // 4x4, column major
+                delete node.translation // Translation is already included in the 4x4 matrix
             }
         }
         const geometry = model.geometries[fragment.geometryID]
@@ -85,9 +103,13 @@ class Serializer {
         } else {
             console.warn('Could not find mesh for fragment', fragment, 'geometry', geometry)
         }
-        node.dbid = fragment.dbID
+        // Output dbid into separate file, having the same index as the node
+        let dbid = Buffer.alloc(4)
+        dbid.writeUInt32LE(fragment.dbID)
+        this.dbidStream.write(dbid)
         return node
-    } 
+    }
+    
     serializeMesh(fragmesh, model, manifest, rootfile) {
         if (this.buffer === null || this.buffer.byteLength > (5 << 20)) {
             if (this.bufferFD !== null) {
@@ -123,6 +145,13 @@ class Serializer {
             byteLength: -1
         }
         manifest.bufferViews.push(normalBufferView)
+        const uvBufferViewID = manifest.bufferViews.length
+        let uvBufferView = {
+            buffer: this.bufferID,
+            byteOffset: -1,
+            byteLength: -1
+        }
+        manifest.bufferViews.push(uvBufferView)
         const indexAccessorID = manifest.accessors.length
         let indexAccessor = {
             bufferView: indexBufferViewID,
@@ -149,11 +178,20 @@ class Serializer {
             type: 'VEC3'
         }
         manifest.accessors.push(normalAccessor)
+        const uvAccessorID = manifest.accessors.length
+        let uvAccessor = {
+            bufferView: uvBufferViewID,
+            componentType: 5126, // FLOAT
+            count: -1,
+            type: 'VEC2'
+        }
+        manifest.accessors.push(uvAccessor)
         let mesh = {
             primitives: [{
                 attributes: {
                     POSITION: positionAccessorID,
-                    NORMAL: normalAccessorID
+                    NORMAL: normalAccessorID,
+                    TEXCOORD_0: uvAccessorID
                 },
                 indices: indexAccessorID
             }]
@@ -187,8 +225,18 @@ class Serializer {
             normalBufferView.byteLength = normals.byteLength
             this.buffer.byteLength += normals.byteLength
         }
+        // UVs (only the first UV map if there's one)
+        if (fragmesh.uvmaps && fragmesh.uvmaps.length > 0) {
+            const uvs = Buffer.from(fragmesh.uvmaps[0].uvs.buffer)
+            fs.writeSync(this.bufferFD, uvs)
+            uvAccessor.count = uvs.byteLength / 4 / 2
+            uvBufferView.byteOffset = this.buffer.byteLength
+            uvBufferView.byteLength = uvs.byteLength
+            this.buffer.byteLength += uvs.byteLength
+        }
         return mesh
     }
+
     serializeMaterial(mat, model, manifest, rootfile) {
         if (mat.definition === 'SimplePhong') {
             if (mat.properties.colors && mat.properties.colors.generic_diffuse) {
@@ -212,6 +260,7 @@ class Serializer {
         }
     }
 }
+
 function serialize(model, rootfile) {
     const serializer = new Serializer()
     serializer.serialize(model, rootfile)

@@ -4,6 +4,7 @@ www/
 .scannerwork
 scanner.sh
 coverage
+test-report.xml
 
 # local env files
 .env.local
@@ -30,3 +31,4 @@ yarn-error.log*
 
 # NPM registry
 .npmrc
+package-lock.json

@@ -15,6 +15,7 @@ class PackFileReader {
         this.version = this.stream.getInt32()
         this.parseContents()
     }
+
     parseContents() {
         // Get offsets to TOC and type sets from the end of the file
         const originalOffset = this.stream.offset
@@ -42,9 +43,11 @@ class PackFileReader {
         // Restore offset
         this.stream.seek(originalOffset)
     }
+
     numEntries() {
         return this.entries.length
     }
+
     seekEntry(i) {
         if (i >= this.numEntries()) {
             return null
@@ -57,9 +60,11 @@ class PackFileReader {
         }
         return this.types[type]
     }
+
     getString() {
         return this.stream.getString(this.stream.getVarint())
     }
+
     getVector3D() {
        return {
            x: this.stream.getFloat64(),
@@ -67,6 +72,7 @@ class PackFileReader {
            z: this.stream.getFloat64()
        }
     }
+
     getQuaternion() {
         return {
             x: this.stream.getFloat32(),
@@ -75,14 +81,17 @@ class PackFileReader {
             w: this.stream.getFloat32()
         }
     }
+
     getMatrix3x3() {
-       const elements = new Array(16)
+       const elements = []
        for (let i = 0; i < 3; i++) {
            for (let j = 0; j < 3; j++) {
-               elements[4 * i + j] = this.stream.getFloat32()
+               elements.push(this.stream.getFloat32())
            }
        }
+       return elements
     }
+
     getTransform() {
         const xformType = this.stream.getUint8()
         let q, t, s, matrix

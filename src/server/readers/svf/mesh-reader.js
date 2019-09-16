@@ -5,6 +5,7 @@ class MeshReader extends PackFileReader {
         super(buff)
         this.parseMeshes()
     }
+
     parseMeshes() {
         const entries = this.numEntries()
         this.meshes = []
@@ -25,6 +26,7 @@ class MeshReader extends PackFileReader {
             }
         }
     }
+
     parseMeshOCTM() {
         const stream = this.stream
         const fourcc = stream.getString(4)
@@ -40,10 +42,11 @@ class MeshReader extends PackFileReader {
         }
         mesh.vcount = stream.getInt32() // Num of vertices
         mesh.tcount = stream.getInt32() // Num of triangles
-        mesh.uvs = stream.getInt32() // Num of texture UVs per vertex
+        mesh.uvcount = stream.getInt32() // Num of UV maps
         mesh.attrs = stream.getInt32() // Number of attributes per vertex
         mesh.flags = stream.getInt32()
         mesh.comment = stream.getString(stream.getInt32())
+        mesh.uvmaps = []
         switch (method) {
             case 'RAW':
                 this.parseMeshRAW(mesh)
@@ -56,6 +59,7 @@ class MeshReader extends PackFileReader {
                 return null
         }
     }
+
     parseMeshRAW(mesh) {
         // We will create a single ArrayBuffer to back both the vertex and index buffers.
         // The indices will be places after the vertex information, because we need alignment of 4 bytes.
@@ -93,7 +97,21 @@ class MeshReader extends PackFileReader {
                 mesh.normals[i] = stream.getFloat32()
             }
         }
+        // Parse zero or more UV maps
+        for (let i = 0; i < mesh.uvcount; i++) {
+            name = stream.getString(4)
+            console.assert(name === 'TEXC')
+            const uvmap = {}
+            uvmap.name = stream.getString(stream.getInt32())
+            uvmap.file = stream.getString(stream.getInt32())
+            uvmap.uvs = new Float32Array(mesh.vcount * 2)
+            for (let j = 0; j < mesh.vcount * 2; j++) {
+                uvmap.uvs[j] = stream.getFloat32()
+            }
+            mesh.uvmaps.push(uvmap)
+        }
     }
+
     parseMeshMG2(mesh) {
         throw new Error('Not implemented')
     }

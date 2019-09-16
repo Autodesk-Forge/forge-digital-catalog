@@ -8,6 +8,7 @@ This digital catalog app has a built-in feature to enable AR workflows by adding
 
 ## Table of Contents
 * [Translating CAD models to glTF file format](#translate-svf-to-gltf)
+* [Validating the glTF output](#validating-the-gltf-output)
 * [Choosing an Augmented Reality Authoring Tool](#choosing-an-ar-tool)
 
 ## Translate SVF to glTF
@@ -24,10 +25,18 @@ To generate glTF files, simply publish a CAD model to the catalog and once the t
 
 The glTF files can be emailed to the person who will author the animations.
 
+## Validating the glTF output
+
+The glTF files can be tested with a simple drag and drop into this free [glTF viewer](https://gltf-viewer.donmccurdy.com/).
+
 ## Choosing an AR tool
+
+The list below is not an exhaustive list of AR/VR tools you can choose to author instructions in a rich AR/VR environment. This list is just provided as-is and does not represent an official recommendation from Autodesk. 
 
 ### Apple AR Kit
 
+[Authoring Instructions with Apple ARKit](arvr/apple-arkit)
+
 ### Scope AR
 
-### Torch AR
+[Authoring Instructions with Scope AR](arvr/scopear)
