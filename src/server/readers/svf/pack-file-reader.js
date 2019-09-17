@@ -22,6 +22,7 @@ class PackFileReader {
         this.stream.seek(this.stream.length - 8)
         const entriesOffset = this.stream.getUint32()
         const typesOffset = this.stream.getUint32()
+
         // Populate entries
         this.entries = [] // offsets to individual entries in the pack file
         this.stream.seek(entriesOffset)
@@ -29,6 +30,7 @@ class PackFileReader {
         for (let i = 0; i < entriesCount; i++) {
             this.entries.push(this.stream.getUint32())
         }
+
         // Populate type sets
         this.types = [] // types of all entries in the pack file
         this.stream.seek(typesOffset)
@@ -40,6 +42,7 @@ class PackFileReader {
                 version: this.stream.getVarint()
             })
         }
+
         // Restore offset
         this.stream.seek(originalOffset)
     }
@@ -52,6 +55,7 @@ class PackFileReader {
         if (i >= this.numEntries()) {
             return null
         }
+
         // Read the type index and populate the entry data
         this.stream.seek(this.entries[i])
         const type = this.stream.getUint32()

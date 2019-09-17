@@ -34,7 +34,7 @@
           >
             <v-expansion-panels 
               v-model="panel"
-              expand
+              multiple
               popout
             >
               <v-expansion-panel>

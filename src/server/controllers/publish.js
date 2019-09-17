@@ -42,7 +42,6 @@ async function compressGltfOutput(urn) {
         if (filePath.includes('-optimized.')) {
           optimizedFilePaths.push(filePath)
           optimizedFilePaths.push(filePath.replace('.gltf', '.bin'))
-          optimizedFilePaths.push(path.join(path.dirname(filePath), 'dbids.bin'))
           optimizedFilePaths.push(path.join(path.dirname(filePath), 'output.metadata.json'))
           optimizedFilePaths.push(path.join(path.dirname(filePath), 'props.db'))
         }
