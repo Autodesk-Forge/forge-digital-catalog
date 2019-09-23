@@ -6,7 +6,6 @@ module.exports = {
         'corejs': 'core-js@2',
         'useBuiltIns': 'usage'
       }
-    ],
-    '@vue/app'
+    ]
   ]
 }
