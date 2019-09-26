@@ -172,7 +172,8 @@ async function initializeDb() {
     if (fileFormats.status === 200 && fileFormats.message.length === 0) {
       logger.info('... Initializing supported file formats')
       await setFileFormatToggles({ 
-        creo: false, 
+        creo: false,
+        dwg: false,
         fbx: false,
         fusion: false, 
         inventor: false, 
@@ -324,6 +325,7 @@ async function setFileFormatToggles(body) {
         name: 'fileFormatToggles',
         fileFormatToggles: {
           creo: body.creo,
+          dwg: body.dwg,
           fbx: body.fbx,
           fusion: body.fusion,
           inventor: body.inventor,

@@ -217,10 +217,15 @@ export default new Vuex.Store({
       twin: null
     },
     fileFormatToggles: {
+      creo: null,
+      dwg: null,
+      fbx: null,
       fusion: null,
       inventor: null,
       navisworks: null,
-      revit: null
+      obj: null,
+      solidworks: null,
+      step: null
     },
     fileType: null,
     hubs: [],

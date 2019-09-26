@@ -107,7 +107,12 @@ async function finalizePublishJob (resourceUrn) {
         await updateCatalogFileSvf({ isFile: true, ossDesignUrn: asciiResourceUrn }, resourceUrn)
         await updatePublishLogEntry({ 'job.input.designUrn': asciiResourceUrn }, 'FINISHED', resourceUrn)
         const featureToggles = await getFeatureToggles()
-        if (featureToggles.status === 200 && featureToggles.message[0].featureToggles.arvr_toolkit) {
+        const catalogFile = await getCatalogFileByOSSDesignUrn(asciiResourceUrn)
+        if (
+          featureToggles.status === 200 
+          && featureToggles.message[0].featureToggles.arvr_toolkit
+          && !catalogFile.message.name.toLowerCase().endsWith('.dwg')
+          ) {
           await translateSvfToGltf(asciiResourceUrn)
           logger.info('... Successfully translated CAD model to SVF and glTF formats')
           await optimizeGltfOutput(asciiResourceUrn)

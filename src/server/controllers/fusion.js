@@ -36,6 +36,7 @@ async function getFolderContents(session, projectId, folderId, retry = 0) {
         filters += ',items:autodesk.fusion360:Design'
       }
       if (fileFormats.message[0].fileFormatToggles.creo 
+        || fileFormats.message[0].fileFormatToggles.dwg
         || fileFormats.message[0].fileFormatToggles.fbx
         || fileFormats.message[0].fileFormatToggles.inventor 
         || fileFormats.message[0].fileFormatToggles.navisworks
@@ -63,16 +64,23 @@ async function getFolderContents(session, projectId, folderId, retry = 0) {
       if (fileFormats.message[0].fileFormatToggles.creo) {
         const creoDocs = res.data.data.filter(item => {
           return item.type === 'items' 
-              && (item.attributes.displayName.toLowerCase().endsWith('.asm')
-              || item.attributes.displayName.toLowerCase().endsWith('.drw')
-              || item.attributes.displayName.toLowerCase().endsWith('.prt'))
+            && (item.attributes.displayName.toLowerCase().endsWith('.asm')
+            || item.attributes.displayName.toLowerCase().endsWith('.drw')
+            || item.attributes.displayName.toLowerCase().endsWith('.prt'))
         })
         items.data.push(...creoDocs)
+      }
+      if (fileFormats.message[0].fileFormatToggles.dwg) {
+        const dwgDocs = res.data.data.filter(item => {
+          return item.type === 'items'
+            && item.attributes.displayName.toLowerCase().endsWith('.dwg')
+        })
+        items.data.push(...dwgDocs)
       }
       if (fileFormats.message[0].fileFormatToggles.fbx) {
         const fbxDocs = res.data.data.filter(item => {
           return item.type === 'items' 
-              && item.attributes.displayName.toLowerCase().endsWith('.fbx')
+            && item.attributes.displayName.toLowerCase().endsWith('.fbx')
         })
         items.data.push(...fbxDocs)
       }
@@ -85,40 +93,40 @@ async function getFolderContents(session, projectId, folderId, retry = 0) {
       if (fileFormats.message[0].fileFormatToggles.inventor) {
         const inventorDocs = res.data.data.filter(item => {
           return item.type === 'items' 
-              && (item.attributes.displayName.toLowerCase().endsWith('.iam')
-              || item.attributes.displayName.toLowerCase().endsWith('.idw')
-              || item.attributes.displayName.toLowerCase().endsWith('.ipt'))
+            && (item.attributes.displayName.toLowerCase().endsWith('.iam')
+            || item.attributes.displayName.toLowerCase().endsWith('.idw')
+            || item.attributes.displayName.toLowerCase().endsWith('.ipt'))
         })
         items.data.push(...inventorDocs)
       }
       if (fileFormats.message[0].fileFormatToggles.navisworks) {
         const navisworksDocs = res.data.data.filter(item => {
           return item.type === 'items' 
-              && item.attributes.displayName.toLowerCase().endsWith('.nwd')
+            && item.attributes.displayName.toLowerCase().endsWith('.nwd')
         })
         items.data.push(...navisworksDocs)
       }
       if (fileFormats.message[0].fileFormatToggles.obj) {
         const objDocs = res.data.data.filter(item => {
           return item.type === 'items' 
-              && item.attributes.displayName.toLowerCase().endsWith('.obj')
+            && item.attributes.displayName.toLowerCase().endsWith('.obj')
         })
         items.data.push(...objDocs)
       }
       if (fileFormats.message[0].fileFormatToggles.solidworks) {
         const solidworksDocs = res.data.data.filter(item => {
           return item.type === 'items' 
-              && (item.attributes.displayName.toLowerCase().endsWith('.sldasm')
-              || item.attributes.displayName.toLowerCase().endsWith('.slddrw')
-              || item.attributes.displayName.toLowerCase().endsWith('.sldprt'))
+            && (item.attributes.displayName.toLowerCase().endsWith('.sldasm')
+            || item.attributes.displayName.toLowerCase().endsWith('.slddrw')
+            || item.attributes.displayName.toLowerCase().endsWith('.sldprt'))
         })
         items.data.push(...solidworksDocs)
       }
       if (fileFormats.message[0].fileFormatToggles.step) {
         const stepDocs = res.data.data.filter(item => {
           return item.type === 'items' 
-              && (item.attributes.displayName.toLowerCase().endsWith('.step')
-              || item.attributes.displayName.toLowerCase().endsWith('.stp'))
+            && (item.attributes.displayName.toLowerCase().endsWith('.step')
+            || item.attributes.displayName.toLowerCase().endsWith('.stp'))
         })
         items.data.push(...stepDocs)
       }

@@ -11,6 +11,15 @@
       <v-container style="height:240px;max-height:300px;overflow-y:scroll">
         <v-list-item>
           <v-list-item-action>
+            <v-checkbox v-model="formats.dwg" />
+          </v-list-item-action>
+          <v-list-item-content @click="formats.dwg = !formats.dwg">
+            <v-list-item-title>AutoCAD</v-list-item-title>
+            <v-list-item-subtitle>.DWG</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-action>
             <v-checkbox v-model="formats.creo" />
           </v-list-item-action>
           <v-list-item-content @click="formats.creo = !formats.creo">
@@ -88,6 +97,7 @@
           @click="() => { 
             saveFileFormats(
               formats.creo,
+              formats.dwg,
               formats.fbx,
               formats.fusion,
               formats.inventor,
@@ -113,6 +123,7 @@ export default {
     alertMessage: '',
     formats: {
       creo: false,
+      dwg: false,
       fbx: false,
       fusion: false,
       inventor: false,
@@ -139,6 +150,7 @@ export default {
         if (res.status === 200 && res.data.length > 0) {
           this.$log.info('... retrieved file format toggles in database.')
           this.formats.creo = res.data[0].fileFormatToggles.creo
+          this.formats.dwg = res.data[0].fileFormatToggles.dwg
           this.formats.fbx = res.data[0].fileFormatToggles.fbx
           this.formats.fusion = res.data[0].fileFormatToggles.fusion
           this.formats.inventor = res.data[0].fileFormatToggles.inventor
@@ -148,6 +160,7 @@ export default {
           this.formats.step = res.data[0].fileFormatToggles.step
           this.$store.dispatch('setFileFormatToggles', {
             creo: res.data[0].fileFormatToggles.creo,
+            dwg: res.data[0].fileFormatToggles.dwg,
             fbx: res.data[0].fileFormatToggles.fbx,
             fusion: res.data[0].fileFormatToggles.fusion,
             inventor: res.data[0].fileFormatToggles.inventor,
@@ -162,12 +175,13 @@ export default {
         this.alertMessage = err
       }
     },
-    async saveFileFormats(creo, fbx, fusion, inventor, navisworks, obj, solidworks, step) {
+    async saveFileFormats(creo, dwg, fbx, fusion, inventor, navisworks, obj, solidworks, step) {
       try {
         this.$store.dispatch('setSaving', { fileFormatSetting: true })
         const res = await this.$axios({
           data: {
             creo,
+            dwg,
             fbx,
             fusion,
             inventor,
@@ -182,6 +196,7 @@ export default {
         if (res.status === 200) {
           this.$log.info('... saved file formats toggles in database.')
           this.formats.creo = res.data.fileFormatToggles.creo
+          this.formats.dwg = res.data.fileFormatToggles.dwg
           this.formats.fbx = res.data.fileFormatToggles.fbx
           this.formats.fusion = res.data.fileFormatToggles.fusion
           this.formats.inventor = res.data.fileFormatToggles.inventor
@@ -191,6 +206,7 @@ export default {
           this.formats.step = res.data.fileFormatToggles.step
           this.$store.dispatch('setFileFormatToggles', {
             creo: res.data.fileFormatToggles.creo,
+            dwg: res.data.fileFormatToggles.dwg,
             fbx: res.data.fileFormatToggles.fbx,
             fusion: res.data.fileFormatToggles.fusion,
             inventor: res.data.fileFormatToggles.inventor,
