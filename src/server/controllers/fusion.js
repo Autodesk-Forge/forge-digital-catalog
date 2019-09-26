@@ -30,7 +30,7 @@ async function getFolderContents(session, projectId, folderId, retry = 0) {
   try {
     const tokenSession = new Token(session)
     const fileFormats = await getFileFormatToggles()
-    let filters = 'folders:autodesk.core:Folder'
+    let filters = 'folders:autodesk.core:Folder,folders:autodesk.bim360:Folder'
     if (fileFormats.status === 200) {
       if (fileFormats.message[0].fileFormatToggles.fusion) {
         filters += ',items:autodesk.fusion360:Design'
@@ -42,7 +42,7 @@ async function getFolderContents(session, projectId, folderId, retry = 0) {
         || fileFormats.message[0].fileFormatToggles.obj
         || fileFormats.message[0].fileFormatToggles.solidworks
         || fileFormats.message[0].fileFormatToggles.step) {
-        filters += ',items:autodesk.core:File'
+        filters += ',items:autodesk.core:File,items:autodesk.bim360:File'
       }
     }
     const res = await axios({
@@ -149,14 +149,14 @@ async function getHubs(session, retry = 0) {
       logger.error('... Found empty passport session')
       throw new Error('Found empty passport session')
     }
-    // Limit to A360 Teams hubs only (no personal of BIM360 hubs allowed)
+    // Limit to A360 Teams hubs & BIM360 Docs only (no personal hubs allowed)
     const res = await axios({
       headers: {
         Authorization: `Bearer ${tokenSession._session.passport.user.access_token}`
       },
       method: 'GET',
       timeout: config.get('axios_timeout'),
-      url: `${config.get('API_project_host')}/hubs?filter[extension.type]=hubs:autodesk.core:Hub`
+      url: `${config.get('API_project_host')}/hubs?filter[extension.type]=hubs:autodesk.core:Hub&filter[extension.type]=hubs:autodesk.bim360:Account`
     })
     if (res.status === 200) {
       ret = {
@@ -351,6 +351,40 @@ async function getThumbnail(urn, retry = 0) {
 }
 
 /**
+ * Returns the details of the highest level folders the user has access to for a given project
+ * @param {*} session 
+ * @param {*} hubId 
+ * @param {*} projectId 
+ * @param {*} retry 
+ */
+async function getTopFolders(session, hubId, projectId, retry = 0) {
+  try {
+    const tokenSession = new Token(session)
+    const res = await axios({
+      headers: {
+        Authorization: `Bearer ${tokenSession._session.passport.user.access_token}`
+      },
+      method: 'GET',
+      timeout: config.axios_timeout,
+      url: `${config.get('API_project_host')}/hubs/${hubId}/projects/${projectId}/topFolders`
+    })
+    if (res.status === 200) {
+      ret = {
+        status: 200,
+        message: res.data
+      }
+    }
+    return ret
+  } catch (err) {
+    retry++
+    if (retry < 3) {
+      await getTopFolders(session, hubId, projectId, retry)
+    }
+    return handleError(err)
+  }
+}
+
+/**
  * Retrieves user profile
  * @param {*} session 
  * @param {*} retry 
@@ -429,6 +463,7 @@ module.exports = {
   getProject,
   getProjects,
   getThumbnail,
+  getTopFolders,
   getUserProfile,
   getVersionRefs
 }

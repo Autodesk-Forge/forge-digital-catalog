@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-const Admin = () => import('./components/Admin')
+const Admin = () => import('./components/admin/Admin')
 const DigitalCatalog = () => import('./components/DigitalCatalog')
-const IssuesPublisher = () => import('./components/IssuesPublisher')
-const ManualsPublisher = () => import('./components/ManualsPublisher')
-const Publisher = () => import('./components/Publisher')
+const IssuesPublisher = () => import('./components/publish/IssuesPublisher')
+const ManualsPublisher = () => import('./components/publish/ManualsPublisher')
+const Publisher = () => import('./components/publish/Publisher')
 
 Vue.use(Router)
 

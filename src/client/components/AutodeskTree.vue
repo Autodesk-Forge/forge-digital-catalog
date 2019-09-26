@@ -141,7 +141,10 @@ export default {
               id: val.id,
               name: val.attributes.displayName,
               type:
-                val.attributes.extension.type === "folders:autodesk.core:Folder"
+                ( 
+                  val.attributes.extension.type === "folders:autodesk.core:Folder"
+                  || val.attributes.extension.type ===  "folders:autodesk.bim360:Folder"
+                )
                   ? "folder"
                   : "item"
             }
@@ -188,11 +191,11 @@ export default {
           const resContent = await this.$axios({
             method: "GET",
             url: new URL(
-              `api/fusion/projects/${
+              `/api/fusion/hubs/${
+              this.$store.state.defaultHubProjectSetting.hubId
+              }/projects/${
               this.$store.state.defaultHubProjectSetting.projectId
-              }/folders/${
-              res.data.data.relationships.rootFolder.data.id
-              }/contents`,
+              }/topFolders`,
               config.koahost
             ).href
           })

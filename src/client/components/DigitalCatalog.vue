@@ -95,7 +95,7 @@
 
 <script>
 import catalogTree from './CatalogTree.vue'
-import forgeViewer from './ForgeViewer.vue'
+import forgeViewer from './viewer/ForgeViewer.vue'
 
 import config from './../config'
 

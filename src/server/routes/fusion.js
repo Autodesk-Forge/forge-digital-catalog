@@ -15,6 +15,7 @@ const {
   getProject,
   getProjects,
   getThumbnail,
+  getTopFolders,
   getUserProfile,
   getVersionRefs
 } = require('../controllers/fusion')
@@ -182,6 +183,26 @@ router.get(
       logger.error(err)
       ctx.status = 500
       ctx.body = 'A server error occurred while retrieving projects'
+    }
+  }
+)
+
+/**
+ * Retrieve Top Folders
+ */
+router.get(
+  '/hubs/:hubId/projects/:projectId/topFolders',
+  async ctx => {
+    try {
+      const topFolders = await getTopFolders(ctx.session, ctx.params.hubId, ctx.params.projectId)
+      if (topFolders) {
+        ctx.status = topFolders.status
+        ctx.body = topFolders.message
+      }
+    } catch (err) {
+      ogger.error(err)
+      ctx.status = 500
+      ctx.body = 'A server error occurred while retrieving top folders'
     }
   }
 )

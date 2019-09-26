@@ -6,6 +6,7 @@ module.exports = {
     },
     configureWebpack: {
         devServer: {
+            contentBase: './src/client/public',
             compress: true
         },
         plugins: [
