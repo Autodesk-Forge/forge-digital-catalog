@@ -30,7 +30,7 @@
 
 ## Description 
 
-The digital catalog project is a Forge-powered responsive web application that enables companies to publish key models (Inventor, Fusion360) from Fusion Team
+The digital catalog project is a Forge-powered responsive web application that enables companies to publish key models (Inventor, Fusion360) from Fusion Team or BIM360 Docs
 to their proprietary catalog. Companies can create the catalog structure they need as well as retire products, which have reached end-of-life, from the catalog.
 
 External users can search the catalog and view a 3D representation of each catalog item using the Forge Viewer. 
