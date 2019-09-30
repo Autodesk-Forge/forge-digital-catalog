@@ -31,4 +31,4 @@ If you need further help, please visit this [site](https://developer.apple.com/v
 
 Launch reality composer, open your project, and export current scene to new reality file (file extension `.reality`). 
 
-![Reality Composer](/_media/reality_composer.png)
+![Reality Composer](../_media/reality_composer.png)
