@@ -111,7 +111,9 @@ async function finalizePublishJob (resourceUrn) {
         if (
           featureToggles.status === 200 
           && featureToggles.message[0].featureToggles.arvr_toolkit
+          && !catalogFile.message.name.toLowerCase().endsWith('.drw')
           && !catalogFile.message.name.toLowerCase().endsWith('.dwg')
+          && !catalogFile.message.name.toLowerCase().endsWith('.slddrw')
           ) {
           await translateSvfToGltf(asciiResourceUrn)
           logger.info('... Successfully translated CAD model to SVF and glTF formats')
