@@ -20,7 +20,6 @@ const { getToken } = require('../helpers/auth')
 const handleError = require('../helpers/error-handler')
 const { uploadZipObject } = require('../helpers/file-handler')
 const { getManifest, traverseManifest } = require('../helpers/forge')
-const { optimizeGltf } = require('../helpers/gltf-handler')
 
 const Publisher = require('../models/publish')
 
@@ -37,17 +36,12 @@ async function compressGltfOutput(urn) {
     try {
       const outputFolder = path.join('/tmp', 'cache')
       const urnFolder = path.join(outputFolder, urn)
-      const optimizedFilePaths = []
+      const filePaths = []
       listFilesInDirectory(urnFolder, filePath => {
-        if (filePath.includes('-optimized.')) {
-          optimizedFilePaths.push(filePath)
-          optimizedFilePaths.push(filePath.replace('.gltf', '.bin'))
-          optimizedFilePaths.push(path.join(path.dirname(filePath), 'output.metadata.json'))
-          optimizedFilePaths.push(path.join(path.dirname(filePath), 'props.db'))
-        }
+        filePaths.push(filePath)
       })
       const catalogFile = await getCatalogFileByOSSDesignUrn(urn)
-      await createArchive(catalogFile.message.svfUrn, optimizedFilePaths)
+      await createArchive(catalogFile.message.svfUrn, filePaths, urnFolder)
     } catch(err) {
       return handleError(err)
     }
@@ -57,7 +51,7 @@ async function compressGltfOutput(urn) {
  * Compress the glTF output files into an archive 
  * @param {*} fileNames 
  */
-async function createArchive(archiveName, fileNames) {
+async function createArchive(archiveName, fileNames, basePath) {
     try {
       return new Promise((resolve, reject) => {
         let zipFileName = path.basename(archiveName, path.extname(archiveName))
@@ -86,7 +80,14 @@ async function createArchive(archiveName, fileNames) {
         })
         archive.pipe(output)
         fileNames.forEach(filePath => {
-          archive.file(filePath, { name: path.basename(filePath) })
+          if (path.dirname(filePath).endsWith('output')) {
+            archive.file(filePath, { name: path.basename(filePath) })
+          } else {
+            const baseToOutputPath = path.relative(basePath, path.normalize(path.join(path.dirname(filePath), '../..')))
+            const outputPath = path.join(basePath, baseToOutputPath)
+            const outputToFilePath = path.relative(outputPath, filePath)
+            archive.file(filePath, { name: outputToFilePath })
+          }
         })
         archive.finalize()
       })
@@ -117,8 +118,6 @@ async function finalizePublishJob (resourceUrn) {
           ) {
           await translateSvfToGltf(asciiResourceUrn)
           logger.info('... Successfully translated CAD model to SVF and glTF formats')
-          await optimizeGltfOutput(asciiResourceUrn)
-          logger.info('... Successfully optimized all glTF files')
           await compressGltfOutput(asciiResourceUrn)
           logger.info('... Successfully compressed Gltf files')
           await uploadGltfArchiveToBucket(asciiResourceUrn)
@@ -213,30 +212,6 @@ function listFilesInDirectory(dir, callback) {
     }
 }
 
-/**
- * Optimizes the glTF files
- * @param {*} urn 
- */
-async function optimizeGltfOutput(urn) {
-    try {
-      const outputFolder = path.join('/tmp', 'cache')
-      const urnFolder = path.join(outputFolder, urn)
-      const gltfFilePaths = []
-      listFilesInDirectory(urnFolder, filePath => {
-        if (path.extname(filePath).toLowerCase() === '.gltf' && !filePath.endsWith('-optimized.gltf')) {
-          gltfFilePaths.push(filePath)
-        }
-      })
-      await Promise.all(gltfFilePaths.map(async (filePath) => {
-        logger.info(`... Optimizing glTF output of file: ${filePath}`)
-        await optimizeGltf(filePath)
-        return Promise.resolve(filePath)
-      }))
-    } catch (err) {
-      return handleError(err)
-    }
-}
-
 /** 
  * Sets Publish Log Entry
  */
@@ -321,7 +296,7 @@ async function translateSvfToGltf(urn) {
       if (!fs.existsSync(urnFolder)) fs.mkdirSync(urnFolder, { recursive: true })
       await Promise.all(guids.map(async guid => {
         logger.info(`... Starting translation to glTF of viewable guid: ${guid}`)
-        return await convertToGltf(catalogFile.message.svfUrn, guid, token.message.access_token, urnFolder)
+        return await convertToGltf(catalogFile.message.svfUrn, guid, urnFolder)
       }))
     } catch (err) {
       return handleError(err)

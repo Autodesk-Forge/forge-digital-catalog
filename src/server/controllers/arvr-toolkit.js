@@ -11,9 +11,10 @@ axios.defaults.crossDomain = true
 
 const handleError = require('../helpers/error-handler')
 
-const { deserialize } = require('../readers/svf')
 const { getToken } = require('../helpers/auth')
-const { serialize } = require('../writers/gltf')
+
+const { ModelDerivativeClient, ManifestHelper } = require('forge-server-utils')
+const { SvfReader, GltfWriter } = require('forge-convert-utils')
 
 let ret = {
   status: 520,
@@ -27,15 +28,30 @@ let ret = {
  * @param {*} token 
  * @param {*} folder 
  */
-async function convertToGltf(urn, guid, token, folder) {
+async function convertToGltf(urn, guid, folder) {
     try {
         const viewableFolder = path.join(folder, guid)
         if (!fs.existsSync(viewableFolder)) fs.mkdirSync(viewableFolder)
         const outputFolder = path.join(viewableFolder, 'gltf')
         if (!fs.existsSync(outputFolder)) fs.mkdirSync(outputFolder)
-        const model = await deserialize(urn, token, guid, console.log)
-        serialize(model, path.join(outputFolder, 'output'))
-        fs.writeFileSync(path.join(outputFolder, 'props.db'), model.propertydb) // TODO: store property db just once per URN
+        const auth = {
+            client_id: config.get('oauth2.clientID'),
+            client_secret: config.get('oauth2.clientSecret')
+        }
+        const modelDerivativeClient = new ModelDerivativeClient(auth)
+        const helper = new ManifestHelper(await modelDerivativeClient.getManifest(urn))
+        const derivatives = helper.search({ type: 'resource', role: 'graphics' })
+        const writer = new GltfWriter(path.join(outputFolder, 'output'), { 
+            compress: true, 
+            deduplicate: true, 
+            log: (msg) => logger.info('Writer', msg) 
+        })
+        for (const derivative of derivatives.filter(d => d.mime === 'application/autodesk-svf')) {
+            const reader = await SvfReader.FromDerivativeService(urn, derivative.guid, auth)
+            const svf = await reader.read()
+            writer.write(svf)
+        }
+        await writer.close()
     } catch (err) {
         return handleError(err)
     }
@@ -177,21 +193,23 @@ async function translateSvfToGltf(svfUrn, guid, retry = 0) {
         const folder = path.join('/tmp/cache', svfUrn, guid)
         if (!fs.existsSync(folder)) {
             createFolders(folder)
-            const logfile = path.join(folder, 'output.log')
-            function log(msg) { 
-                fs.appendFileSync(logfile, `[${new Date().toString()}] ${msg}\n`)
+            const auth = {
+                client_id: config.get('oauth2.clientID'),
+                client_secret: config.get('oauth2.clientSecret')
             }
-            const token = await getToken()
-            const accessToken = token.message.access_token.replace('Bearer ', '')
-            const model = await deserialize(svfUrn, accessToken, guid, log)
-            logger.info(`translateSvfToGltf: model: ${model}`)
-            serialize(model, path.join(folder, 'output'))
-            const bytesWritten = fs.writeFileSync(path.join(folder, 'props.db'), model.propertydb) // TODO: store property db just once per URN
-            if (bytesWritten) {
-                ret = {
-                    status: 200,
-                    message: bytesWritten
-                }
+            const modelDerivativeClient = new ModelDerivativeClient(auth)
+            const helper = new ManifestHelper(await modelDerivativeClient.getManifest(svfUrn))
+            const derivatives = helper.search({ type: 'resource', role: 'graphics' })
+            const writer = new GltfWriter(path.join(folder, 'output'))
+            for (const derivative of derivatives.filter(d => d.mime === 'application/autodesk-svf')) {
+                const reader = await SvfReader.FromDerivativeService(svfUrn, derivative.guid, auth)
+                const svf = await reader.read()
+                writer.write(svf)
+            }
+            writer.close()
+            ret = {
+                status: 200,
+                message: 'glTF output created.'
             }
         } else {
             retry = 3

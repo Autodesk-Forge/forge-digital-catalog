@@ -89,11 +89,9 @@ This section will guide you through getting the code up and running on your own 
     ```@koa/cors: "3.0.0"```\
     ```@mdi/font: "4.4.95"```\
     ```archiver: "3.1.1"```\
-    ```arraybuffer-equal: "1.0.4"```\
     ```axios: "0.19.0"```\
     ```bad-words: "3.0.3"```\
     ```config: "3.2.2"```\
-    ```deep-equal: "1.1.0"```\
     ```fs-extra: "8.1.0"```\
     ```koa: "2.8.1"```\
     ```koa-bodyparser: "4.2.1"```\
@@ -109,7 +107,6 @@ This section will guide you through getting the code up and running on your own 
     ```material-design-icons-iconfont: "5.0.1"```\
     ```mongodb-uri: "0.9.7"```\
     ```mongoose: "5.7.0"```\
-    ```node-zip: "1.1.1"```\
     ```passport-oauth2: "1.5.0"```\
     ```register-service-worker: "1.6.2"```\
     ```validator: "11.1.0"```\

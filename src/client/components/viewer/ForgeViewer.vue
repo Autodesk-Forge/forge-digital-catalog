@@ -202,6 +202,12 @@ export default {
             }
         },
         onModelLoaded (model) {
+            this.viewer.restoreState({
+                'viewport': {
+                    'projection': 'perspective',
+                    'isOrthographic': false
+                }
+            })
             return
         },
         async selectItem (doc) {
