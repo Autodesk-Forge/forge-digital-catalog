@@ -166,7 +166,7 @@ async function initializeDb() {
     const featureToggles = await getFeatureToggles()
     if (featureToggles.status === 200 && featureToggles.message.length === 0) {
       logger.info('... Initializing feature toggles')
-      await setFeatureToggles({ animation: false, arvr: false, twin: false })
+      await setFeatureToggles({ animation: false, arvr: false, binary: false, compress: false, dedupe: false })
     }
     const fileFormats = await getFileFormatToggles()
     if (fileFormats.status === 200 && fileFormats.message.length === 0) {
@@ -289,9 +289,11 @@ async function setFeatureToggles(body) {
       {
         name: 'featureToggles',
         featureToggles: {
-          fusion_animation: body.animation,
           arvr_toolkit: body.arvr,
-          digital_twin: body.twin
+          fusion_animation: body.animation,
+          gltf_binary_output: body.binary,
+          gltf_deduplication: body.dedupe,
+          gltf_draco_compression: body.compress
         }
       },
       {

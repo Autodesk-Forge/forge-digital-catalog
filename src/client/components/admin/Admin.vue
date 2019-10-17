@@ -86,7 +86,12 @@
           <companyLogo />
         </v-row>
         <v-row>
-          <defaultHubProject />
+          <defaultHubProject 
+            v-bind:defaultHubProject="defaultHubProject"
+            v-bind:isDefaultHubProjectDefined="isDefaultHubProjectDefined"
+            @newDefaultHubProject="getDefaultHubProject"
+            @resetDefaultHubProject="() => { isDefaultHubProjectDefined=false }"
+          />
           <globalSettings />
           <supportedFileFormats />
         </v-row>
@@ -120,19 +125,47 @@ export default {
   data: () => ({
     alert: false,
     alertMessage: '',
+    defaultHubProject: null,
+    isDefaultHubProjectDefined: false,
     isWebAdminsDefined: false,
     webAdmins: 'Undefined'
   }),
-  beforeMount() {
+  async beforeMount() {
     const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
     // detect if query param isAdminUserLoggedIn is true
     if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
       this.$store.state.isAdminUserLoggedIn = true
-      this.setUserData()
-      this.getSysAdmins()
+      await this.setUserData()
+      await this.getDefaultHubProject()
+      await this.getSysAdmins()
     }
   },
   methods: {
+    async getDefaultHubProject() {
+      try {
+        this.$store.dispatch('setLoading', { defaultHubProjectSetting: true })
+        const res = await this.$axios({
+          method: 'GET',
+          url: new URL(`/api/admin/settings/defaultHubProject/email/${this.$store.state.user.email}`, config.koahost).href
+        })
+        if (res.status === 200 && res.data.length === 1) {
+          this.isDefaultHubProjectDefined = true
+          const defaultHubProjectSetting = res.data
+          this.defaultHubProject = defaultHubProjectSetting.map((val, i) => {
+            return {
+              hub: val.hubName,
+              project: val.projectName
+            }
+          })
+          this.$store.dispatch('setDefaultHubProjectSetting', res.data[0])
+        }
+      } catch (err) {
+        this.alert = true
+        this.alertMessage = err
+      } finally {
+        this.$store.dispatch('setLoading', { defaultHubProjectSetting: false })
+      }
+    },
     async getSysAdmins() {
       try {
         this.$store.dispatch('setLoading', { webAdminsSetting: true })

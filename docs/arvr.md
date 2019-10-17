@@ -19,6 +19,12 @@ To enable this translation feature, simply login to the Administrative console a
 
 ![ARVR Toolkit](/_media/arvr_toolkit.png)
 
+You can fine tune the translation output by using any combination of the following commands:
+
+* `Binary Output` to output glb file instead of gltf
+* `Deduplication` to try and remove duplicate geometries
+* `Draco Compression` to compress meshes using Draco library
+
 To generate glTF files, simply publish a CAD model to the catalog and once the translation completes, the admin user can download the glTF output via a right-click on the catalog item displayed in the publisher console.
 
 ![download glTF](/_media/download_gltf.png)

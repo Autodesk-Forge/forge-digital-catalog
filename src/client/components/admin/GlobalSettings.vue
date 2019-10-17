@@ -8,7 +8,7 @@
           </h3>
         </div>
       </v-card-title>
-      <v-container style="height:240px;max-height:300px;overflow-y:scroll">
+      <v-container style="height:440px;max-height:400px;overflow-y:scroll">
         <v-list
           subheader
           two-line
@@ -32,24 +32,43 @@
               <v-list-item-subtitle>{{ $t('admin.arvrToolkitSubTitle') }}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
-          <!-- <v-list-item>
+          <v-divider
+            v-if="arvr"
+            :inset="true"
+          />
+          <v-list-item v-if="arvr">
             <v-list-item-action>
-              <v-checkbox
-                v-model="twin"
-                disabled
-              />
+              <v-checkbox v-model="binary" />
             </v-list-item-action>
-            <v-list-item-content @click="twin = !twin">
-              <v-list-item-title>Virtual Operations (Beta)</v-list-item-title>
-              <v-list-item-subtitle>Enables digital twin features</v-list-item-subtitle>
+            <v-list-item-content @click="binary = !binary">
+              <v-list-item-title>{{ $t('admin.binary') }}</v-list-item-title>
+              <v-list-item-subtitle>{{ $t('admin.binarySubTitle') }}</v-list-item-subtitle>
             </v-list-item-content>
-          </v-list-item> -->
+          </v-list-item>
+          <v-list-item v-if="arvr">
+            <v-list-item-action>
+              <v-checkbox v-model="dedupe" />
+            </v-list-item-action>
+            <v-list-item-content @click="dedupe = !dedupe">
+              <v-list-item-title>{{ $t('admin.dedupe') }}</v-list-item-title>
+              <v-list-item-subtitle>{{ $t('admin.dedupeSubTitle') }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item v-if="arvr">
+            <v-list-item-action>
+              <v-checkbox v-model="compress" />
+            </v-list-item-action>
+            <v-list-item-content @click="compress = !compress">
+              <v-list-item-title>{{ $t('admin.dracoCompression') }}</v-list-item-title>
+              <v-list-item-subtitle>{{ $t('admin.dracoCompressionSubTitle') }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
         </v-list>
       </v-container>
       <v-card-actions>
         <v-btn
           color="primary"
-          @click="() => { saveFeatureToggles(animation, arvr, twin) }"
+          @click="() => { saveFeatureToggles(animation, arvr, binary, compress, dedupe) }"
         >
           {{ $t('general.save') }}
         </v-btn>
@@ -67,7 +86,9 @@ export default {
     alertMessage: '',
     animation: false,
     arvr: false,
-    twin: false,
+    binary: false,
+    compress: false,
+    dedupe: false
   }),
   beforeMount() {
     const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
@@ -87,11 +108,15 @@ export default {
           this.$log.info('... retrieved feature toggles in database.')
           this.animation = res.data[0].featureToggles.fusion_animation
           this.arvr = res.data[0].featureToggles.arvr_toolkit
-          this.twin = res.data[0].featureToggles.digital_twin
+          this.binary = res.data[0].featureToggles.binary
+          this.compress = res.data[0].featureToggles.gltf_draco_compression
+          this.dedupe = res.data[0].featureToggles.gltf_deduplication
           this.$store.dispatch('setFeatureToggles', {
             animation: res.data[0].featureToggles.fusion_animation,
             arvr: res.data[0].featureToggles.arvr_toolkit,
-            twin: res.data[0].featureToggles.digital_twin
+            binary: res.data[0].featureToggles.gltf_binary_output,
+            compress: res.data[0].featureToggles.gltf_draco_compression,
+            dedupe: res.data[0].featureToggles.gltf_deduplication
           })
         }
       } catch (err) {
@@ -99,14 +124,16 @@ export default {
         this.alertMessage = err
       }
     },
-    async saveFeatureToggles(animation, arvr, twin) {
+    async saveFeatureToggles(animation, arvr, binary, compress, dedupe) {
       try {
         this.$store.dispatch('setSaving', { featureToggleSetting: true })
         const res = await this.$axios({
           data: {
             animation,
             arvr,
-            twin
+            binary,
+            compress,
+            dedupe
           },
           method: 'POST',
           url: new URL('/api/admin/settings/features', config.koahost).href
@@ -115,11 +142,15 @@ export default {
           this.$log.info('... saved feature toggles in database.')
           this.animation = res.data.featureToggles.fusion_animation
           this.arvr = res.data.featureToggles.arvr_toolkit
-          this.twin = res.data.featureToggles.digital_twin
+          this.binary = res.data.featureToggles.gltf_binary_output
+          this.compress = res.data.featureToggles.gltf_draco_compression
+          this.dedupe = res.data.featureToggles.gltf_deduplication
           this.$store.dispatch('setFeatureToggles', {
             animation: res.data.featureToggles.fusion_animation,
             arvr: res.data.featureToggles.arvr_toolkit,
-            twin: res.data.featureToggles.digital_twin
+            binary: res.data.featureToggles.gltf_binary_output,
+            compress: res.data.featureToggles.gltf_draco_compression,
+            dedupe: res.data.featureToggles.gltf_deduplication
           })
         }
       } catch (err) {

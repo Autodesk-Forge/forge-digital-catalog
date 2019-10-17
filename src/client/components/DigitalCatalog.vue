@@ -120,7 +120,9 @@ export default {
         this.$store.dispatch('setFeatureToggles', {
           animation: res.data[0].featureToggles.fusion_animation,
           arvrtoolkit: res.data[0].featureToggles.arvr_toolkit,
-          twin: res.data[0].featureToggles.digital_twin
+          binary: res.data[0].featureToggles.gltf_binary_output,
+          compress: res.data[0].featureToggles.gltf_draco_compression,
+          dedupe: res.data[0].featureToggles.gltf_deduplication
         })
       }
     } catch (err) {

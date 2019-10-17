@@ -8,7 +8,7 @@
           </h3>
         </div>
       </v-card-title>
-      <v-container style="height:240px;max-height:300px;overflow-y:scroll">
+      <v-container style="height:440px;max-height:400px;overflow-y:scroll">
         <v-list-item>
           <v-list-item-action>
             <v-checkbox v-model="formats.dwg" />

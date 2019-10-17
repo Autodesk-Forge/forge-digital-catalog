@@ -84,27 +84,28 @@ export default {
     },
     methods: {
         initViewer(options, forceLoad){
-          return Promise.all([new Promise(res=>{
-           if(!forceLoad&&typeof Autodesk == 'object'&&Autodesk.Viewing)res()
+          return Promise.all([new Promise((resolve, reject) => {
+           if(!forceLoad&&typeof Autodesk == 'object'&&Autodesk.Viewing)resolve()
             else{
             const link  = document.createElement('link')
              link.rel  = 'stylesheet'
              link.type = 'text/css'
              link.href = options.viewerCSSURL
-             link.onload = ()=>res()
+             link.onload = () => resolve()
              document.head.append(link)
            }
-           }), new Promise(res=>{
-             if(!forceLoad&&typeof Autodesk == 'object'&&Autodesk.Viewing)res()
+           }), new Promise((resolve, reject) => {
+             if(!forceLoad&&typeof Autodesk == 'object'&&Autodesk.Viewing)resolve()
              else{
                const script = document.createElement('script')
-               script.onload = ()=>res()
+               script.onload = () => resolve()
                script.src = options.viewerScriptURL
                document.head.append(script)
              }
-           })]).then(()=>{
+           })]).then(() => {
              Autodesk.Viewing.Initializer(options, this.onInitialized)
              this.$store.dispatch('setShowCatalogTree', true)
+             return
            })
         },
         clearModelInViewer () {

@@ -11,6 +11,7 @@ axios.defaults.crossDomain = true
 
 const handleError = require('../helpers/error-handler')
 
+const { getFeatureToggles } = require('./admin')
 const { getToken } = require('../helpers/auth')
 
 const { ModelDerivativeClient, ManifestHelper } = require('forge-server-utils')
@@ -41,17 +42,25 @@ async function convertToGltf(urn, guid, folder) {
         const modelDerivativeClient = new ModelDerivativeClient(auth)
         const helper = new ManifestHelper(await modelDerivativeClient.getManifest(urn))
         const derivatives = helper.search({ type: 'resource', role: 'graphics' })
-        const writer = new GltfWriter(path.join(outputFolder, 'output'), { 
-            compress: true, 
-            deduplicate: true, 
-            log: (msg) => logger.info('Writer', msg) 
-        })
-        for (const derivative of derivatives.filter(d => d.mime === 'application/autodesk-svf')) {
-            const reader = await SvfReader.FromDerivativeService(urn, derivative.guid, auth)
-            const svf = await reader.read()
-            writer.write(svf)
+        const featureToggles = await getFeatureToggles()
+        if (
+            featureToggles.status === 200 
+            && featureToggles.message[0].featureToggles.arvr_toolkit
+            ) {
+                const options = {
+                    binary: featureToggles.message[0].featureToggles.gltf_binary_output,
+                    compress: featureToggles.message[0].featureToggles.gltf_draco_compression,
+                    deduplicate: featureToggles.message[0].featureToggles.gltf_deduplication,
+                    log: (msg) => logger.info('Writer', msg) 
+                }
+                const writer = new GltfWriter(path.join(outputFolder, 'output'), options)
+                for (const derivative of derivatives.filter(d => d.mime === 'application/autodesk-svf')) {
+                    const reader = await SvfReader.FromDerivativeService(urn, derivative.guid, auth)
+                    const svf = await reader.read()
+                    writer.write(svf)
+                }
+                await writer.close()
         }
-        await writer.close()
     } catch (err) {
         return handleError(err)
     }

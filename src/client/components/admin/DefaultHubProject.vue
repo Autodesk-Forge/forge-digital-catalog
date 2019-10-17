@@ -15,7 +15,7 @@
             v-if="!alert"
             color="primary"
             dark
-            @click="isDefaultHubProjectDefined=false"
+            @click="() => { this.$emit('resetDefaultHubProject') }"
           >
             {{ $t('general.reset') }}
           </v-btn>
@@ -101,51 +101,30 @@
 import config from './../../config'
 
 export default {
+  props: { 
+    defaultHubProject: {
+      default: null,
+      type: Array
+    },
+    isDefaultHubProjectDefined: Boolean 
+  },
   data: () => ({
     alert: false,
     alertMessage: '',
-    defaultHubProject: 'Undefined',
     hubs: [],
-    isDefaultHubProjectDefined: false,
     projects: [],
     selectedHub: 'No selection',
     selectedProject: 'No selection',
     step: 1
   }),
-  beforeMount() {
+  async beforeMount() {
     const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
     // detect if query param isAdminUserLoggedIn is true
     if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
-      this.getDefaultHubProject()
-      this.getHubs()
+      await this.getHubs()
     }
   },
   methods: {
-    async getDefaultHubProject() {
-      try {
-        this.$store.dispatch('setLoading', { defaultHubProjectSetting: true })
-        const res = await this.$axios({
-          method: 'GET',
-          url: new URL(`/api/admin/settings/defaultHubProject/email/${this.$store.state.user.email}`, config.koahost).href
-        })
-        if (res.status === 200 && res.data.length === 1) {
-          this.isDefaultHubProjectDefined = true
-          const defaultHubProjectSetting = res.data
-          this.defaultHubProject = defaultHubProjectSetting.map((val, i) => {
-            return {
-              hub: val.hubName,
-              project: val.projectName
-            }
-          })
-          this.$store.dispatch('setDefaultHubProjectSetting', res.data[0])
-        }
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      } finally {
-        this.$store.dispatch('setLoading', { defaultHubProjectSetting: false })
-      }
-    },
     async getHubs() {
       try {
         this.$store.dispatch('setLoading', { hubsInfo: true })
@@ -225,7 +204,7 @@ export default {
         this.alertMessage = err
       } finally {
         this.$store.dispatch('setSaving', { defaultHubProjectSetting: false })
-        this.getDefaultHubProject()
+        this.$emit('newDefaultHubProject')
       }
     },
     validateSession(storageVariable) {
