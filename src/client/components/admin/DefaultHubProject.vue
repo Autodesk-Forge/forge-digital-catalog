@@ -7,7 +7,9 @@
             <h3 class="headline mb-0">
               {{ $t('admin.defaultHubProject') }}
             </h3>
-            <div>{{ defaultHubProject[0].hub }} | {{ defaultHubProject[0].project }}</div>
+            <div v-if="isDefaultHubProjectDefined">
+              {{ defaultHubProject[0].hub }} | {{ defaultHubProject[0].project }}
+            </div>
           </div>
         </v-card-title>
         <v-card-actions>
@@ -103,7 +105,7 @@ import config from './../../config'
 export default {
   props: { 
     defaultHubProject: {
-      default: null,
+      default() { return [] },
       type: Array
     },
     isDefaultHubProjectDefined: Boolean 

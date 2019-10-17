@@ -125,7 +125,7 @@ export default {
   data: () => ({
     alert: false,
     alertMessage: '',
-    defaultHubProject: null,
+    defaultHubProject: [],
     isDefaultHubProjectDefined: false,
     isWebAdminsDefined: false,
     webAdmins: 'Undefined'
