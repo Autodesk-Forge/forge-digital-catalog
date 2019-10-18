@@ -1,6 +1,7 @@
 # [Scope AR](https://www.scopear.com)
 
 ## Table of Contents
+
 * [Author Instructions for Augmented Reality](#authoring-the-instructions)
 * [Play Instructions](#playing-the-instructions)
 

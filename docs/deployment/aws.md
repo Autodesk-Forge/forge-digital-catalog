@@ -1,12 +1,13 @@
 # AWS Deployment
 
-Amazon Web Services (AWS) comprises over one hundred services, each of which exposes an area of functionality. 
+Amazon Web Services (AWS) comprises over one hundred services, each of which exposes an area of functionality.
 
-With Elastic Beanstalk service, you can quickly deploy and manage applications in the AWS Cloud without having to learn about the infrastructure that runs those applications. 
+With Elastic Beanstalk service, you can quickly deploy and manage applications in the AWS Cloud without having to learn about the infrastructure that runs those applications.
 
 Elastic Beanstalk supports applications developed in Node.js.
 
 ## Table of Contents
+
 * [Prerequisites](#prerequisites)
 * [Build and archive the app](#build-and-archive-the-app)
 * [Creating an Elastic Beanstalk App](#creating-an-elastic-beanstalk-app)
@@ -16,7 +17,7 @@ Elastic Beanstalk supports applications developed in Node.js.
 
 ## Prerequisites
 
-If you're not already an AWS customer, you need to sign up. Signing up enables you to access Elastic Beanstalk and other AWS services that you need. 
+If you're not already an AWS customer, you need to sign up. Signing up enables you to access Elastic Beanstalk and other AWS services that you need.
 
 ### To sign up for an AWS account
 
@@ -38,8 +39,8 @@ If you're not already an AWS customer, you need to sign up. Signing up enables y
 
 ## Creating an Elastic Beanstalk App
 
-1. Open the Elastic Beanstalk console with this preconfigured link: 
-   https://console.aws.amazon.com/elasticbeanstalk/home#/gettingStarted?applicationName=getting-started-app
+1. Open the Elastic Beanstalk console with this preconfigured link:
+   <https://console.aws.amazon.com/elasticbeanstalk/home#/gettingStarted?applicationName=getting-started-app>
 
 2. Specify Application name as **forge-digital-catalog**
 
@@ -51,13 +52,13 @@ If you're not already an AWS customer, you need to sign up. Signing up enables y
 
 ## Setting the Environment
 
-Log back into your AWS console, and select Elastic Beanstalk service. 
+Log back into your AWS console, and select Elastic Beanstalk service.
 
-You should now see your new application listed. Select the app to set the environment variables. To do so, navigate to 
+You should now see your new application listed. Select the app to set the environment variables. To do so, navigate to
 
 ```All Applications > forge-digital-catalog > ForgeDigitalCatalog-env > Configuration > Software > Click on Modify```
 
-Scroll to the bottom of the page and under ```Environment properties``` specify your environment variables: 
+Scroll to the bottom of the page and under ```Environment properties``` specify your environment variables:
 
     DEPLOY_TARGET=aws
     FORGE_CALLBACK_URL=<Elastic Beanstalk Url>/api/forge/callback/oauth
@@ -72,7 +73,7 @@ Finally click ```Apply```.
 
 ## Troubleshooting Elastic Beanstalk App
 
-To troubleshoot and monitor your new Elastic Beanstalk environment, please refer to https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/environments-health.html.
+To troubleshoot and monitor your new Elastic Beanstalk environment, please refer to <https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/environments-health.html.>
 
 If running into `npm update check failed` error, you will need to change ownership on the /tmp/.config folder and files.
 
@@ -89,11 +90,10 @@ If running into `npm update check failed` error, you will need to change ownersh
 9. Click on Configuration > Security > select the EC2 key pair you created previously
 10. Save the configuration change and wait for the Elastic Beanstalk instance to restart
 11. Go back to EC2 Dashboard
-12. Select Instances 
+12. Select Instances
 13. Select the instance associated to the Beanstalk instance
 14. Click on Connect
 15. Copy the ssh command and run it from the directory where you've stored the pem file
-
 
 ## Additional Resources
 

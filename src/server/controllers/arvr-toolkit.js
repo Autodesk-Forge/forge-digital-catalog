@@ -53,9 +53,12 @@ async function convertToGltf(urn, guid, folder) {
                     deduplicate: featureToggles.message[0].featureToggles.gltf_deduplication,
                     log: (msg) => logger.info('Writer', msg) 
                 }
+                if (!fs.existsSync(path.join(outputFolder, 'output'))) fs.mkdirSync(path.join(outputFolder, 'output'))
                 const writer = new GltfWriter(path.join(outputFolder, 'output'), options)
                 for (const derivative of derivatives.filter(d => d.mime === 'application/autodesk-svf')) {
                     const reader = await SvfReader.FromDerivativeService(urn, derivative.guid, auth)
+                    const metadata = await reader.getMetadata()
+                    fs.writeFileSync(path.join(outputFolder, 'output', 'metadata.json'), JSON.stringify(metadata)) // helps capture units
                     const svf = await reader.read()
                     writer.write(svf)
                 }
@@ -209,9 +212,12 @@ async function translateSvfToGltf(svfUrn, guid, retry = 0) {
             const modelDerivativeClient = new ModelDerivativeClient(auth)
             const helper = new ManifestHelper(await modelDerivativeClient.getManifest(svfUrn))
             const derivatives = helper.search({ type: 'resource', role: 'graphics' })
+            if (!fs.existsSync(path.join(folder, 'output'))) fs.mkdirSync(path.join(folder, 'output'))
             const writer = new GltfWriter(path.join(folder, 'output'))
             for (const derivative of derivatives.filter(d => d.mime === 'application/autodesk-svf')) {
                 const reader = await SvfReader.FromDerivativeService(svfUrn, derivative.guid, auth)
+                const metadata = await reader.getMetadata()
+                fs.writeFileSync(path.join(folder, 'output', 'metadata.json'), JSON.stringify(metadata)) // helps capture units
                 const svf = await reader.read()
                 writer.write(svf)
             }

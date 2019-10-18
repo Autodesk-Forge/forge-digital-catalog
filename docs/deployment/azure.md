@@ -1,8 +1,9 @@
 # Azure Deployment
 
-With Microsoft Azure App Service, we can build deploy and scale web apps on a fully managed platform. 
+With Microsoft Azure App Service, we can build deploy and scale web apps on a fully managed platform.
 
 ## Table of Contents
+
 * [Prerequisites](#prerequisites)
 * [Creating an Azure Web App](#creating-an-azure-web-app)
 * [Setting the environment](#setting-the-environment)
@@ -14,21 +15,21 @@ With Microsoft Azure App Service, we can build deploy and scale web apps on a fu
 
 If you're not already a Microsoft Azure customer, you need to sign up.
 
-Please follow this link to create your free Azure account today: https://azure.microsoft.com/en-in/free/
+Please follow this link to create your free Azure account today: <https://azure.microsoft.com/en-in/free/>
 
 ## Creating an Azure Web App
 
-1. Login to your Microsoft Azure portal 
+1. Login to your Microsoft Azure portal
 2. Click on **+ Create Resource**
 3. Click on **Web App**
 4. Input the values as shown in screen capture below
 ![New Web App](../_media/azure-web-app.png)
 5. As deployment completes, click on **Go to resource**
-6. Make sure the app is running by navigating to http://forge-digital-catalog.azurewebsites.net/
+6. Make sure the app is running by navigating to <http://forge-digital-catalog.azurewebsites.net/>
 
 ## Setting the Environment
 
-We now need to set the environment variables in the new Web App instance. 
+We now need to set the environment variables in the new Web App instance.
 
 From your dashboard, select the new Web App and under Settings click on Configuration. A new page opens and you can set the environment variables by using the Application settings. For each environment variable, click on + New application setting
 
@@ -72,11 +73,11 @@ The artifact must be set to the project's source build pipeline and should be co
 
 ![Release Pipeline Tasks](../_media/release_pipeline_task.png)
 
-The release pipeline task is to deploy the artifact to the web app service. We can use the `Deploy to Slot or App Environment` feature to deploy the code to the web app service created in previous steps. 
+The release pipeline task is to deploy the artifact to the web app service. We can use the `Deploy to Slot or App Environment` feature to deploy the code to the web app service created in previous steps.
 
 ## Troubleshooting Azure Web App
 
-To test if the deployment was successful, open a web browser and navigate to https://forge-digital-catalog.azurewebsites.net/ 
+To test if the deployment was successful, open a web browser and navigate to <https://forge-digital-catalog.azurewebsites.net/>
 
 ## Additional Resources
 

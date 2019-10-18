@@ -1,6 +1,7 @@
 # Heroku Deployment
 
 ## Table of Contents
+
 * [Prerequisites](#prerequisites)
 * [Creating a Heroku remote](#creating-a-heroku-remote)
 * [Deploying code](#deploying-code)
@@ -31,8 +32,8 @@ First, change directory to the local folder where you downloaded the application
 To confirm that a remote named `heroku` has been set for the digital catalog app, run the command: `git remote -v`
 
     $ git remote -v
-    heroku	https://git.heroku.com/forge-digital-catalog.git (fetch)
-    heroku	https://git.heroku.com/forge-digital-catalog.git (push)
+    heroku https://git.heroku.com/forge-digital-catalog.git (fetch)
+    heroku https://git.heroku.com/forge-digital-catalog.git (push)
 
 ## Deploying code
 
@@ -113,11 +114,10 @@ If at any given time, you run into issues, heroku offers a command that lets you
     heroku ps:exec
     cat ./config/production.json
 
-This will show you if the configuration file is correctly configured for the application to run. 
+This will show you if the configuration file is correctly configured for the application to run.
 
 Heroku provides another command to **View Logs**. If any error occurs, it will be reported there.
 
 ## Additional Resources
 
 [Official Documentation](https://devcenter.heroku.com/articles/git)
-
