@@ -42,7 +42,7 @@ _axios.interceptors.response.use(
     let originalRequest = error.config
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-      console.error(`... intercepted 401 error, redirecting to login page`)
+      // console.error(`... intercepted 401 error, redirecting to login page`)
       window.location.href = new URL('/api/forge/authenticate?state=admin', appConfig.koahost).href
       return
     }

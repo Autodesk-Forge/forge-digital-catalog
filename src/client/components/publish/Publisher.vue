@@ -145,8 +145,16 @@
                 </div>
               </v-card-title>
               <v-card-text>
-                <publishLogs />
+                <publishLogs :key="logsKey" />
               </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  text
+                  @click="forceRerender"
+                >
+                  {{ $t('publish.refresh') }}
+                </v-btn>
+              </v-card-actions>
             </v-card>
           </v-col>
         </v-row>
@@ -197,6 +205,7 @@ export default {
     alertMessage: '',
     defaultHubProject: 'Undefined',
     isDefaultHubProjectDefined: false,
+    logsKey: 0,
     userNotAdminDialog: false,
     success: false,
     successMessage: '',
@@ -228,6 +237,9 @@ export default {
         this.alert = true
         this.alertMessage = err
       }
+    },
+    forceRerender() {
+      this.logsKey += 1
     },
     async getDefaultHubProject() {
       try {
@@ -384,6 +396,8 @@ export default {
             })
             if (Array.isArray(fusionRefs) && fusionRefs.length > 0) {
               this.$store.dispatch('setModelRefs', fusionRefs)
+              this.$log.error('... aborting translation due to download bug with Fusion references')
+              throw new Error('Aborting translation due to download bug with Fusion references.')
             }
           }
           if (fileType === 'nwd') {

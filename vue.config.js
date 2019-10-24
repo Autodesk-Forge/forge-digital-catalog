@@ -1,4 +1,5 @@
 const CompressionPlugin = require('compression-webpack-plugin')
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin')
 
 module.exports = {
     chainWebpack: config => {
@@ -13,7 +14,8 @@ module.exports = {
             new CompressionPlugin({
                 algorithm: 'gzip',
                 test: /\.(js|json|css|html|svg|ttf|woff)$/
-            })
+            }),
+            new FriendlyErrorsWebpackPlugin()
         ],
         stats: {
             warningsFilter: warn => warn.indexOf('Conflicting order between:') > -1

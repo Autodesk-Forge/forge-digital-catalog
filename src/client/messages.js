@@ -54,6 +54,7 @@ export default {
       notAdmin: 'Der aktuelle Benutzer ist kein Administrator',
       publish: 'Publizieren',
       publisherLogs: 'Publizier Logs',
+      refresh: 'TBD',
       toolbarTitle: 'Publizier Konsole'
     },
     viewer: {
@@ -116,6 +117,7 @@ export default {
       notAdmin: 'Current user is not an administrator',
       publish: 'Publish',
       publisherLogs: 'Publisher Logs',
+      refresh: 'Refresh',
       toolbarTitle: 'Publisher Console'
     },
     viewer: {
@@ -178,6 +180,7 @@ export default {
       notAdmin: 'L\'utilisateur n\'a pas le rôle d\'administrateur',
       publish: 'Publier',
       publisherLogs: 'Logs de publication',
+      refresh: 'Rafraîchir',
       toolbarTitle: 'Console de Publication'
     },
     viewer: {
@@ -240,6 +243,7 @@ export default {
       notAdmin: 'Current user is not an administrator',
       publish: 'Publish',
       publisherLogs: 'Publisher Logs',
+      refresh: 'TBD',
       toolbarTitle: 'Publisher Console'
     },
     viewer: {
@@ -302,6 +306,7 @@ export default {
       notAdmin: 'Current user is not an administrator',
       publish: 'Publish',
       publisherLogs: 'Publisher Logs',
+      refresh: 'TBD',
       toolbarTitle: 'Publisher Console'
     },
     viewer: {
