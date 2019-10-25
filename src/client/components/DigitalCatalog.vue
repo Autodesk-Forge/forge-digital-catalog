@@ -122,7 +122,8 @@ export default {
           arvrtoolkit: res.data[0].featureToggles.arvr_toolkit,
           binary: res.data[0].featureToggles.gltf_binary_output,
           compress: res.data[0].featureToggles.gltf_draco_compression,
-          dedupe: res.data[0].featureToggles.gltf_deduplication
+          dedupe: res.data[0].featureToggles.gltf_deduplication,
+          uvs: res.data[0].featureToggles.gltf_skip_unused_uvs
         })
       }
     } catch (err) {

@@ -43,6 +43,9 @@ const CatalogSchema = new mongoose.Schema({
         required: 'Must specify materialized path',
         type: String
     },
+    rootFilename: {
+        type: String
+    },
     size: {
         type: String
     },

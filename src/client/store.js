@@ -214,7 +214,10 @@ export default new Vuex.Store({
     featureToggles: {
       animation: null,
       arvr: null,
-      twin: null
+      binary: null,
+      compress: null,
+      dedupe: null,
+      uvs: null
     },
     fileFormatToggles: {
       creo: null,

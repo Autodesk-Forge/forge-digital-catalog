@@ -51,8 +51,9 @@ async function convertToGltf(urn, guid, folder) {
                     binary: featureToggles.message[0].featureToggles.gltf_binary_output,
                     compress: featureToggles.message[0].featureToggles.gltf_draco_compression,
                     deduplicate: featureToggles.message[0].featureToggles.gltf_deduplication,
+                    skipUnusedUvs: featureToggles.message[0].featureToggles.gltf_skip_unused_uvs,
                     log: (msg) => logger.info('Writer', msg) 
-                }
+                } // need to add sqlite option
                 if (!fs.existsSync(path.join(outputFolder, 'output'))) fs.mkdirSync(path.join(outputFolder, 'output'))
                 const writer = new GltfWriter(path.join(outputFolder, 'output'), options)
                 for (const derivative of derivatives.filter(d => d.mime === 'application/autodesk-svf')) {

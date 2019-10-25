@@ -25,6 +25,7 @@ You can fine tune the translation output by using any combination of the followi
 * `Binary Output` to output glb file instead of gltf
 * `Deduplication` to try and remove duplicate geometries
 * `Draco Compression` to compress meshes using Draco library
+* `Skip unused UVs` to skip texture UVs that are not used by any material
 
 To generate glTF files, simply publish a CAD model to the catalog and once the translation completes, the admin user can download the glTF output via a right-click on the catalog item displayed in the publisher console.
 

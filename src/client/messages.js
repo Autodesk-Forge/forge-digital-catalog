@@ -22,6 +22,8 @@ export default {
       publisher: 'Publizier Konsole',
       selectDefaultHub: 'Auswahl des Standart Hub',
       selectDefaultProject: 'Wählen Sie das Standart Projekt',
+      skipUnusedUvs: 'TBD',
+      skipUnusedUvsSubTitle: 'TBD',
       supportedFormats: 'Unterstützte Datei Formate',
       toolbarTitle: 'Administrator Einstellungen'
     },
@@ -85,6 +87,8 @@ export default {
       publisher: 'Publisher Console',
       selectDefaultHub: 'Select default hub',
       selectDefaultProject: 'Select default project',
+      skipUnusedUvs: 'Skip unused Uvs',
+      skipUnusedUvsSubTitle: 'Skips texture UVs that are not used by any material',
       supportedFormats: 'Supported File Formats',
       toolbarTitle: 'Settings Administration'
     },
@@ -148,6 +152,8 @@ export default {
       publisher: 'Console de Publication',
       selectDefaultHub: 'Choisir votre hub par défaut',
       selectDefaultProject: 'Choisir votre project par défaut',
+      skipUnusedUvs: 'Ignore les UVs non utilisées',
+      skipUnusedUvsSubTitle: 'Ignore les textures UV utilisées dans aucun matériau',
       supportedFormats: 'Formats de fichiers supportés',
       toolbarTitle: 'Administration des Paramètres'
     },
@@ -211,6 +217,8 @@ export default {
       publisher: 'Publisher Console',
       selectDefaultHub: 'Select default hub',
       selectDefaultProject: 'Select default project',
+      skipUnusedUvs: 'TBD',
+      skipUnusedUvsSubTitle: 'TBD',
       supportedFormats: 'Supported File Formats',
       toolbarTitle: 'Settings Administration'
     },
@@ -274,6 +282,8 @@ export default {
       publisher: 'Publisher Console',
       selectDefaultHub: 'Select default hub',
       selectDefaultProject: 'Select default project',
+      skipUnusedUvs: 'TBD',
+      skipUnusedUvsSubTitle: 'TBD',
       supportedFormats: 'Supported File Formats',
       toolbarTitle: 'Settings Administration'
     },

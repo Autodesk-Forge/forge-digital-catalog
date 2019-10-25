@@ -396,8 +396,6 @@ export default {
             })
             if (Array.isArray(fusionRefs) && fusionRefs.length > 0) {
               this.$store.dispatch('setModelRefs', fusionRefs)
-              this.$log.error('... aborting translation due to download bug with Fusion references')
-              throw new Error('Aborting translation due to download bug with Fusion references.')
             }
           }
           if (fileType === 'nwd') {
@@ -457,6 +455,7 @@ export default {
             name: selectedModelInfo.name,
             projectId: this.$store.state.defaultHubProjectSetting.projectId,
             refs: (this.$store.state.modelRefs.length > 0) ? this.$store.state.modelRefs : [],
+            storageLocation: selectedModelInfo.storageLocation,
             versionId: this.$store.state.selectedModel[0]
           },
           method: 'POST',
@@ -510,6 +509,7 @@ export default {
         await this.setCatalogItem()
         if (!this.alert) await this.listObjectRefs()
         if (!this.alert) await this.moveObject()
+        if (!this.alert) await this.setFusionRefsRootFilename() // workaround for bug with Fusion Designs with Refs 
         if (!this.alert) await this.translate()
         if (!this.alert) await this.setPublishLogEntry()
         this.active = true
@@ -552,6 +552,24 @@ export default {
         this.alertMessage = err
       } finally {
         this.$store.dispatch('setSaving', { newCatalogItem: false })
+      }
+    },
+    async setFusionRefsRootFilename() {
+      try {
+        const selectedModelInfo = await this.getSelectedModelInfo()
+        if (selectedModelInfo.fileType === 'versions:autodesk.fusion360:Design') {
+          const res = await this.$axios({
+            method: 'GET',
+            url: new URL(`/api/catalog/file/storage/${encodeURIComponent(selectedModelInfo.storageLocation)}`, config.koahost).href
+          })
+          if (res.status === 200 && res.data.rootFilename) {
+            this.$store.dispatch('setRootFileName', res.data.rootFilename)
+            this.$log.info(`... updating Vuex store with new rootFilename value ${res.data.rootFilename}`)
+          }
+        }
+      } catch (err) {
+        this.alert = true
+        this.alertMessage = err
       }
     },
     async setInventorChildReferences(projectId, refs, selectedModelName) {

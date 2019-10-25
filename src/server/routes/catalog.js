@@ -14,6 +14,7 @@ const {
     getCatalogFile,
     getCatalogFileById,
     getCatalogFileByName,
+    getCatalogFileBySrcDesignUrn,
     getCatalogFolderById,
     getCatalogRootFolder,
     getCatalogChildren,
@@ -112,6 +113,26 @@ router.get(
     async ctx => {
         try {
             const file = await getCatalogFile(ctx.params.name, ctx.params.path)
+            if (file) {
+                ctx.status = file.status
+                ctx.body = file.message
+            }
+        } catch (err) {
+            logger.error(err)
+            ctx.status = 500
+            ctx.body = 'A server error occurred while retrieving catalog item'
+        }
+    }
+)
+
+/**
+ * Retrieve a Catalog Item By Source Design Urn
+ */
+router.get(
+    '/file/storage/:storage',
+    async ctx => {
+        try {
+            const file = await getCatalogFileBySrcDesignUrn(ctx.params.storage)
             if (file) {
                 ctx.status = file.status
                 ctx.body = file.message

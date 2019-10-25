@@ -143,6 +143,29 @@ async function getCatalogFileByOSSDesignUrn(urn) {
   }
 }
 
+async function getCatalogFileBySrcDesignUrn(urn) {
+  try {
+    const catalogFile = await CatalogDb.findOne({
+      isFile: true,
+      srcDesignUrn: urn
+    }).exec()
+    if (catalogFile) {
+      ret = {
+        status: 200,
+        message: catalogFile
+      }
+    } else if (catalogFile === null) {
+      ret = {
+        status: 200,
+        message: null // No catalog item found
+      }
+    }
+    return ret
+  } catch (err) {
+    return handleError(err)
+  }
+}
+
 async function getCatalogFile(name, path) {
   try {
     const catalogFile = await CatalogDb.findOne({
@@ -277,6 +300,7 @@ async function setCatalogFile(body) {
         isFile: true,
         name: body.name,
         path: body.path,
+        rootFilename: '',
         size: body.size,
         srcDesignUrn: body.urn
       },
@@ -363,8 +387,7 @@ async function updateCatalogFile(payload, ossDesignUrn) {
         ossDesignUrn
       },
       {
-        new: true,
-        upsert: true
+        new: true
       }
     ).exec()
     if (catalogFile) {
@@ -387,8 +410,30 @@ async function updateCatalogFileGltf(payload, gltf) {
         gltf
       },
       {
-        new: true,
-        upsert: true
+        new: true
+      }
+    ).exec()
+    if (catalogFile) {
+      ret = {
+        status: 200,
+        message: catalogFile
+      }
+    }
+    return ret
+  } catch (err) {
+    return handleError(err)
+  }
+}
+
+async function updateCatalogFileRootFilename(payload, rootFilename) {
+  try {
+    const catalogFile = await CatalogDb.findOneAndUpdate(
+      payload,
+      {
+        rootFilename
+      },
+      {
+        new: true
       }
     ).exec()
     if (catalogFile) {
@@ -412,8 +457,7 @@ async function updateCatalogFileSvf(payload, svfUrn) {
         svfUrn
       },
       {
-        new: true,
-        upsert: true
+        new: true
       }
     ).exec()
     if (catalogFile) {
@@ -437,6 +481,7 @@ module.exports = {
   getCatalogFileById,
   getCatalogFileByName,
   getCatalogFileByOSSDesignUrn,
+  getCatalogFileBySrcDesignUrn,
   getCatalogFolderById,
   getCatalogRootFolder,
   getCatalogChildren,
@@ -446,5 +491,6 @@ module.exports = {
   setCatalogRootFolder,
   updateCatalogFile,
   updateCatalogFileGltf,
+  updateCatalogFileRootFilename,
   updateCatalogFileSvf
 }

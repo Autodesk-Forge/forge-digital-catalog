@@ -7,11 +7,14 @@ const logger = require('koa-log4').getLogger('file-handler')
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug' }
 const path = require('path')
 const util = require('util')
+const streamZip = require('node-stream-zip')
 
 const Token = require('../auth/token')
 const { getToken } = require('./auth')
 
 const { downloadCADReferences, setCADReferenceFilesList } = require('./xref-handler')
+
+const { updateCatalogFileRootFilename } = require('../controllers/catalog')
 
 let ret = {
   status: 520,
@@ -205,6 +208,32 @@ function getMimeType(filename) {
 }
 
 /**
+ * Read Manifest.json to retrieve rootFilename
+ * @param {*} filePath 
+ */
+async function getRootFileFromManifest(filePath) {
+  try {
+    return new Promise((resolve, reject) => {
+      const zip = new streamZip({
+        file: filePath,
+        storeEntries: true
+      })
+      zip.on('error', err => {
+        reject(err)
+      })
+      zip.on('ready', () => {
+        // read manifest in memory
+        const manifest = zip.entryDataSync('Manifest.json').toString('utf8')
+        zip.close()
+        resolve(JSON.parse(manifest))
+      })
+    })
+  } catch (err) {
+    return handleError(err)
+  }
+}
+
+/**
  * Returns Status Information About a Resumable Upload
  * @param {*} token 
  * @param {*} bucketKey 
@@ -293,7 +322,6 @@ async function moveAndCompressFusionFiles(session, objectName, payload, retry = 
       if (jobInfoResults.message.data[0].type === 'downloads') {
         logger.info(`... Fusion Archive is downloadable from ${jobInfoResults.message.data[0].relationships.storage.meta.link.href}`)
         const file = await saveF3ZFile(session, objectName, jobInfoResults.message.data[0].relationships.storage.meta.link.href)
-        // unzip the archive file in /tmp/cache and read downloadAs value from DesignDescription.json
         if (file.status === 200 && file.filesize > 0) {
           let archiveName = objectName.replace('.f3d', '.zip')
           archiveName = `${path.parse(archiveName).name}.zip`
@@ -520,6 +548,7 @@ async function moveObjectWithRefs(session, bucketKey, objectName, payload, retry
     } else if (payload.fileType === 'Fusion') {
       moveOp = await moveAndCompressFusionFiles(session, objectName, payload)
       if (moveOp.status === 200) {
+        await translateFixForFusionRefs(payload)
         logger.info('... f3z file uploaded to OSS')
         ret = {
           status: moveOp.status,
@@ -594,6 +623,7 @@ async function saveF3ZFile(session, objectName, href, retry = 0) {
       * Instead it generates a file with F3D file extension
       * We need to rename the file from .f3d to .f3z
       */
+      if (!fs.existsSync(path.join('/tmp', 'cache'))) { fs.mkdirSync(path.join('/tmp', 'cache'))}
       const f3zFile = `/tmp/cache/${objectName.replace('.f3d', '.zip')}`
       const writeFile = util.promisify(fs.writeFile)
       await writeFile(f3zFile, buffer)
@@ -602,6 +632,7 @@ async function saveF3ZFile(session, objectName, href, retry = 0) {
       if (fileSizeInBytes > 0) {
         ret = {
           filesize: fileSizeInBytes,
+          path: f3zFile,
           status: res.status,
           message: res.data
         }
@@ -611,8 +642,34 @@ async function saveF3ZFile(session, objectName, href, retry = 0) {
   } catch (err) {
     retry++
     if (retry < 3) {
-      await saveF3ZFile(session, objectName, url, retry)
+      await saveF3ZFile(session, objectName, href, retry)
     }
+    return handleError(err)
+  }
+}
+
+/**
+ * Workaround for known bug: 
+ * https://jira.autodesk.com/browse/ATEAM-21384
+ * Forge DM endpoint allows downloading a Fusion archive,
+ * but the filenames are changed, need to set rootFilename
+ * to correct value.
+ * The workaround consists in renaming downloaded Fusion archive
+ * to zip file extension, reading from memory Manifest.json
+ * to extract rootFilename value, translate zip file with updated 
+ * rootFilename.
+ * @param {*} payload 
+ */
+async function translateFixForFusionRefs(payload) {
+  try {
+    const archiveFile = path.basename(payload.storageLocation).replace('.f3d', '.zip')
+    const archivePath = path.join('/tmp', 'cache', archiveFile)
+    const srcDesignUrn = payload.storageLocation
+    const rootFilename = await getRootFileFromManifest(archivePath)
+    logger.info(`... retrieved new rootFilename value from Manifest.json ${rootFilename.root}`)
+    await updateCatalogFileRootFilename({ isFile: true, srcDesignUrn }, rootFilename.root)
+    logger.info('... successfully stored new rootFilename value in catalog item')
+  } catch (err) {
     return handleError(err)
   }
 }
