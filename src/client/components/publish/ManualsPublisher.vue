@@ -56,18 +56,20 @@
             v-if="!this.$store.state.loading.userInfo"
             :title="this.$store.state.user.fullName"
           >
-            <img :src="this.$store.state.user.picture">
+            <img 
+              :src="this.$store.state.user.picture"
+              alt="avatar"
+            >
           </v-avatar>
-          <strong
-            class="pl-1 hidden-sm-and-down"
-            v-html="this.$store.state.user.fullName"
-          />
+          <strong class="pl-1 hidden-sm-and-down">
+            {{ this.$store.state.user.fullName }}
+          </strong>
         </span>
       </v-toolbar-items>
     </v-toolbar>
     <v-content>
       <v-container>
-        <v-row class="text-center" >
+        <v-row class="text-center">
           <v-col cols="6">
             <v-card height="100%">
               <v-card-text>

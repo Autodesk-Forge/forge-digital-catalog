@@ -89,42 +89,37 @@
         >
           <div v-if="item.title.indexOf($t('catalog.createFolder'))!==-1">
             <v-list-item-content>
-              <v-list-item-title
-                @click="createDialog = !createDialog"
-                v-html="item.title"
-              />
+              <v-list-item-title @click="createDialog = !createDialog">
+                {{ item.title }}
+              </v-list-item-title>
             </v-list-item-content>
           </div>
           <div v-else-if="item.title.indexOf($t('catalog.deleteFolder'))!==-1">
             <v-list-item-content>
-              <v-list-item-title
-                @click="deleteDialog = !deleteDialog"
-                v-html="item.title"
-              />
+              <v-list-item-title @click="deleteDialog = !deleteDialog">
+                {{ item.title }}
+              </v-list-item-title>
             </v-list-item-content>
           </div>
           <div v-else-if="item.title.indexOf($t('catalog.renameFolder'))!==-1">
             <v-list-item-content>
-              <v-list-item-title
-                @click="renameFolderDialog = !renameFolderDialog"
-                v-html="item.title"
-              />
+              <v-list-item-title @click="renameFolderDialog = !renameFolderDialog">
+                {{ item.title }}
+              </v-list-item-title>
             </v-list-item-content>
           </div>
           <div v-else-if="item.title.indexOf($t('catalog.deleteFile'))!==-1">
             <v-list-item-content>
-              <v-list-item-title
-                @click="deleteFileDialog = !deleteFileDialog"
-                v-html="item.title"
-              />
+              <v-list-item-title @click="deleteFileDialog = !deleteFileDialog">
+                {{ item.title }}
+              </v-list-item-title>
             </v-list-item-content>
           </div>
           <div v-else-if="item.title.indexOf($t('catalog.downloadGltf'))!==-1">
             <v-list-item-content>
-              <v-list-item-title
-                @click="downloadGltfFileDialog = !downloadGltfFileDialog"
-                v-html="item.title"
-              />
+              <v-list-item-title @click="downloadGltfFileDialog = !downloadGltfFileDialog">
+                {{ item.title }}
+              </v-list-item-title>
             </v-list-item-content>
           </div>
         </v-list-item>

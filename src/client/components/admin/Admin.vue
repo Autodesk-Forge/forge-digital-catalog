@@ -55,10 +55,9 @@
               :src="this.$store.state.user.picture"
             >
           </v-avatar>
-          <strong
-            class="pl-1 hidden-sm-and-down"
-            v-html="this.$store.state.user.fullName"
-          />
+          <strong class="pl-1 hidden-sm-and-down">
+            {{ this.$store.state.user.fullName }}
+          </strong>
         </span>
       </v-toolbar-items>
     </v-toolbar>
@@ -87,8 +86,8 @@
         </v-row>
         <v-row>
           <defaultHubProject 
-            v-bind:defaultHubProject="defaultHubProject"
-            v-bind:isDefaultHubProjectDefined="isDefaultHubProjectDefined"
+            v-bind:default-hub-project="defaultHubProject"
+            v-bind:is-default-hub-project-defined="isDefaultHubProjectDefined"
             @newDefaultHubProject="getDefaultHubProject"
             @resetDefaultHubProject="() => { isDefaultHubProjectDefined=false }"
           />
