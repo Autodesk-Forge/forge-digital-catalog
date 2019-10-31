@@ -143,11 +143,11 @@ async function getCatalogFileByOSSDesignUrn(urn) {
   }
 }
 
-async function getCatalogFileBySrcDesignUrn(urn) {
+async function getCatalogFileBySrcDesignUrn(body) {
   try {
     const catalogFile = await CatalogDb.findOne({
       isFile: true,
-      srcDesignUrn: urn
+      srcDesignUrn: body.urn
     }).exec()
     if (catalogFile) {
       ret = {

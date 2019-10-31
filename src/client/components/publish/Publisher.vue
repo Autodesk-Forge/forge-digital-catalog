@@ -560,9 +560,11 @@ export default {
       try {
         const selectedModelInfo = await this.getSelectedModelInfo()
         if (selectedModelInfo && selectedModelInfo.fileType === 'versions:autodesk.fusion360:Design') {
+          const payload = { urn: selectedModelInfo.storageLocation }
           const res = await this.$axios({
-            method: 'GET',
-            url: new URL(`/api/catalog/file/storage/${encodeURIComponent(selectedModelInfo.storageLocation)}`, config.koahost).href
+            data: payload,
+            method: 'POST',
+            url: new URL('/api/catalog/file/storage', config.koahost).href
           })
           if (res.status === 200 && res.data.rootFilename) {
             this.$store.dispatch('setRootFileName', res.data.rootFilename)

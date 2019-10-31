@@ -128,11 +128,11 @@ router.get(
 /**
  * Retrieve a Catalog Item By Source Design Urn
  */
-router.get(
-    '/file/storage/:storage',
+router.post(
+    '/file/storage',
     async ctx => {
         try {
-            const file = await getCatalogFileBySrcDesignUrn(ctx.params.storage)
+            const file = await getCatalogFileBySrcDesignUrn(ctx.request.body)
             if (file) {
                 ctx.status = file.status
                 ctx.body = file.message
