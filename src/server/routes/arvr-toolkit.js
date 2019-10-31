@@ -10,8 +10,7 @@ const router = new Router({ prefix: '/api/arvr-toolkit' })
 const {
   get3DViewableFilesByGuid,
   get3DViewableResourceByGuid,
-  get3DViewablesGuids,
-  translateSvfToGltf
+  get3DViewablesGuids
 } = require('../controllers/arvr-toolkit')
 
 /**
@@ -31,27 +30,6 @@ router.get(
       logger.error(err)
       ctx.status = 500
       ctx.body = 'A server error occurred while retrieving the 3D viewable GUID'
-    }
-  }
-)
-
-/**
- * Trigger SVF-to-glTF translation
- */
-router.post(
-  '/:urn/guids/:guid',
-  async ctx => {
-    try {
-      const { urn, guid } = ctx.params
-      const translate = await translateSvfToGltf(urn, guid)
-      if (translate) {
-        ctx.status = translate.status
-        ctx.body = translate.message
-      }
-    } catch (err) {
-      logger.error(err)
-      ctx.status = 500
-      ctx.body = 'A server error occurred while translating to glTF'
     }
   }
 )

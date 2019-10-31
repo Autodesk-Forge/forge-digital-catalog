@@ -32,7 +32,7 @@
               <v-expansion-panel key="1">
                 <v-expansion-panel-header>
                   <v-checkbox v-model="arvr" />
-                  {{ $t('admin.arvrToolkit') }}
+                  <v-list-item-title>{{ $t('admin.arvrToolkit') }}</v-list-item-title>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                   <v-list-item-subtitle>{{ $t('admin.arvrToolkitSubTitle') }}</v-list-item-subtitle>
@@ -92,8 +92,13 @@
   </v-col>
 </template>
 
+<style>
+@import "../../../../src/client/public/css/TreeFormat.css"
+</style>
+
 <script>
 import config from './../../config'
+
 
 export default {
   data: () => ({

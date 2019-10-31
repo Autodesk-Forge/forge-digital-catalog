@@ -54,16 +54,16 @@ async function convertToGltf(urn, guid, folder) {
                     skipUnusedUvs: featureToggles.message[0].featureToggles.gltf_skip_unused_uvs,
                     log: (msg) => logger.info('Writer', msg) 
                 } // need to add sqlite option
-                if (!fs.existsSync(path.join(outputFolder, 'output'))) fs.mkdirSync(path.join(outputFolder, 'output'))
-                const writer = new GltfWriter(path.join(outputFolder, 'output'), options)
+                if (!fs.existsSync(path.join(outputFolder, 'output', guid))) fs.mkdirSync(path.join(outputFolder, 'output', guid), { recursive: true })
                 for (const derivative of derivatives.filter(d => d.mime === 'application/autodesk-svf')) {
+                    const writer = new GltfWriter(path.join(outputFolder, 'output', guid), options)
                     const reader = await SvfReader.FromDerivativeService(urn, derivative.guid, auth)
                     const metadata = await reader.getMetadata()
                     fs.writeFileSync(path.join(outputFolder, 'output', 'metadata.json'), JSON.stringify(metadata)) // helps capture units
                     const svf = await reader.read()
                     writer.write(svf)
+                    await writer.close()
                 }
-                await writer.close()
         }
     } catch (err) {
         return handleError(err)
@@ -195,60 +195,10 @@ async function get3DViewablesGuids(svfUrn, retry = 0) {
     }
 }
 
-/**
- * Trigger SVF-to-glTF translation if the output is not yet available
- * @param {*} svfUrn 
- * @param {*} guid 
- * @param {*} retry 
- */
-async function translateSvfToGltf(svfUrn, guid, retry = 0) {
-    try {
-        const folder = path.join('/tmp/cache', svfUrn, guid)
-        if (!fs.existsSync(folder)) {
-            createFolders(folder)
-            const auth = {
-                client_id: config.get('oauth2.clientID'),
-                client_secret: config.get('oauth2.clientSecret')
-            }
-            const modelDerivativeClient = new ModelDerivativeClient(auth)
-            const helper = new ManifestHelper(await modelDerivativeClient.getManifest(svfUrn))
-            const derivatives = helper.search({ type: 'resource', role: 'graphics' })
-            if (!fs.existsSync(path.join(folder, 'output'))) fs.mkdirSync(path.join(folder, 'output'))
-            const writer = new GltfWriter(path.join(folder, 'output'))
-            for (const derivative of derivatives.filter(d => d.mime === 'application/autodesk-svf')) {
-                const reader = await SvfReader.FromDerivativeService(svfUrn, derivative.guid, auth)
-                const metadata = await reader.getMetadata()
-                fs.writeFileSync(path.join(folder, 'output', 'metadata.json'), JSON.stringify(metadata)) // helps capture units
-                const svf = await reader.read()
-                writer.write(svf)
-            }
-            writer.close()
-            ret = {
-                status: 200,
-                message: 'glTF output created.'
-            }
-        } else {
-            retry = 3
-            ret = {
-                status: 200,
-                message: 'glTF output already exists.'
-            }
-        }
-        return ret
-    } catch (err) {
-        retry++
-        if (retry < 3) {
-            await translateSvfToGltf(svfUrn, guid, retry)
-        }
-        return handleError(err)
-    }
-}
-
 // add the methods to the module export
 module.exports = {
     convertToGltf,
     get3DViewableFilesByGuid,
     get3DViewableResourceByGuid,
-    get3DViewablesGuids,
-    translateSvfToGltf
+    get3DViewablesGuids
 }

@@ -559,7 +559,7 @@ export default {
     async setFusionRefsRootFilename() {
       try {
         const selectedModelInfo = await this.getSelectedModelInfo()
-        if (selectedModelInfo.fileType === 'versions:autodesk.fusion360:Design') {
+        if (selectedModelInfo && selectedModelInfo.fileType === 'versions:autodesk.fusion360:Design') {
           const res = await this.$axios({
             method: 'GET',
             url: new URL(`/api/catalog/file/storage/${encodeURIComponent(selectedModelInfo.storageLocation)}`, config.koahost).href

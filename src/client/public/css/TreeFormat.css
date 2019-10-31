@@ -63,3 +63,9 @@
   text-align: left;
   font-size: var(--font-size);
 }
+
+.v-expansion-panel-header {
+  height: auto;
+  text-align: left;
+  font-size: var(--font-size);
+}
