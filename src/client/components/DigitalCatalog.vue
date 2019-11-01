@@ -107,7 +107,7 @@ export default {
   data: () => ({
     alert: false,
     alertMessage: '',
-    panel: [false, true]
+    panel: [1]
   }),
   mounted: async function () {
     try {

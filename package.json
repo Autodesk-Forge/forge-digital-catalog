@@ -1,6 +1,6 @@
 {
   "name": "forge-digital-catalog-app",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "author": "Bastien Mazeran <bastien.mazeran@autodesk.com> (https://www.linkedin.com/in/bastien-mazeran-01200414/)",
   "scripts": {
@@ -26,7 +26,7 @@
     "bad-words": "3.0.3",
     "config": "3.2.4",
     "core-js": "3.3.6",
-    "forge-convert-utils": "0.8.0",
+    "forge-convert-utils": "1.0.2",
     "fs-extra": "8.1.0",
     "koa": "2.11.0",
     "koa-bodyparser": "4.2.1",
@@ -72,7 +72,7 @@
     "friendly-errors-webpack-plugin": "1.7.0",
     "jest-sonar-reporter": "2.0.0",
     "nodemon": "1.19.4",
-    "sass": "1.23.2",
+    "sass": "1.23.3",
     "sass-loader": "8.0.0",
     "vue-cli-plugin-axios": "0.0.4",
     "vue-cli-plugin-vuetify": "1.1.1",

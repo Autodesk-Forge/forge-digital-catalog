@@ -31,10 +31,8 @@ let ret = {
  */
 async function convertToGltf(urn, guid, folder) {
     try {
-        const viewableFolder = path.join(folder, guid)
-        if (!fs.existsSync(viewableFolder)) fs.mkdirSync(viewableFolder)
+        const viewableFolder = path.join(folder, guid) // colon ":" is an invalid character in UNIX folder names
         const outputFolder = path.join(viewableFolder, 'gltf')
-        if (!fs.existsSync(outputFolder)) fs.mkdirSync(outputFolder)
         const auth = {
             client_id: config.get('oauth2.clientID'),
             client_secret: config.get('oauth2.clientSecret')
@@ -47,22 +45,23 @@ async function convertToGltf(urn, guid, folder) {
             featureToggles.status === 200 
             && featureToggles.message[0].featureToggles.arvr_toolkit
             ) {
-                const options = {
+                const readerOptions = {
+                    log: (msg) => logger.info('Reader', msg)
+                }
+                const writerOptions = {
                     binary: featureToggles.message[0].featureToggles.gltf_binary_output,
                     compress: featureToggles.message[0].featureToggles.gltf_draco_compression,
                     deduplicate: featureToggles.message[0].featureToggles.gltf_deduplication,
                     skipUnusedUvs: featureToggles.message[0].featureToggles.gltf_skip_unused_uvs,
                     log: (msg) => logger.info('Writer', msg) 
                 } // need to add sqlite option
-                if (!fs.existsSync(path.join(outputFolder, 'output', guid))) fs.mkdirSync(path.join(outputFolder, 'output', guid), { recursive: true })
                 for (const derivative of derivatives.filter(d => d.mime === 'application/autodesk-svf')) {
-                    const writer = new GltfWriter(path.join(outputFolder, 'output', guid), options)
+                    const writer = new GltfWriter(writerOptions)
                     const reader = await SvfReader.FromDerivativeService(urn, derivative.guid, auth)
+                    const svf = await reader.read(readerOptions)
+                    await writer.write(svf, path.join(outputFolder, 'output', guid))
                     const metadata = await reader.getMetadata()
                     fs.writeFileSync(path.join(outputFolder, 'output', 'metadata.json'), JSON.stringify(metadata)) // helps capture units
-                    const svf = await reader.read()
-                    writer.write(svf)
-                    await writer.close()
                 }
         }
     } catch (err) {

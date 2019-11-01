@@ -35,7 +35,7 @@ let ret = {
 async function compressGltfOutput(urn) {
     try {
       const outputFolder = path.join('/tmp', 'cache')
-      const urnFolder = path.join(outputFolder, urn)
+      const urnFolder = path.join(outputFolder, urn.replace(/:/g, '-')) // colon is invalid character in MacOS
       const filePaths = []
       listFilesInDirectory(urnFolder, filePath => {
         filePaths.push(filePath)
@@ -292,8 +292,7 @@ async function translateSvfToGltf(urn) {
         }
       })
       const outputFolder = path.join('/tmp', 'cache')
-      const urnFolder = path.join(outputFolder, urn)
-      if (!fs.existsSync(urnFolder)) fs.mkdirSync(urnFolder, { recursive: true })
+      const urnFolder = path.join(outputFolder, urn.replace(/:/g, '-')) // colon ":" is invalid character on MacOS
       await Promise.all(guids.map(async guid => {
         logger.info(`... Starting translation to glTF of viewable guid: ${guid}`)
         return await convertToGltf(catalogFile.message.svfUrn, guid, urnFolder)

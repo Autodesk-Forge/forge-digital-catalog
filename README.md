@@ -95,10 +95,10 @@ This section will guide you through getting the code up and running on your own 
     ```archiver: "3.1.1"```\
     ```axios: "0.19.0"```\
     ```bad-words: "3.0.3"```\
-    ```config: "3.2.3"```\
-    ```forge-convert-utils: "0.6.3"```\
+    ```config: "3.2.4"```\
+    ```forge-convert-utils: "1.0.2"```\
     ```fs-extra: "8.1.0"```\
-    ```koa: "2.10.0"```\
+    ```koa: "2.11.0"```\
     ```koa-bodyparser: "4.2.1"```\
     ```koa-compress: "3.0.0"```\
     ```koa-helmet: "5.2.0"```\
@@ -108,19 +108,20 @@ This section will guide you through getting the code up and running on your own 
     ```koa-session: "5.12.3"```\
     ```koa-static: "5.0.0"```\
     ```koa2-connect-history-api-fallback: "0.1.2"```\
-    ```log4js: "5.2.2"```\
+    ```log4js: "5.3.0"```\
     ```material-design-icons-iconfont: "5.0.1"```\
     ```mongodb-uri: "0.9.7"```\
-    ```mongoose: "5.7.5"```\
+    ```mongoose: "5.7.7"```\
+    ```node-stream-zip: "1.8.2"``` \
     ```passport-oauth2: "1.5.0"```\
     ```register-service-worker: "1.6.2"```\
-    ```validator: "11.1.0"```\
+    ```validator: "12.0.0"```\
     ```vue: "2.6.10"```\
     ```vue-i18n: "8.15.0"```\
     ```vue-mq: "1.0.1"```\
     ```vue-router: "3.1.3"```\
     ```vuejs-logger: "1.5.3"```\
-    ```vuetify: "2.1.15"```\
+    ```vuetify: "2.1.9"```\
     ```vuex: "3.1.1"```
 
 ## Build and Test
