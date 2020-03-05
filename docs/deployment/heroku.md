@@ -98,6 +98,8 @@ select **Reveal Config Vars**, finally input the below environment variables:
 If you prefer to set the environment variables via the command line, run the command:
 `heroku config:set`, as an example the command to set VUE_HOST to new value is `heroku config:set VUE_HOST:<new value>`.
 
+**NOTE:** make sure you do NOT set a `PORT` environment variable in heroku. It is set by default, and adding new `HOST` variable will crash the app.
+
 ## Define the Web Admins
 
 To add new web admins to the web application, we need to run below command

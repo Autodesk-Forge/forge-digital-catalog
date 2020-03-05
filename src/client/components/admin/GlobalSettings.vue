@@ -1,6 +1,6 @@
 <template>
   <v-col cols="4">
-    <v-card v-if="this.$store.state.isAdminUserLoggedIn">
+    <v-card v-if="$store.state.isAdminUserLoggedIn">
       <v-card-title primary-title>
         <div>
           <h3 class="headline mb-0">
@@ -92,119 +92,113 @@
   </v-col>
 </template>
 
-<style>
-@import "../../../../src/client/public/css/TreeFormat.css"
-</style>
+<script lang='ts'>
+import { Component, Vue } from 'vue-property-decorator';
+import config from '../../config';
+import { validateSession } from '../../utils/utils';
 
-<script>
-import config from './../../config'
+@Component
+export default class GlobalSettings extends Vue {
 
+  protected alert: boolean = false;
+  protected alertMessage: string = '';
+  protected animation: boolean = false;
+  protected arvr: boolean = false;
+  protected binary: boolean = false;
+  protected compress: boolean = false;
+  protected dedupe: boolean = false;
+  protected panelvalue: number[] = [];
+  protected uvs: boolean = false;
 
-export default {
-  data: () => ({
-    alert: false,
-    alertMessage: '',
-    animation: false,
-    arvr: false,
-    binary: false,
-    compress: false,
-    dedupe: false,
-    panelvalue: [],
-    uvs: false
-  }),
-  beforeMount() {
-    const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
-    // detect if query param isAdminUserLoggedIn is true
-    if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
-      this.getFeatureToggles()
-    }
-  },
-  methods: {
-    async getFeatureToggles() {
-      try {
-        const res = await this.$axios({
-          method: 'GET',
-          url: new URL('/api/admin/settings/features', config.koahost).href
-        })
-        if (res.status === 200 && res.data.length > 0) {
-          this.$log.info('... retrieved feature toggles in database.')
-          this.animation = res.data[0].featureToggles.fusion_animation
-          this.arvr = res.data[0].featureToggles.arvr_toolkit
-          this.binary = res.data[0].featureToggles.binary
-          this.compress = res.data[0].featureToggles.gltf_draco_compression
-          this.dedupe = res.data[0].featureToggles.gltf_deduplication
-          this.uvs = res.data[0].featureToggles.gltf_skip_unused_uvs
-          this.$store.dispatch('setFeatureToggles', {
-            animation: res.data[0].featureToggles.fusion_animation,
-            arvr: res.data[0].featureToggles.arvr_toolkit,
-            binary: res.data[0].featureToggles.gltf_binary_output,
-            compress: res.data[0].featureToggles.gltf_draco_compression,
-            dedupe: res.data[0].featureToggles.gltf_deduplication,
-            uvs: res.data[0].featureToggles.gltf_skip_unused_uvs
-          })
-          if (this.arvr) {
-            this.panelvalue = [1]
-          }
-        }
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      }
-    },
-    async saveFeatureToggles(animation, arvr, binary, compress, dedupe, uvs) {
-      try {
-        this.$store.dispatch('setSaving', { featureToggleSetting: true })
-        const res = await this.$axios({
-          data: {
-            animation,
-            arvr,
-            binary,
-            compress,
-            dedupe,
-            uvs
-          },
-          method: 'POST',
-          url: new URL('/api/admin/settings/features', config.koahost).href
-        })
-        if (res.status === 200) {
-          this.$log.info('... saved feature toggles in database.')
-          this.animation = res.data.featureToggles.fusion_animation
-          this.arvr = res.data.featureToggles.arvr_toolkit
-          this.binary = res.data.featureToggles.gltf_binary_output
-          this.compress = res.data.featureToggles.gltf_draco_compression
-          this.dedupe = res.data.featureToggles.gltf_deduplication
-          this.uvs = res.data.featureToggles.gltf_skip_unused_uvs
-          this.$store.dispatch('setFeatureToggles', {
-            animation: res.data.featureToggles.fusion_animation,
-            arvr: res.data.featureToggles.arvr_toolkit,
-            binary: res.data.featureToggles.gltf_binary_output,
-            compress: res.data.featureToggles.gltf_draco_compression,
-            dedupe: res.data.featureToggles.gltf_deduplication,
-            uvs: res.data.featureToggles.gltf_skip_unused_uvs
-          })
-        }
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      } finally {
-        this.$store.dispatch('setSaving', { featureToggleSetting: false })
-      }
-    },
-    validateSession(storageVariable) {
-      try {
-        const userObject = JSON.parse(storageVariable)
-        if (userObject) {
-          const retrievedEmail = String(userObject.email)
-          if (retrievedEmail.indexOf('@') > -1) {
-            return true
-          }
-        }
-        return false
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
+  beforeMount(): void {
+    const loggedInSession = localStorage.getItem('loggedInSession');
+    if (loggedInSession) {
+      const retrievedSession = validateSession(loggedInSession);
+      // detect if query param isAdminUserLoggedIn is true
+      if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
+        this.getFeatureToggles();
       }
     }
   }
+
+  protected async saveFeatureToggles(
+    animation: boolean,
+    arvr: boolean,
+    binary: boolean,
+    compress: boolean,
+    dedupe: boolean,
+    uvs: boolean
+  ): Promise<void> {
+    try {
+      this.$store.dispatch('setSaving', { featureToggleSetting: true });
+      const res = await this.$axios({
+        data: {
+          animation,
+          arvr,
+          binary,
+          compress,
+          dedupe,
+          uvs
+        },
+        method: 'POST',
+        url: new URL('/api/admin/settings/features', config.koahost).href
+      });
+      if (res.status === 200) {
+        this.$log.info('... saved feature toggles in database.');
+        this.animation = res.data.featureToggles.fusion_animation;
+        this.arvr = res.data.featureToggles.arvr_toolkit;
+        this.binary = res.data.featureToggles.gltf_binary_output;
+        this.compress = res.data.featureToggles.gltf_draco_compression;
+        this.dedupe = res.data.featureToggles.gltf_deduplication;
+        this.uvs = res.data.featureToggles.gltf_skip_unused_uvs;
+        this.$store.dispatch('setFeatureToggles', {
+          animation: res.data.featureToggles.fusion_animation,
+          arvr: res.data.featureToggles.arvr_toolkit,
+          binary: res.data.featureToggles.gltf_binary_output,
+          compress: res.data.featureToggles.gltf_draco_compression,
+          dedupe: res.data.featureToggles.gltf_deduplication,
+          uvs: res.data.featureToggles.gltf_skip_unused_uvs
+        });
+      }
+    } catch (err) {
+      this.alert = true;
+      this.alertMessage = err;
+    } finally {
+      this.$store.dispatch('setSaving', { featureToggleSetting: false });
+    }
+  }
+
+  private async getFeatureToggles(): Promise<void> {
+    try {
+      const res = await this.$axios({
+        method: 'GET',
+        url: new URL('/api/admin/settings/features', config.koahost).href
+      });
+      if (res.status === 200 && res.data.length > 0) {
+        this.$log.info('... retrieved feature toggles in database.');
+        this.animation = res.data[0].featureToggles.fusion_animation;
+        this.arvr = res.data[0].featureToggles.arvr_toolkit;
+        this.binary = res.data[0].featureToggles.gltf_binary_output;
+        this.compress = res.data[0].featureToggles.gltf_draco_compression;
+        this.dedupe = res.data[0].featureToggles.gltf_deduplication;
+        this.uvs = res.data[0].featureToggles.gltf_skip_unused_uvs;
+        this.$store.dispatch('setFeatureToggles', {
+          animation: res.data[0].featureToggles.fusion_animation,
+          arvr: res.data[0].featureToggles.arvr_toolkit,
+          binary: res.data[0].featureToggles.gltf_binary_output,
+          compress: res.data[0].featureToggles.gltf_draco_compression,
+          dedupe: res.data[0].featureToggles.gltf_deduplication,
+          uvs: res.data[0].featureToggles.gltf_skip_unused_uvs
+        });
+        if (this.arvr) {
+          this.panelvalue = [1];
+        }
+      }
+    } catch (err) {
+      this.alert = true;
+      this.alertMessage = err;
+    }
+  }
+
 }
 </script>

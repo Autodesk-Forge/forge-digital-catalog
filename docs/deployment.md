@@ -13,7 +13,8 @@
 
 To run both the frontend and backend in a single app mode, we need to have the frontend built beforehand.
 
-    NODE_ENV=production npm run init
+    NODE_ENV=production npm run tsbuild
+    npm run init
     npm run build
     npm start
 

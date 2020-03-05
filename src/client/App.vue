@@ -33,61 +33,76 @@
   </v-app>
 </template>
 
-<script>
-import config from './config'
+<script lang='ts'>
+import { Component, Vue } from 'vue-property-decorator';
+import config from './config';
 
-export default {
-  name: 'DigitalCatalogApp',
-  data: () => ({
-    applicationName: '',
-    companyLogo: ''
-  }),
-  beforeMount() {
-    this.getCompanyLogo()
-    this.getApplicationName()
-  },
-  methods: {
-    async getApplicationName() {
-      try {
-        this.$store.dispatch('setLoading', { applicationName: true })
-        const res = await this.$axios({
-          method: 'GET',
-          url: new URL(`/api/admin/ApplicationName`, config.koahost).href
-        })
-        if (res.status === 200 && res.data.length === 1) {
-          this.isWebAdminsDefined = true
-          const applicationNameSetting = res.data
-          this.applicationName = applicationNameSetting[0].appName
-          this.$store.dispatch('setApplicationName', this.applicationName)
-        }
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      } finally {
-        this.$store.dispatch('setLoading', { applicationName: false })
-      }
-    },
-    async getCompanyLogo() {
-      try {
-        this.$store.dispatch('setLoading', { companyLogo: true })
-        const res = await this.$axios({
-          method: 'GET',
-          url: new URL(`/api/admin/CompanyLogo`, config.koahost).href
-        })
-        if (res.status === 200 && res.data.length === 1) {
-          this.isWebAdminsDefined = true
-          const companyLogoSetting = res.data
-          this.companyLogo = companyLogoSetting[0].imageSrc
+@Component
+export default class App extends Vue {
 
-          this.$store.dispatch('setCompanyLogo', this.companyLogo)
-        }
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      } finally {
-        this.$store.dispatch('setLoading', { companyLogo: false })
+  protected isWebAdminsDefined: boolean = false;
+  protected alert: boolean = false;
+  protected alertMessage: string = '';
+  protected applicationName: string = '';
+  protected companyLogo: string = '';
+
+  beforeMount(): void {
+    this.getCompanyLogo();
+    this.getApplicationName();
+  }
+
+  private async getApplicationName(): Promise<void> {
+    try {
+      this.$store.dispatch('setLoading', { applicationName: true });
+      const res = await this.$axios({
+        method: 'GET',
+        url: new URL(`/api/admin/ApplicationName`, config.koahost).href
+      });
+      if (res.status === 200 && res.data.length === 1) {
+        this.isWebAdminsDefined = true;
+        const applicationNameSetting = res.data;
+        this.applicationName = applicationNameSetting[0].appName;
+        this.$store.dispatch('setApplicationName', this.applicationName);
       }
+    } catch (err) {
+      this.alert = true;
+      this.alertMessage = err;
+    } finally {
+      this.$store.dispatch('setLoading', { applicationName: false });
     }
   }
+
+  private async getCompanyLogo(): Promise<void> {
+    try {
+      this.$store.dispatch('setLoading', { companyLogo: true });
+      const res = await this.$axios({
+        method: 'GET',
+        url: new URL(`/api/admin/CompanyLogo`, config.koahost).href
+      });
+      if (res.status === 200 && res.data.length === 1) {
+        this.isWebAdminsDefined = true;
+        const companyLogoSetting = res.data;
+        this.companyLogo = companyLogoSetting[0].imageSrc;
+        this.$store.dispatch('setCompanyLogo', this.companyLogo);
+      }
+    } catch (err) {
+      this.alert = true;
+      this.alertMessage = err;
+    } finally {
+      this.$store.dispatch('setLoading', { companyLogo: false });
+    }
+  }
+
 }
 </script>
+
+<style lang="scss">
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>

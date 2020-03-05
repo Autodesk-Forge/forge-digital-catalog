@@ -31,37 +31,36 @@
   </v-row>
 </template>
 
-<style>
-@import "../../../../src/client/public/css/TreeFormat.css"
-</style>
+<script lang='ts'>
+import { Component, Vue } from 'vue-property-decorator';
 
-<script>
-export default {
-  data() {
-    return {
-      animations: []
-    }
-  },
-  mounted: function () {
+@Component
+export default class AnimationPanel extends Vue {
+
+  protected alert: boolean = false;
+  protected alertMessage: string = '';
+  protected animations: string[] = [];
+
+  mounted(): void {
     this.$root.$on('clearStoryboards', () => {
-      this.$log.info('... clearing animation panel')
-      this.animations = []
-    })
-    this.$root.$on('setAnimations', (animations) => {
-      this.$log.info('... received setAnimations event')
-      this.animations = animations
-    })
-  },
-  methods: {
-    loadAnimationSvf(storyboard) {
-      try {
-        this.$store.dispatch('setSelectedStoryboard', storyboard)
-        this.$root.$emit('selectedStoryboard', storyboard)
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      }
+      this.$log.info('... clearing animation panel');
+      this.animations = [];
+    });
+    this.$root.$on('setAnimations', (animations: string[]) => {
+      this.$log.info('... received setAnimations event');
+      this.animations = animations;
+    });
+  }
+
+  protected loadAnimationSvf(storyboard: string): void {
+    try {
+      this.$store.dispatch('setSelectedStoryboard', storyboard);
+      this.$root.$emit('selectedStoryboard', storyboard);
+    } catch (err) {
+      this.alert = true;
+      this.alertMessage = err;
     }
   }
+
 }
 </script>

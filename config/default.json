@@ -1,6 +1,6 @@
 {
-    "axios_timeout": "4000",
-    "axios_long_timeout": "16000",
+    "axios_timeout": 4000,
+    "axios_long_timeout": 16000,
     "bucket_key": "digital-catalog",
     "companyName": "Autodesk",
     "db": {
@@ -39,6 +39,7 @@
     "githubRepoUrl": "",
     "tlsversion": "TLSv1_2_method",
     "vuehost": "http://localhost:8080",
+    "API_host": "",
     "API_auth_host": "https://developer.api.autodesk.com/authentication/v1",
     "API_data_host": "https://developer.api.autodesk.com/data/v1",
     "API_derivative_host": "https://developer.api.autodesk.com/modelderivative/v2",
@@ -46,5 +47,6 @@
     "API_oss_host": "https://developer.api.autodesk.com/oss/v2",
     "API_project_host": "https://developer.api.autodesk.com/project/v1",
     "API_webhook_host": "https://developer.api.autodesk.com/webhooks/v1",
-    "logoutaccount_url": "https://accounts.autodesk.com/Authentication/LogOut"
+    "logoutaccount_url": "https://accounts.autodesk.com/Authentication/LogOut",
+    "userprofile_path": ""
   }

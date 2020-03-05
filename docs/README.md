@@ -91,39 +91,7 @@ This section will guide you through getting the code up and running on your own 
 
 2. Software dependencies
 
-    ```@koa/cors: "3.0.0"```\
-    ```@mdi/font: "4.5.95"```\
-    ```archiver: "3.1.1"```\
-    ```axios: "0.19.0"```\
-    ```bad-words: "3.0.3"```\
-    ```config: "3.2.4"```\
-    ```forge-convert-utils: "1.0.2"```\
-    ```fs-extra: "8.1.0"```\
-    ```koa: "2.11.0"```\
-    ```koa-bodyparser: "4.2.1"```\
-    ```koa-compress: "3.0.0"```\
-    ```koa-helmet: "5.2.0"```\
-    ```koa-log4: "2.3.2"```\
-    ```koa-passport: "4.1.3"```\
-    ```koa-router: "7.4.0"```\
-    ```koa-session: "5.12.3"```\
-    ```koa-static: "5.0.0"```\
-    ```koa2-connect-history-api-fallback: "0.1.2"```\
-    ```log4js: "5.3.0"```\
-    ```material-design-icons-iconfont: "5.0.1"```\
-    ```mongodb-uri: "0.9.7"```\
-    ```mongoose: "5.7.7"```\
-    ```node-stream-zip: "1.8.2"``` \
-    ```passport-oauth2: "1.5.0"```\
-    ```register-service-worker: "1.6.2"```\
-    ```validator: "12.0.0"```\
-    ```vue: "2.6.10"```\
-    ```vue-i18n: "8.15.0"```\
-    ```vue-mq: "1.0.1"```\
-    ```vue-router: "3.1.3"```\
-    ```vuejs-logger: "1.5.3"```\
-    ```vuetify: "2.1.9"```\
-    ```vuex: "3.1.1"```
+    Please check `dependencies` in [package.json](package.json).
 
 ## Build and Test
 
@@ -149,18 +117,28 @@ This will create a new directory ```./www``` with the static files.
     ```NODE_ENV=development``` \
     ```USE_LOAD_BALANCER=false```
 
-2. Start Vue.js front-end app
+2. Compile TypeScript
+
+    ```npm run tsbuild```
+
+3. Start Vue.js front-end app
 
     ```npm run serve```
 
-3. Start Koa.js back-end app
+4. Start Koa.js back-end app
 
+    On first run (only once): \
     ```npm run init```\
+    ```npm run setadmin init```
+
+    Any time you start the server: \
     ```npm run dev``` (on mac) \
     ```npm run windev``` (on windows)
 
 If you run into an error connecting to MongoDB, make sure you specify the database name in your connection string.
 `mongoose.connect('mongodb://username:password@host:port/database?options...', {useNewUrlParser: true});`
+
+To learn how to configure the WebHooks locally, please follow this link: [Local WebHooks Instructions](webhooks)
 
 ### Test build
 
@@ -173,10 +151,19 @@ If you run into an error connecting to MongoDB, make sure you specify the databa
     ```NODE_ENV=test``` \
     ```USE_LOAD_BALANCER=false```
 
-2. Run the tests
+2. Compile TypeScript
 
-    ```npm run init```\
-    ```npm run test``` (on mac) \
+    ```npm run tsbuild```
+
+3. Run the tests
+
+    On first run (only once): \
+    ```npm run init``` \
+    ```npm run setadmin add <email>``` \
+    ```npm run tsbuild:test```
+
+    Any time you run the tests: \
+    ```npm test``` (on mac) \
     ```npm run wintest``` (on windows)
 
 ### Production build
@@ -192,13 +179,21 @@ If you run into an error connecting to MongoDB, make sure you specify the databa
     ```VUE_APP_KOA_HOST=<Your Web Server>``` \
     ```VUE_HOST=<Your Web Server>```
 
-2. Build Vue.js front-end app
+2. Compile TypeScript
+
+    ```npm run tsbuild```
+
+3. Build Vue.js front-end app
 
     ```npm run build```
 
-3. Start Koa.js back-end app
+4. Start Koa.js back-end app
 
+    On first run (only once): \
     ```npm run init```\
+    ```npm run setadmin add <email>```
+
+    Any time you start the server: \
     ```npm start``` (on mac) \
     ```npm start``` (on windows)
 

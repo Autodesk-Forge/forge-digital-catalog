@@ -65,6 +65,7 @@ Scroll to the bottom of the page and under ```Environment properties``` specify 
     FORGE_CLIENT_ID=<your app ID>
     FORGE_CLIENT_SECRET=<your app secret>
     MONGODB_URI=<your MongoDB connection uri>
+    NPM_CONFIG_UNSAFE_PERM=true
     USE_LOAD_BALANCER=false
     VUE_APP_KOA_HOST=<Elastic Beanstalk Url>
     VUE_HOST=<Elastic Beanstalk Url>

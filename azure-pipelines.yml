@@ -30,16 +30,23 @@ steps:
       config/setAdmin.js
       docs/**
       !**\node_modules\**
-      src/**
-      .eslintrc.js
+      src/client/**/!(*.ts|*.js.map)
+      src/server/**/*.js
+      src/shared/**/*.js
       .gitignore
       babel.config.js
+      CHANGELOG.md
       LICENSE
       package.json
+      postcss.config.js
       README.MD
+      thumbnail.gif
+      tslint.json
       vue.config.js
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-- task: PublishBuildArtifacts@1
+- task: PublishPipelineArtifact@0
+  displayName: 'Publish pipeline artifact'
   inputs:
-    PathtoPublish: '$(System.DefaultWorkingDirectory)'
+    artifactName: 'new'
+    targetPath: '$(System.DefaultWorkingDirectory)'

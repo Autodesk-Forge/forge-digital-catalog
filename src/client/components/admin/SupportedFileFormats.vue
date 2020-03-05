@@ -1,6 +1,6 @@
 <template>
   <v-col cols="4">
-    <v-card v-if="this.$store.state.isAdminUserLoggedIn">
+    <v-card v-if="$store.state.isAdminUserLoggedIn">
       <v-card-title primary-title>
         <div>
           <h3 class="headline mb-0">
@@ -114,130 +114,132 @@
   </v-col>
 </template>
 
-<script>
-import config from './../../config'
+<script lang='ts'>
+import { Component, Vue } from 'vue-property-decorator';
+import config from '../../config';
+import { validateSession } from '../../utils/utils';
 
-export default {
-  data: () => ({
-    alert: false,
-    alertMessage: '',
-    formats: {
-      creo: false,
-      dwg: false,
-      fbx: false,
-      fusion: false,
-      inventor: false,
-      navisworks: false,
-      obj: false,
-      solidworks: false,
-      step: false
-    }
-  }),
-  beforeMount() {
-    const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
-    // detect if query param isAdminUserLoggedIn is true
-    if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
-      this.getFileFormats()
-    }
-  },
-  methods: {
-    async getFileFormats() {
-      try {
-        const res = await this.$axios({
-          method: 'GET',
-          url: new URL('/api/admin/settings/fileformats', config.koahost).href
-        })
-        if (res.status === 200 && res.data.length > 0) {
-          this.$log.info('... retrieved file format toggles in database.')
-          this.formats.creo = res.data[0].fileFormatToggles.creo
-          this.formats.dwg = res.data[0].fileFormatToggles.dwg
-          this.formats.fbx = res.data[0].fileFormatToggles.fbx
-          this.formats.fusion = res.data[0].fileFormatToggles.fusion
-          this.formats.inventor = res.data[0].fileFormatToggles.inventor
-          this.formats.navisworks = res.data[0].fileFormatToggles.navisworks
-          this.formats.obj = res.data[0].fileFormatToggles.obj
-          this.formats.solidworks = res.data[0].fileFormatToggles.solidworks
-          this.formats.step = res.data[0].fileFormatToggles.step
-          this.$store.dispatch('setFileFormatToggles', {
-            creo: res.data[0].fileFormatToggles.creo,
-            dwg: res.data[0].fileFormatToggles.dwg,
-            fbx: res.data[0].fileFormatToggles.fbx,
-            fusion: res.data[0].fileFormatToggles.fusion,
-            inventor: res.data[0].fileFormatToggles.inventor,
-            navisworks: res.data[0].fileFormatToggles.navisworks,
-            obj: res.data[0].fileFormatToggles.obj,
-            solidworks: res.data[0].fileFormatToggles.solidworks,
-            step: res.data[0].fileFormatToggles.step
-          })
-        }
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      }
-    },
-    async saveFileFormats(creo, dwg, fbx, fusion, inventor, navisworks, obj, solidworks, step) {
-      try {
-        this.$store.dispatch('setSaving', { fileFormatSetting: true })
-        const res = await this.$axios({
-          data: {
-            creo,
-            dwg,
-            fbx,
-            fusion,
-            inventor,
-            navisworks,
-            obj,
-            solidworks,
-            step
-          },
-          method: 'POST',
-          url: new URL('/api/admin/settings/fileformats', config.koahost).href
-        })
-        if (res.status === 200) {
-          this.$log.info('... saved file formats toggles in database.')
-          this.formats.creo = res.data.fileFormatToggles.creo
-          this.formats.dwg = res.data.fileFormatToggles.dwg
-          this.formats.fbx = res.data.fileFormatToggles.fbx
-          this.formats.fusion = res.data.fileFormatToggles.fusion
-          this.formats.inventor = res.data.fileFormatToggles.inventor
-          this.formats.navisworks = res.data.fileFormatToggles.navisworks
-          this.formats.obj = res.data.fileFormatToggles.obj
-          this.formats.solidworks = res.data.fileFormatToggles.solidworks
-          this.formats.step = res.data.fileFormatToggles.step
-          this.$store.dispatch('setFileFormatToggles', {
-            creo: res.data.fileFormatToggles.creo,
-            dwg: res.data.fileFormatToggles.dwg,
-            fbx: res.data.fileFormatToggles.fbx,
-            fusion: res.data.fileFormatToggles.fusion,
-            inventor: res.data.fileFormatToggles.inventor,
-            navisworks: res.data.fileFormatToggles.navisworks,
-            obj: res.data.fileFormatToggles.obj,
-            solidworks: res.data.fileFormatToggles.solidworks,
-            step: res.data.fileFormatToggles.step
-          })
-        }
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      } finally {
-        this.$store.dispatch('setSaving', { fileFormatSetting: false })
-      }
-    },
-    validateSession(storageVariable) {
-      try {
-        const userObject = JSON.parse(storageVariable)
-        if (userObject) {
-          const retrievedEmail = String(userObject.email)
-          if (retrievedEmail.indexOf('@') > -1) {
-            return true
-          }
-        }
-        return false
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
+@Component
+export default class SupportedFileFormats extends Vue {
+
+  protected alert: boolean = false;
+  protected alertMessage: string = '';
+  protected formats: any = {
+    creo: false,
+    dwg: false,
+    fbx: false,
+    fusion: false,
+    inventor: false,
+    navisworks: false,
+    obj: false,
+    solidworks: false,
+    step: false
+  };
+
+  beforeMount(): void {
+    const loggedInSession = localStorage.getItem('loggedInSession');
+    if (loggedInSession) {
+      const retrievedSession = validateSession(loggedInSession);
+      // detect if query param isAdminUserLoggedIn is true
+      if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
+        this.getFileFormats();
       }
     }
   }
+
+  protected async saveFileFormats(
+    creo: boolean,
+    dwg: boolean,
+    fbx: boolean,
+    fusion: boolean,
+    inventor: boolean,
+    navisworks: boolean,
+    obj: boolean,
+    solidworks: boolean,
+    step: boolean
+  ): Promise<void> {
+    try {
+      this.$store.dispatch('setSaving', { fileFormatSetting: true });
+      const res = await this.$axios({
+        data: {
+          creo,
+          dwg,
+          fbx,
+          fusion,
+          inventor,
+          navisworks,
+          obj,
+          solidworks,
+          step
+        },
+        method: 'POST',
+        url: new URL('/api/admin/settings/fileformats', config.koahost).href
+      });
+      if (res.status === 200) {
+        this.$log.info('... saved file formats toggles in database.');
+        this.formats.creo = res.data.fileFormatToggles.creo;
+        this.formats.dwg = res.data.fileFormatToggles.dwg;
+        this.formats.fbx = res.data.fileFormatToggles.fbx;
+        this.formats.fusion = res.data.fileFormatToggles.fusion;
+        this.formats.inventor = res.data.fileFormatToggles.inventor;
+        this.formats.navisworks = res.data.fileFormatToggles.navisworks;
+        this.formats.obj = res.data.fileFormatToggles.obj;
+        this.formats.solidworks = res.data.fileFormatToggles.solidworks;
+        this.formats.step = res.data.fileFormatToggles.step;
+        this.$store.dispatch('setFileFormatToggles', {
+          creo: res.data.fileFormatToggles.creo,
+          dwg: res.data.fileFormatToggles.dwg,
+          fbx: res.data.fileFormatToggles.fbx,
+          fusion: res.data.fileFormatToggles.fusion,
+          inventor: res.data.fileFormatToggles.inventor,
+          navisworks: res.data.fileFormatToggles.navisworks,
+          obj: res.data.fileFormatToggles.obj,
+          solidworks: res.data.fileFormatToggles.solidworks,
+          step: res.data.fileFormatToggles.step
+        });
+      }
+    } catch (err) {
+      this.alert = true;
+      this.alertMessage = err;
+    } finally {
+      this.$store.dispatch('setSaving', { fileFormatSetting: false });
+    }
+  }
+
+  private async getFileFormats(): Promise<void> {
+    try {
+      const res = await this.$axios({
+        method: 'GET',
+        url: new URL('/api/admin/settings/fileformats', config.koahost).href
+      });
+      if (res.status === 200 && res.data.length > 0) {
+        this.$log.info('... retrieved file format toggles in database.');
+        this.formats.creo = res.data[0].fileFormatToggles.creo;
+        this.formats.dwg = res.data[0].fileFormatToggles.dwg;
+        this.formats.fbx = res.data[0].fileFormatToggles.fbx;
+        this.formats.fusion = res.data[0].fileFormatToggles.fusion;
+        this.formats.inventor = res.data[0].fileFormatToggles.inventor;
+        this.formats.navisworks = res.data[0].fileFormatToggles.navisworks;
+        this.formats.obj = res.data[0].fileFormatToggles.obj;
+        this.formats.solidworks = res.data[0].fileFormatToggles.solidworks;
+        this.formats.step = res.data[0].fileFormatToggles.step;
+        this.$store.dispatch('setFileFormatToggles', {
+          creo: res.data[0].fileFormatToggles.creo,
+          dwg: res.data[0].fileFormatToggles.dwg,
+          fbx: res.data[0].fileFormatToggles.fbx,
+          fusion: res.data[0].fileFormatToggles.fusion,
+          inventor: res.data[0].fileFormatToggles.inventor,
+          navisworks: res.data[0].fileFormatToggles.navisworks,
+          obj: res.data[0].fileFormatToggles.obj,
+          solidworks: res.data[0].fileFormatToggles.solidworks,
+          step: res.data[0].fileFormatToggles.step
+        });
+      }
+    } catch (err) {
+      this.alert = true;
+      this.alertMessage = err;
+    }
+  }
+
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
   <v-col cols="4">
     <v-container style="max-height:300px;overflow-y:scroll">
-      <v-card v-if="this.$store.state.isAdminUserLoggedIn">
+      <v-card v-if="$store.state.isAdminUserLoggedIn">
         <v-card-title primary-title>
           <div>
             <h3 class="headline mb-0">
@@ -26,7 +26,7 @@
     </v-container>
     <v-container style="height:240px;max-height:300px;overflow-y:scroll">
       <v-stepper
-        v-if="this.$store.state.isAdminUserLoggedIn && !isDefaultHubProjectDefined"
+        v-if="$store.state.isAdminUserLoggedIn && !isDefaultHubProjectDefined"
         v-model="step"
         vertical
       >
@@ -99,131 +99,129 @@
   </v-col>
 </template>
 
-<script>
-import config from './../../config'
+<script lang='ts'>
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import config from '../../config';
+import { validateSession } from '../../utils/utils';
 
-export default {
-  props: { 
-    defaultHubProject: {
-      default() { return [] },
-      type: Array
-    },
-    isDefaultHubProjectDefined: Boolean 
-  },
-  data: () => ({
-    alert: false,
-    alertMessage: '',
-    hubs: [],
-    projects: [],
-    selectedHub: 'No selection',
-    selectedProject: 'No selection',
-    step: 1
-  }),
-  async beforeMount() {
-    const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
-    // detect if query param isAdminUserLoggedIn is true
-    if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
-      await this.getHubs()
-    }
-  },
-  methods: {
-    async getHubs() {
-      try {
-        this.$store.dispatch('setLoading', { hubsInfo: true })
-        const res = await this.$axios({
-          method: 'GET',
-          url: new URL('/api/fusion/hubs', config.koahost).href
-        })
-        if (res.status === 200) {
-          const hubsInfo = res.data.data
-          this.hubs = hubsInfo.map((val, i) => {
-            return {
-              id: val.id,
-              name: val.attributes.name
-            }
-          })
-          this.$store.dispatch('setHubs', this.hubs)
-        }
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      } finally {
-        this.$store.dispatch('setLoading', { hubsInfo: false })
-      }
-    },
-    async getProjects(hubId) {
-      try {
-        this.$store.dispatch('setLoading', { projectsInfo: true })
-        const res = await this.$axios({
-          method: 'GET',
-          url: new URL(`/api/fusion/hubs/${hubId}/projects`, config.koahost).href
-        })
-        if (res.status === 200) {
-          const projectsInfo = res.data.data
-          this.projects = projectsInfo.map((val, i) => {
-            return {
-              id: val.id,
-              name: val.attributes.name
-            }
-          })
-          this.$store.dispatch('setProjects', this.projects)
-        }
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      } finally {
-        this.$store.dispatch('setLoading', { projectsInfo: false })
-      }
-    },
-    async saveDefaultHubProject(hub, project) {
-      try {
-        this.$store.dispatch('setSaving', { defaultHubProjectSetting: true })
-        const res = await this.$axios({
-          data: {
-            name: 'defaultHubProject',
-            hubId: hub,
-            hubName: this.hubs.filter(hubObj => {
-              return hubObj.id === this.selectedHub
-            })[0].name,
-            projectId: project,
-            projectName: this.projects.filter(projectObj => {
-              return projectObj.id === this.selectedProject
-            })[0].name,
-            email: this.$store.state.user.email
-          },
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          method: 'POST',
-          url: new URL('/api/admin/default/hub/project', config.koahost).href,
+@Component
+export default class DefaultHubProject extends Vue {
 
-        })
-        if (res.status === 200) {
-          this.$store.dispatch('setDefaultHubProjectSetting', res.data)
-        }
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
-      } finally {
-        this.$store.dispatch('setSaving', { defaultHubProjectSetting: false })
-        this.$emit('newDefaultHubProject')
-      }
-    },
-    validateSession(storageVariable) {
-      try {
-        const userObject = JSON.parse(storageVariable)
-        if (userObject) {
-          const retrievedEmail = String(userObject.email)
-          if (retrievedEmail.indexOf('@') > -1) {
-            return true
-          }
-        }
-        return false
-      } catch (err) {
-        this.alert = true
-        this.alertMessage = err
+  @Prop(Boolean) isDefaultHubProjectDefined!: boolean;
+  @Prop({ default: [] }) defaultHubProject!: string[];
+
+  protected alert: boolean = false;
+  protected alertMessage: string = '';
+  protected hubs: string[] = [];
+  protected projects: string[] = [];
+  protected selectedHub: string = '';
+  protected selectedProject: string = '';
+  protected step: number = 1;
+
+  async beforeMount(): Promise<void> {
+    const loggedInSession = localStorage.getItem('loggedInSession');
+    if (loggedInSession) {
+      const retrievedSession = validateSession(loggedInSession);
+      // detect if query param isAdminUserLoggedIn is true
+      if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
+        await this.getHubs();
       }
     }
   }
+
+  async saveDefaultHubProject(hub: string, project: string): Promise<void> {
+    try {
+      this.$store.dispatch('setSaving', { defaultHubProjectSetting: true });
+      const hubs: string[] = this.hubs.filter(
+        (hubObj: any) => {
+          return hubObj.id === this.selectedHub;
+        }
+      );
+      const hubItem: any = hubs[0];
+      const hubName: string = hubItem.name;
+      const projects: string[] = this.projects.filter(
+        (projectObj: any) => {
+            return projectObj.id === this.selectedProject;
+        }
+      );
+      const projectItem: any = projects[0];
+      const projectName: string = projectItem.name;
+      const res = await this.$axios({
+        data: {
+          email: this.$store.state.user.email,
+          hubId: hub,
+          hubName,
+          name: 'defaultHubProject',
+          projectId: project,
+          projectName
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        url: new URL('/api/admin/default/hub/project', config.koahost).href
+      });
+      if (res.status === 200) {
+        this.$store.dispatch('setDefaultHubProjectSetting', res.data);
+      }
+    } catch (err) {
+      this.alert = true;
+      this.alertMessage = err;
+    } finally {
+      this.$store.dispatch('setSaving', { defaultHubProjectSetting: false });
+      this.$emit('newDefaultHubProject');
+    }
+  }
+
+  protected async getProjects(hubId: string): Promise<void> {
+    try {
+      this.$store.dispatch('setLoading', { projectsInfo: true });
+      const res = await this.$axios({
+        method: 'GET',
+        url: new URL(`/api/fusion/hubs/${hubId}/projects`, config.koahost).href
+      });
+      if (res.status === 200) {
+        const projectsInfo = res.data.data;
+        this.projects = projectsInfo.map((val: any) => {
+          return {
+            id: val.id,
+            name: val.attributes.name
+          };
+        });
+        this.$store.dispatch('setProjects', this.projects);
+      }
+    } catch (err) {
+      this.alert = true;
+      this.alertMessage = err;
+    } finally {
+      this.$store.dispatch('setLoading', { projectsInfo: false });
+    }
+  }
+
+  private async getHubs(): Promise<void> {
+    try {
+      this.$store.dispatch('setLoading', { hubsInfo: true });
+      const res = await this.$axios({
+        method: 'GET',
+        url: new URL('/api/fusion/hubs', config.koahost).href
+      });
+      if (res.status === 200) {
+        const hubsInfo = res.data.data;
+        this.hubs = hubsInfo.map((val: any) => {
+          return {
+            id: val.id,
+            name: val.attributes.name
+          };
+        });
+        this.$store.dispatch('setHubs', this.hubs);
+      }
+    } catch (err) {
+      this.alert = true;
+      this.alertMessage = err;
+    } finally {
+      this.$store.dispatch('setLoading', { hubsInfo: false });
+    }
+  }
+
 }
 </script>

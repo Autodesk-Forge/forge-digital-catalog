@@ -39,98 +39,88 @@
   </div>
 </template>
 
-<script>
-import config from './../../config'
-export default {
-    data: () => ({
-        alert: false,
-        alertMessage: '',
-        descending: true,
-        itemsPerPage: 2,
-        headers: [
-            {
-                text: 'Start Date',
-                align: 'left',
-                sortable: true,
-                value: 'startDate'
-            },{
-                text: 'End Date',
-                value: 'endDate'
-            },{
-                text: 'Job Name',
-                value: 'name'
-            },{
-                text: 'Input Design Urn',
-                value: 'designUrn'
-            },{
-                text: 'Input Design Path',
-                value: 'path'
-            },{
-                text: 'Output Design Urn',
-                value: 'svfUrn'
-            },{
-                text: 'Status',
-                value: 'status'
-            },{
-                text: 'Submitted By',
-                value: 'submittedBy'
-            }
-        ],
-        logs: [],
-        page: 1,
-        pageCount: 0,
-        sortBy: "startDate"
-    }),
-    beforeMount () {
-    const retrievedSession = this.validateSession(localStorage.getItem('loggedInSession'))
-    // detect if query param isAdminUserLoggedIn is true
-    if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
-            this.getPublisherLogs()
+<script lang='ts'>
+import { Component, Vue } from 'vue-property-decorator';
+import config from '../../config';
+import { validateSession } from '../../utils/utils';
+
+@Component
+export default class PublishLogs extends Vue {
+
+    protected alert: boolean = false;
+    protected alertMessage: string = '';
+    protected descending: boolean = true;
+    protected itemsPerPage: number = 2;
+    protected headers: any = [{
+      align: 'left',
+      sortable: true,
+      text: 'Start Date',
+      value: 'startDate'
+    }, {
+      text: 'End Date',
+      value: 'endDate'
+    }, {
+      text: 'Job Name',
+      value: 'name'
+    }, {
+      text: 'Input Design Urn',
+      value: 'designUrn'
+    }, {
+      text: 'Input Design Path',
+      value: 'path'
+    }, {
+      text: 'Output Design Urn',
+      value: 'svfUrn'
+    }, {
+      text: 'Status',
+      value: 'status'
+    }, {
+      text: 'Submitted By',
+      value: 'submittedBy'
+    }];
+    protected logs: string[] = [];
+    protected page: number = 1;
+    protected pageCount: number = 0;
+    protected sortBy: string = 'startDate';
+
+    beforeMount(): void {
+      const loggedInSession = localStorage.getItem('loggedInSession');
+      if (loggedInSession) {
+        const retrievedSession = validateSession(loggedInSession);
+        // detect if query param isAdminUserLoggedIn is true
+        if (this.$route.query.isAdminUserLoggedIn || retrievedSession) {
+            this.getPublisherLogs();
         }
-    },
-    methods: {
-        async getPublisherLogs () {
-            try {
-                const res = await this.$axios({
-                    method: 'GET',
-                    url: new URL('/api/admin/publish/logs', config.koahost).href
-                })
-                if (res.status === 200) {
-                    const logsInfo = res.data
-                    this.logs = logsInfo.map((val, i) => {
-                        return {
-                            startDate: val.startDate,
-                            endDate: val.endDate,
-                            name: val.name,
-                            designUrn: val.job.input.designUrn,
-                            path: val.job.input.path,
-                            svfUrn: val.job.output.svfUrn,
-                            status: val.status,
-                            submittedBy: val.submittedBy
-                        }
-                    })
-                }
-            } catch (err) {
-                this.alert = true
-                this.alertMessage = err
+      }
+    }
+
+    private async getPublisherLogs(): Promise<void> {
+        try {
+            const res = await this.$axios({
+                method: 'GET',
+                url: new URL('/api/admin/publish/logs', config.koahost).href
+            });
+            if (res.status === 200) {
+                const logsInfo = res.data;
+                this.logs = logsInfo.map((val: any) => {
+                    return {
+                      designUrn: val.job.input.designUrn,
+                      endDate: val.endDate,
+                      name: val.name,
+                      path: val.job.input.path,
+                      startDate: val.startDate,
+                      status: val.status,
+                      submittedBy: val.submittedBy,
+                      svfUrn: val.job.output.svfUrn
+                    };
+                });
             }
-        },
-        validateSession(storageVariable) {
-            try {
-                const userObject = JSON.parse(storageVariable)
-                if (userObject) {
-                    const retrievedEmail = String(userObject.email)
-                    if (retrievedEmail.indexOf('@') > -1) {
-                        return true
-                    }
-                }
-                return false
-            } catch (err) {
-                this.alert = true
-                this.alertMessage = err
-            }
+        } catch (err) {
+            this.alert = true;
+            this.alertMessage = err;
         }
     }
+
 }
 </script>
 

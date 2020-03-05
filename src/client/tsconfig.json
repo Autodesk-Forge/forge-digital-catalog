@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "baseUrl": ".",
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es6", "es2016", "dom"],
+    "module": "es6",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es6",
+    "types": ["bad-words", "forge-viewer", "node", "vuetify"],
+    "typeRoots": [
+      "../../node_modules/@types",
+      "../types"
+    ]
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
