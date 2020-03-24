@@ -177,7 +177,7 @@ export class Catalog {
       const rootFolder = await CatalogDb.findOne({
         isFile: false,
         name: 'Root Folder',
-        path: null
+        path: ''
       }).exec();
       if (rootFolder) { return rootFolder; }
     } catch (err) {
@@ -304,7 +304,7 @@ export class Catalog {
       const rootJson = {
         isFile: false,
         name: 'Root Folder',
-        path: null
+        path: ''
       };
       const catalogRootFolder = await CatalogDb.findOneAndUpdate(
         rootJson,

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2020-03-05
+## [1.0.0] - 2020-02-01
 
 - Added
   - Support for TMP folders on both Windows and MacOS

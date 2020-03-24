@@ -18,7 +18,7 @@ steps:
 - script: |
     npm install
     npm audit fix
-    npm run build
+    NODE_ENV=production npm run build
   displayName: 'npm install and build'
 
 - task: CopyFiles@2
