@@ -9,7 +9,7 @@ export function validateSession(storageVariable: string): boolean {
     const userObject = JSON.parse(storageVariable);
     if (userObject) {
         const retrievedEmail = String(userObject.email);
-        if (retrievedEmail.indexOf('@') > -1) { return true; }
+        if (retrievedEmail.includes('@')) { return true; }
         return false;
     }
     return false;

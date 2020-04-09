@@ -1,5 +1,6 @@
+/* eslint-disable no-console */
 import { Admin } from '../src/server/controllers/admin';
-import * as config from 'config';
+import  * as config from 'config'; // This seems to be a bug, using esModuleInterop=true, we should not need star imports;
 import 'jest';
 import { connect, disconnect } from 'mongoose';
 
@@ -145,7 +146,7 @@ describe(
         name: 'applicationName',
         value: 'Test Application'
       });
-      if(setting) {
+      if(!!setting) {
         expect(typeof setting.appName).toEqual('string');
       }
     });

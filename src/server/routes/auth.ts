@@ -1,13 +1,15 @@
+/* eslint-disable camelcase */
+/* eslint-disable @typescript-eslint/camelcase */
 'use strict';
 
-import * as Router from '@koa/router';
+import Router from '@koa/router';
 
-import * as config from 'config';
+import config from 'config';
 import { Scope } from 'forge-apis';
 import { Context, DefaultState, Next } from 'koa';
-import * as log4 from 'koa-log4';
-import * as passport from 'koa-passport';
-import * as url from 'url';
+import log4 from 'koa-log4';
+import passport from 'koa-passport';
+import url from 'url';
 import { IForgeSession } from '../../shared/auth';
 import { Token } from '../auth/token';
 import { AuthHelper } from '../helpers/auth-handler';
@@ -29,7 +31,7 @@ router.get(
     try {
       const scope: Scope[] = ( (ctx.params.mode === 'viewer') ? config.get('view_scope') : config.get('bucket_scope') );
       const authToken = await authHelper.createInternalToken(scope);
-      if (authToken) {
+      if (!!authToken) {
         ctx.status = 200;
         ctx.body = JSON.stringify(authToken);
       }
@@ -132,7 +134,7 @@ router.post(
   async (ctx: Context) => {
     try {
       const session = await authHelper.refreshToken(ctx.params.refreshToken, ctx.session);
-      if (session) {
+      if (!!session) {
         ctx.status = 200;
         ctx.body = session;
       }

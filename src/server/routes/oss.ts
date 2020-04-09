@@ -1,9 +1,9 @@
 'use strict';
 
-import * as Router from '@koa/router';
-import * as config from 'config';
+import Router from '@koa/router';
+import config from 'config';
 import { Context, DefaultState } from 'koa';
-import * as log4 from 'koa-log4';
+import log4 from 'koa-log4';
 import { OssHandler } from '../helpers/oss-handler';
 
 const logger = log4.getLogger('oss');
@@ -21,7 +21,7 @@ router.get(
     try {
       const { bucketKey, objectKey } = ctx.params;
       const response = await ossHelper.downloadObject(bucketKey, objectKey, objectKey, ctx.session);
-      if (response) {
+      if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
       }
@@ -42,7 +42,7 @@ router.get(
     try {
       const { bucketKey, objectKey } = ctx.params;
       const response = await ossHelper.downloadGltfObject(bucketKey, objectKey, objectKey);
-      if (response) {
+      if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
       }

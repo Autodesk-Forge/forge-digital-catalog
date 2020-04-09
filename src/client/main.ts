@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import '@mdi/font/css/materialdesignicons.css';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import Vue from 'vue';
@@ -20,7 +21,6 @@ const options = {
 };
 
 Vue.use(VueLogger, options);
-
 Vue.config.errorHandler = (err, vm, info) => {
   (Vue as any).$log.error(`Error: ${err.toString()}\nInfo: ${info}`);
 };

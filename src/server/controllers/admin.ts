@@ -1,9 +1,14 @@
-import * as fsExtra from 'fs-extra';
-import * as log4 from 'koa-log4';
-import * as os from 'os';
-import * as path from 'path';
+/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable camelcase */
+import config from 'config';
+import fsExtra from 'fs-extra';
+import log4 from 'koa-log4';
+import os from 'os';
+import path from 'path';
 import { ISetting } from '../../shared/admin';
+import { AuthHelper } from '../helpers/auth-handler';
 import { ErrorHandler } from '../helpers/error-handler';
+import { OssHandler } from '../helpers/oss-handler';
 import Settings from '../models/admin';
 import { Catalog } from './catalog';
 
@@ -12,18 +17,22 @@ if (process.env.NODE_ENV === 'development') { logger.level = 'debug'; }
 
 export class Admin {
 
+  private authHelper: AuthHelper;
   private catalogController: Catalog;
   private errorHandler: ErrorHandler;
+  private ossHandler: OssHandler;
 
-  constructor() {
+  public constructor() {
+    this.authHelper = new AuthHelper();
     this.catalogController = new Catalog();
     this.errorHandler = new ErrorHandler();
+    this.ossHandler = new OssHandler(config.get('oauth2.clientID'), config.get('oauth2.clientSecret'), config.get('bucket_scope'));
   }
 
   /**
    * Clears TMP folder
    */
-  async clearCache(): Promise<void> {
+  public async clearCache(): Promise<void> {
     try {
       const tmpDir = os.tmpdir();
       await fsExtra.remove(path.join(tmpDir, 'cache'));
@@ -36,7 +45,7 @@ export class Admin {
    * Removes a webAdmin
    * @param email
    */
-  async deleteWebAdmin(email: string): Promise<ISetting | undefined> {
+  public async deleteWebAdmin(email: string): Promise<ISetting | undefined> {
     try {
       const setting = await Settings.findOneAndUpdate({
         name: 'webAdmins'
@@ -47,7 +56,7 @@ export class Admin {
       }, {
         new: true
       }).exec();
-      if (setting) { return setting; }
+      if (!!setting) { return setting; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -57,12 +66,12 @@ export class Admin {
    * Get Setting by Name
    * @param name
    */
-  async getSetting(name: string): Promise<ISetting[] | undefined> {
+  public async getSetting(name: string): Promise<ISetting[] | undefined> {
     try {
       const settings = await Settings.find({
         name
       }).exec();
-      if (settings) { return settings; }
+      if (!!settings) { return settings; }
     } catch(err) {
       this.errorHandler.handleError(err);
     }
@@ -73,13 +82,13 @@ export class Admin {
    * @param {*} name
    * @param {*} email
    */
-  async getSettingByNameAndEmail(name: string, email: string): Promise<ISetting[] | undefined> {
+  public async getSettingByNameAndEmail(name: string, email: string): Promise<ISetting[] | undefined> {
     try {
       const settings = await Settings.find({
         email,
         name
       }).exec();
-      if (settings) { return settings; }
+      if (!!settings) { return settings; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -88,23 +97,23 @@ export class Admin {
   /**
    * Initializes database on first server run
    */
-  async initializeDb(): Promise<void> {
+  public async initializeDb(): Promise<void> {
     try {
       await this.catalogController.setCatalogRootFolder();
       const webAdmins = await this.getSetting('webAdmins');
-      if (webAdmins && webAdmins[0].webAdmins.length === 0) {
+      if (!!webAdmins && webAdmins[0].webAdmins.length === 0) {
         logger.info('... Initializing web admins');
         await this.setSysAdmins([]);
       }
       const featureToggles = await this.getSetting('featureToggles');
-      if (featureToggles && featureToggles.length === 0) {
+      if (!!featureToggles && featureToggles.length === 0) {
         logger.info('... Initializing feature toggles');
         await this.setFeatureToggles(
           { animation: false, arvr: false, binary: false, compress: false, dedupe: false, uvs: false }
         );
       }
       const fileFormats = await this.getSetting('fileFormatToggles');
-      if (fileFormats && fileFormats.length === 0) {
+      if (!!fileFormats && fileFormats.length === 0) {
         logger.info('... Initializing supported file formats');
         await this.setFileFormatToggles({
           creo: false,
@@ -119,7 +128,7 @@ export class Admin {
         });
       }
       const appName = await this.getSetting('applicationName');
-      if (appName && appName.length === 0) {
+      if (!!appName && appName.length === 0) {
         logger.info('... Initializing application name');
         await this.setApplicationName({
           name: 'applicationName',
@@ -127,7 +136,7 @@ export class Admin {
         });
       }
       const logo = await this.getSetting('companyLogo');
-      if (logo && logo.length === 0) {
+      if (!!logo && logo.length === 0) {
         logger.info('... Initializing default logo');
         await this.setCompanyLogo({
           imageSrc: '',
@@ -135,7 +144,7 @@ export class Admin {
         });
       }
       const defaultHubProject = await this.getSettingByNameAndEmail('defaultHubProject', '');
-      if (defaultHubProject && defaultHubProject.length === 0) {
+      if (!!defaultHubProject && defaultHubProject.length === 0) {
         logger.info('... initializing default hub project');
         await this.setAndUpdateDefaultHubProject({
           email: '',
@@ -155,7 +164,7 @@ export class Admin {
    * Stores in MongoDB defaultHubProject setting
    * @param {*} body
    */
-  async setAndUpdateDefaultHubProject(body: any): Promise<ISetting|undefined> {
+  public async setAndUpdateDefaultHubProject(body: any): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -168,7 +177,7 @@ export class Admin {
           upsert: true
         }
       ).exec();
-      if (setting) { return setting; }
+      if (!!setting) { return setting; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -178,7 +187,7 @@ export class Admin {
    * Set Application Name
    * @param {*} body
    */
-  async setApplicationName(body: any): Promise<ISetting|undefined> {
+  public async setApplicationName(body: any): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -191,7 +200,7 @@ export class Admin {
         upsert: true
       }
       ).exec();
-      if (setting) { return setting; }
+      if (!!setting) { return setting; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -201,7 +210,7 @@ export class Admin {
    * Set companyLogo
    * @param {*} body
    */
-  async setCompanyLogo(body: any): Promise<ISetting|undefined> {
+  public async setCompanyLogo(body: any): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -214,7 +223,7 @@ export class Admin {
         upsert: true
       }
       ).exec();
-      if (setting) { return setting; }
+      if (!!setting) { return setting; }
         } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -224,7 +233,7 @@ export class Admin {
    * Set Features Toggles
    * @param {*} body
    */
-  async setFeatureToggles(body: any): Promise<ISetting|undefined> {
+  public async setFeatureToggles(body: any): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -246,7 +255,7 @@ export class Admin {
           upsert: true
         }
       ).exec();
-      if (setting) { return setting; }
+      if (!!setting) { return setting; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -256,7 +265,7 @@ export class Admin {
    * Set File Format Toggles
    * @param {*} body
    */
-  async setFileFormatToggles(body: any): Promise<ISetting|undefined> {
+  public async setFileFormatToggles(body: any): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -281,7 +290,7 @@ export class Admin {
           upsert: true
         }
       ).exec();
-      if (setting) { return setting; }
+      if (!!setting) { return setting; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -291,7 +300,7 @@ export class Admin {
    * Set System Administators
    * @param {*} body
    */
-  async setSysAdmins(body: any): Promise<ISetting|undefined> {
+  public async setSysAdmins(body: any): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -304,7 +313,38 @@ export class Admin {
           upsert: true
         }
       ).exec();
-      if (setting) { return setting; }
+      if (!!setting) { return setting; }
+    } catch (err) {
+      this.errorHandler.handleError(err);
+    }
+  }
+
+  public async wakeUp(): Promise<void> {
+    try {
+      const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
+      if (!!authToken) {
+        const accessToken = authToken.access_token;
+        logger.info(`Generated 2-legged access token: ${accessToken}`);
+        const bucketInfo = await this.ossHandler.getBucketInfo(authToken, config.get('bucket_key'));
+        if (!!bucketInfo) {
+          switch (bucketInfo.statusCode) {
+            case 200:
+              logger.info(`Found bucket info: ${JSON.stringify(bucketInfo.body)}`);
+              break;
+            case 404: {
+              logger.info('... Attempting to create new bucket');
+              const newBucket = await this.ossHandler.createBucket(authToken, config.get('bucket_key'));
+              if (!!newBucket) { logger.info(`Created new bucket: ${JSON.stringify(newBucket.body)}`); }
+              break;
+            }
+            default:
+              logger.error('Something went wrong trying to retrieve bucket info.');
+          }
+        }
+        await this.clearCache();
+        logger.info('... Successfully cleared temporary cache');
+        await this.initializeDb();
+      }
     } catch (err) {
       this.errorHandler.handleError(err);
     }

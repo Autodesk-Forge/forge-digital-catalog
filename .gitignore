@@ -83,3 +83,4 @@ src/server/**/*.js.map
 
 # Powershell
 setenv.ps1
+tslint-to-eslint-config.log

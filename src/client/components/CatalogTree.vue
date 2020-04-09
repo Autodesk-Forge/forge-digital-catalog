@@ -268,8 +268,8 @@
 <script lang='ts'>
 import Filter from 'bad-words';
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import config from './../config';
 import { IItem } from '../../shared/tree';
+import config from '../config';
 
 const filter = new Filter();
 

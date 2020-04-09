@@ -1,9 +1,9 @@
 'use strict';
 
-import * as Router from '@koa/router';
+import Router from '@koa/router';
 import { Context, DefaultState } from 'koa';
-import * as log4 from 'koa-log4';
-import * as url from 'url';
+import log4 from 'koa-log4';
+import url from 'url';
 import { Publish } from '../controllers/publish';
 
 const logger = log4.getLogger('publish');
@@ -18,7 +18,7 @@ const router = new Router<DefaultState, Context>({ prefix: '/api/admin' });
 router.get('/publish/logs', async (ctx: Context): Promise<void> => {
     try {
       const logs = await publishController.getPublishLogs();
-      if (logs) {
+      if (!!logs) {
         ctx.status = 200;
         ctx.body = logs;
       }
@@ -32,10 +32,10 @@ router.get('/publish/logs', async (ctx: Context): Promise<void> => {
 /**
  * Set Publish Log Entry
  */
-router.post('/publish/logs', async (ctx: Context): Promise<void> => {
+router.post('/publish/logs', (ctx: Context): void => {
     try {
-      const log = await publishController.setPublishLog(ctx.request.body);
-      if (log) {
+      const log = publishController.setPublishLog(ctx.request.body);
+      if (!!log) {
         ctx.status = 200;
         ctx.body = log;
       }
@@ -52,7 +52,7 @@ router.post('/publish/logs', async (ctx: Context): Promise<void> => {
 router.post('/translate', async (ctx: Context): Promise<void> => {
     try {
       const response = await publishController.translateJob(ctx.request.body);
-      if (response) {
+      if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
       }
@@ -75,7 +75,7 @@ router.get('/translate/*', async (ctx: Context): Promise<void> => {
           newUrl.replace('/api/admin/translate/', '')
         );
         const status = await publishController.getTranslateJobStatus(base64Urn);
-        if (status) {
+        if (!!status) {
           ctx.status = 200;
           ctx.body = status;
         }

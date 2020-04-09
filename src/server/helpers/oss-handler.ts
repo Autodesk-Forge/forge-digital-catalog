@@ -1,11 +1,12 @@
+/* eslint-disable camelcase */
 import { AxiosResponse } from 'axios';
-import * as config from 'config';
+import config from 'config';
 import { ApiResponse, AuthClientTwoLegged, AuthToken, BucketsApi, ObjectsApi, Scope } from 'forge-apis';
-import * as fs from 'fs';
-import * as log4 from 'koa-log4';
-import * as os from 'os';
-import * as path from 'path';
-import * as util from 'util';
+import fs from 'fs';
+import log4 from 'koa-log4';
+import os from 'os';
+import path from 'path';
+import util from 'util';
 import { ErrorHandler } from './error-handler';
 import { AuthHelper } from '../helpers/auth-handler';
 import { Context } from 'koa';
@@ -22,7 +23,7 @@ export class OssHandler {
   private oAuth2Client: AuthClientTwoLegged;
   private scope: Scope[];
 
-  constructor(clientId: string, clientSecret: string, scope: Scope[]) {
+  public constructor(clientId: string, clientSecret: string, scope: Scope[]) {
     this.authHelper = new AuthHelper();
     this.clientId = clientId;
     this.clientSecret = clientSecret;
@@ -36,7 +37,7 @@ export class OssHandler {
    * @param credentials
    * @param bucketKey
    */
-  async createBucket(credentials: AuthToken, bucketKey: string): Promise<ApiResponse | undefined> {
+  public async createBucket(credentials: AuthToken, bucketKey: string): Promise<ApiResponse | undefined> {
     try {
       const bucketsApi = new BucketsApi();
       const buckets = await bucketsApi.createBucket({
@@ -45,7 +46,7 @@ export class OssHandler {
       }, {
         xAdsRegion: config.get('region')
       }, this.oAuth2Client, credentials);
-      if (buckets) { return buckets; }
+      if (!!buckets) { return buckets; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -58,7 +59,7 @@ export class OssHandler {
    * @param objectName
    * @param sourceFileName
    */
-  async downloadObject(
+  public async downloadObject(
     bucketKey: string,
     objectName: string,
     sourceFileName: string,
@@ -74,7 +75,7 @@ export class OssHandler {
         };
         const objectsApi = new ObjectsApi();
         const download = await objectsApi.getObject(bucketKey, objectName, {}, this.oAuth2Client, credentials);
-        if (download) {
+        if (!!download) {
           const buffer = Buffer.from(download.body);
           const tmpDir = os.tmpdir();
           const outputDir = path.join(tmpDir, 'cache');
@@ -104,7 +105,7 @@ export class OssHandler {
    * @param objectName
    * @param sourceFileName
    */
-  async downloadGltfObject(
+  public async downloadGltfObject(
     bucketKey: string,
     objectName: string,
     sourceFileName: string
@@ -114,7 +115,7 @@ export class OssHandler {
       const objectsApi = new ObjectsApi();
       if (credentials) {
         const download = await objectsApi.getObject(bucketKey, objectName, {}, this.oAuth2Client, credentials);
-        if (download) {
+        if (!!download) {
           const buffer = Buffer.from(download.body);
           const tmpDir = os.tmpdir();
           const outputDir = path.join(tmpDir, 'cache');
@@ -142,11 +143,11 @@ export class OssHandler {
    * @param credentials
    * @param bucketKey
    */
-  async getBucketInfo(credentials: AuthToken, bucketKey: string): Promise<ApiResponse | undefined> {
+  public async getBucketInfo(credentials: AuthToken, bucketKey: string): Promise<ApiResponse | undefined> {
     try {
       const bucketsApi = new BucketsApi();
-      const bucketDetails = bucketsApi.getBucketDetails(bucketKey, this.oAuth2Client, credentials);
-      if (bucketDetails) { return bucketDetails; }
+      const bucketDetails = await bucketsApi.getBucketDetails(bucketKey, this.oAuth2Client, credentials);
+      if (!!bucketDetails) { return bucketDetails; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }

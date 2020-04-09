@@ -1,12 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
-import * as config from 'config';
+import config from 'config';
 import { ErrorHandler } from './error-handler';
 
 export class ForgeHandler {
 
   private errorHandler: ErrorHandler;
 
-  constructor() {
+  public constructor() {
     this.errorHandler = new ErrorHandler();
   }
 
@@ -15,7 +15,7 @@ export class ForgeHandler {
    * @param urn
    * @param token
    */
-  async getManifest(urn: string, token: string): Promise<AxiosResponse | undefined> {
+  public async getManifest(urn: string, token: string): Promise<AxiosResponse | undefined> {
     try {
       let url;
       switch (config.get('region')) {
@@ -47,7 +47,7 @@ export class ForgeHandler {
    * @param urn
    * @param token
    */
-  async getDerivative(urn: string, token: string): Promise<Buffer | undefined> {
+  public async getDerivative(urn: string, token: string): Promise<Buffer | undefined> {
     try {
       const res = await axios({
         headers: {
@@ -73,7 +73,7 @@ export class ForgeHandler {
    * @param node
    * @param callback
    */
-  traverseManifest(node: any, callback: (node: any) => void): void {
+  public traverseManifest(node: any, callback: (node: any) => void): void {
     callback(node);
     if (node.derivatives) {
       for (const child of node.derivatives) {

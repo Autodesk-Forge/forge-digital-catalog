@@ -1,9 +1,9 @@
 'use strict';
 
-import * as Router from '@koa/router';
+import Router from '@koa/router';
 import { Context, DefaultState } from 'koa';
-import * as log4 from 'koa-log4';
-import * as url from 'url';
+import log4 from 'koa-log4';
+import url from 'url';
 import { Catalog } from '../controllers/catalog';
 
 const logger = log4.getLogger('catalog');
@@ -20,7 +20,7 @@ router.delete(
   async (ctx: Context): Promise<void> => {
     try {
       const file = await catalogController.deleteCatalogFile(ctx.request.body);
-      if (file) {
+      if (!!file) {
         ctx.status = 200;
         ctx.body = JSON.stringify(file);
       }
@@ -42,7 +42,7 @@ router.delete(
       const folder = await catalogController.deleteCatalogFolderWithContent(
         ctx.request.body
       );
-      if (folder) {
+      if (!!folder) {
         ctx.status = 200;
         ctx.body = JSON.stringify(folder);
       }
@@ -62,7 +62,7 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const file = await catalogController.getCatalogFileById(ctx.params.id);
-      if (file) {
+      if (!!file) {
         ctx.status = 200;
         ctx.body = JSON.stringify(file);
       }
@@ -82,7 +82,7 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const file = await catalogController.getCatalogFileByName(ctx.params.name);
-      if (file) {
+      if (!!file) {
         ctx.status = 200;
         ctx.body = JSON.stringify(file);
       }
@@ -103,7 +103,7 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const file = await catalogController.getCatalogFile(ctx.params.name, ctx.params.path);
-      if (file) {
+      if (!!file) {
         ctx.status = 200;
         ctx.body = JSON.stringify(file);
       }
@@ -123,7 +123,7 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const file = await catalogController.getCatalogFileBySrcDesignUrn(ctx.params.urn);
-      if (file) {
+      if (!!file) {
         ctx.status = 200;
         ctx.body = JSON.stringify(file);
       }
@@ -143,7 +143,7 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const folder = await catalogController.getCatalogFolderById(ctx.params.id);
-      if (folder) {
+      if (!!folder) {
         ctx.status = 200;
         ctx.body = JSON.stringify(folder);
       }
@@ -163,7 +163,7 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const rootFolder = await catalogController.getCatalogRootFolder();
-      if (rootFolder) {
+      if (!!rootFolder) {
         ctx.status = 200;
         ctx.body = JSON.stringify(rootFolder);
       }
@@ -183,7 +183,7 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const children = await catalogController.getCatalogChildren(ctx.params.path);
-      if (children) {
+      if (!!children) {
         ctx.status = 200;
         ctx.body = JSON.stringify(children);
       }
@@ -203,7 +203,7 @@ router.post(
   async (ctx: Context): Promise<void> => {
     try {
       const file = await catalogController.setCatalogFile(ctx.request.body);
-      if (file) {
+      if (!!file) {
         ctx.status = 200;
         ctx.body = JSON.stringify(file);
       }
@@ -227,7 +227,7 @@ router.put(
       if (newUrl) {
         const ossDesignUrn = newUrl.replace('/api/catalog/file/oss/', '');
         const file = await catalogController.updateCatalogFile(ctx.request.body, ossDesignUrn);
-        if (file) {
+        if (!!file) {
           ctx.status = 200;
           ctx.body = JSON.stringify(file);
         }
@@ -252,7 +252,7 @@ router.put(
       if (newUrl) {
         const svfUrn = newUrl.replace('/api/catalog/file/svf/', '');
         const file = await catalogController.updateCatalogFileSvf(ctx.request.body, svfUrn);
-        if (file) {
+        if (!!file) {
           ctx.status = 200;
           ctx.body = JSON.stringify(file);
         }
@@ -273,7 +273,7 @@ router.post(
   async (ctx: Context): Promise<void> => {
     try {
       const folder = await catalogController.setCatalogFolder(ctx.request.body);
-      if (folder) {
+      if (!!folder) {
         ctx.status = 200;
         ctx.body = JSON.stringify(folder);
       }
@@ -293,7 +293,7 @@ router.patch(
   async (ctx: Context): Promise<void> => {
     try {
       const folder = await catalogController.renameCatalogFolder(ctx.request.body);
-      if (folder) {
+      if (!!folder) {
         ctx.status = 200;
         ctx.body = folder;
       }

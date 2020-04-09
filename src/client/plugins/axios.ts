@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 'use strict';
 
 import axios from 'axios';
@@ -67,6 +68,7 @@ const AxiosPlugin = {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/unbound-method
 AxiosPlugin.install = (vue: VueConstructor, options: any[]) => {
   try {
     (vue as any).axios = axiosInstance;

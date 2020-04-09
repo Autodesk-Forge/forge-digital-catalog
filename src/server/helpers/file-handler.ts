@@ -1,14 +1,14 @@
-import * as archiver from 'archiver';
+import archiver from 'archiver';
 import axios, { AxiosResponse } from 'axios';
-import * as config from 'config';
+import config from 'config';
 import { AuthToken } from 'forge-apis';
-import * as fs from 'fs';
-import * as zip from 'jszip';
+import fs from 'fs';
+import zip from 'jszip';
 import { Context } from 'koa';
-import * as log4 from 'koa-log4';
-import * as os from 'os';
-import * as path from 'path';
-import * as util from 'util';
+import log4 from 'koa-log4';
+import os from 'os';
+import path from 'path';
+import util from 'util';
 import { IXRef } from '../../shared/publish';
 import { Catalog } from '../controllers/catalog';
 import { AuthHelper } from './auth-handler';
@@ -25,7 +25,7 @@ export class FileHandler {
   private errorHandler: ErrorHandler;
   private xrefHandler: XrefHandler;
 
-  constructor() {
+  public constructor() {
     this.authHelper = new AuthHelper();
     this.catalogController = new Catalog();
     this.errorHandler = new ErrorHandler();
@@ -41,7 +41,7 @@ export class FileHandler {
    * @param versionId
    * @param fileType
    */
-  async downloadFile(
+  public async downloadFile(
     session: Context['session'],
     projectId: string,
     versionId: string,
@@ -94,7 +94,7 @@ export class FileHandler {
    * @param projectId
    * @param versionId
    */
-  async downloadFormats(
+  public async downloadFormats(
     session: Context['session'],
     projectId: string,
     versionId: string
@@ -122,7 +122,7 @@ export class FileHandler {
    * @param projectId
    * @param downloadId
    */
-  async getDownloadInfo(
+  public async getDownloadInfo(
     session: Context['session'],
     projectId: string,
     downloadId: string
@@ -149,7 +149,7 @@ export class FileHandler {
    * @param session
    * @param href
    */
-  async getDownloadJobInfo(session: Context['session'], href: string): Promise<AxiosResponse | undefined> {
+  public async getDownloadJobInfo(session: Context['session'], href: string): Promise<AxiosResponse | undefined> {
     try {
       if (session) {
         const res = await axios({
@@ -171,7 +171,7 @@ export class FileHandler {
    * Read Manifest.json to retrieve rootFilename
    * @param filePath
    */
-  async getRootFileFromManifest(filePath: string): Promise<any> {
+  public async getRootFileFromManifest(filePath: string): Promise<any> {
     return new Promise((resolve, reject) => {
       fs.readFile(filePath, (err, data) => {
         if (err) throw err;
@@ -197,7 +197,7 @@ export class FileHandler {
    * @param objectName
    * @param sessionId
    */
-  async getUploadStatus(
+  public async getUploadStatus(
     token: AuthToken,
     bucketKey: string,
     objectName: string,
@@ -225,7 +225,7 @@ export class FileHandler {
    * @param objectName
    * @param payload
    */
-  async moveObject(
+  public async moveObject(
     session: Context['session'],
     bucketKey: string,
     objectName: string,
@@ -253,11 +253,11 @@ export class FileHandler {
    * @param session
    * @param href
    */
-  async pollDownloadJobInfo(session: Context['session'], href: string): Promise<AxiosResponse | undefined> {
+  public async pollDownloadJobInfo(session: Context['session'], href: string): Promise<AxiosResponse | undefined> {
     while (true) {
       try {
         const response = await this.getDownloadJobInfo(session, href);
-        if (response
+        if (!!response
             && (response.data[0].type === 'downloads'
             || response.data[0].type === 'failed')) {
           return response;
@@ -273,16 +273,16 @@ export class FileHandler {
    * @param archiveName
    * @param fileSize
    */
-  async uploadZipObject(archiveName: string, fileSize: number): Promise<AxiosResponse | undefined> {
+  public async uploadZipObject(archiveName: string, fileSize: number): Promise<AxiosResponse | undefined> {
     try {
       const mimeType = this.getMimeType(archiveName);
       const readFile = util.promisify(fs.readFile);
       const tmpDir = os.tmpdir();
       const zipFilePath = path.join(tmpDir, 'cache', archiveName);
       const data = await readFile(zipFilePath);
-      if (data) {
+      if (!!data) {
         const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
-        if (authToken) {
+        if (!!authToken) {
           const uploadRes = await axios({
             data,
             headers: {
@@ -309,9 +309,9 @@ export class FileHandler {
    */
   private getMimeType(filename: string): string | undefined {
     filename = filename.toLowerCase();
-    const regexp = /(?:\.([^.]+))?$/; // regexp to extract file extension
+    const search = /(?:\.([^.]+))?$/; // regexp to extract file extension
     if (filename) {
-      const extension = filename.match(regexp);
+      const extension = search.exec(filename);
       const types: any = {
         dwf: 'application/vnd.autodesk.autocad.dwf',
         dwg: 'application/vnd.autodesk.autocad.dwg',
@@ -394,10 +394,10 @@ export class FileHandler {
       const response = await this.downloadFile(session, payload.projectId, payload.versionId, 'f3z') as any;
       if (response) {
         const jobResponse = await this.pollDownloadJobInfo(session, response.links.self.href);
-        if (jobResponse && jobResponse.data[0].type === 'failed') {
+        if (!!jobResponse && jobResponse.data[0].type === 'failed') {
           throw new Error('Fusion Archive Download Failed');
         }
-        if (jobResponse && jobResponse.data[0].type === 'downloads') {
+        if (!!jobResponse && jobResponse.data[0].type === 'downloads') {
           logger.info(`... Fusion Archive is downloadable from ${jobResponse.data[0].relationships.storage.meta.link.href}`);
           const file = await this.saveF3ZFile(
             session,
@@ -408,7 +408,7 @@ export class FileHandler {
             let archiveName = objectName.replace('.f3d', '.zip');
             archiveName = `${path.parse(archiveName).name}.zip`;
             const uploadResponse = await this.uploadZipObject(archiveName, file.filesize);
-            if (uploadResponse) { return uploadResponse; }
+            if (!!uploadResponse) { return uploadResponse; }
           }
         }
       }
@@ -444,7 +444,7 @@ export class FileHandler {
       };
       payload.refs.push(parentRef);
       const downloadAll = await this.xrefHandler.downloadCADReferences(session, payload);
-      if (downloadAll) {
+      if (!!downloadAll) {
         logger.info('... all reference files downloaded to temporary cache');
         const fileNames = this.xrefHandler.setCADReferenceFilesList(payload);
         if (fileNames && fileNames.length > 0) {
@@ -452,7 +452,7 @@ export class FileHandler {
           if (zipFileSize > 0) {
             const archiveName = `${path.parse(objectName).name}.zip`;
             const response = await this.uploadZipObject(archiveName, zipFileSize);
-            if (response) { return response; }
+            if (!!response) { return response; }
           }
         }
       }
@@ -481,19 +481,19 @@ export class FileHandler {
       let moveOp;
       if (payload.fileType === 'Inventor') {
         moveOp = await this.moveAndCompressCadFiles('iam', session, bucketKey, objectName, payload);
-        if (moveOp) {
+        if (!!moveOp) {
           logger.info('... zip file uploaded to OSS');
         }
       } else if (payload.fileType === 'Fusion') {
         moveOp = await this.moveAndCompressFusionFiles(session, objectName, payload);
-        if (moveOp) {
+        if (!!moveOp) {
           await this.translateFixForFusionRefs(payload);
         }
       } else if (payload.fileType === 'NavisWorks') {
         // do something
       } else if (payload.fileType === 'SolidWorks') {
         moveOp = await this.moveAndCompressCadFiles('sldasm', session, bucketKey, objectName, payload);
-        if (moveOp) {
+        if (!!moveOp) {
           logger.info('... zip file uploaded to OSS');
         }
       }
@@ -527,7 +527,7 @@ export class FileHandler {
         if (res.status === 200 || res.status === 206) {
           const buffer = Buffer.from(res.data);
           const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
-          if (authToken) {
+          if (!!authToken) {
             const uploadRes = await axios({
               data: buffer,
               headers: {
@@ -619,7 +619,7 @@ export class FileHandler {
       const archivePath = path.join(tmpDir, 'cache', archiveFile);
       const srcDesignUrn = payload.storageLocation;
       const rootFilename = await this.getRootFileFromManifest(archivePath);
-      if (rootFilename) {
+      if (!!rootFilename) {
         logger.info(`... retrieved new rootFilename value from Manifest.json ${rootFilename.root}`);
         await this.catalogController.updateCatalogFileRootFilename({ isFile: true, srcDesignUrn }, rootFilename.root);
         logger.info('... successfully stored new rootFilename value in catalog item');

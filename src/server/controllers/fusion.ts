@@ -1,8 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
-import * as config from 'config';
+import config from 'config';
 import { Context } from 'koa';
-import * as log4 from 'koa-log4';
-import * as url from 'url';
+import log4 from 'koa-log4';
+import url from 'url';
 import { Token } from '../auth/token';
 import { AuthHelper } from '../helpers/auth-handler';
 import { ErrorHandler } from '../helpers/error-handler';
@@ -19,7 +19,7 @@ export class Fusion {
   private authHelper: AuthHelper;
   private errorHandler: ErrorHandler;
 
-  constructor() {
+  public constructor() {
     this.adminController = new Admin();
     this.authHelper = new AuthHelper();
     this.errorHandler = new ErrorHandler();
@@ -31,13 +31,13 @@ export class Fusion {
    * @param projectId
    * @param folderId
    */
-  async getFolderContents(session: Context['session'], projectId: string, folderId: string): Promise<any> {
+  public async getFolderContents(session: Context['session'], projectId: string, folderId: string): Promise<any> {
     try {
       const token = new Token(session);
       if (token.session) {
         const fileFormats = await this.adminController.getSetting('fileFormatToggles');
         let filters = 'folders:autodesk.core:Folder,folders:autodesk.bim360:Folder';
-        if (fileFormats) {
+        if (!!fileFormats) {
           if (fileFormats[0].fileFormatToggles.fusion) {
             filters += ',items:autodesk.fusion360:Design';
           }
@@ -148,7 +148,7 @@ export class Fusion {
    * Retrieves Hubs
    * @param session
    */
-  async getHubs(session: Context['session']): Promise<AxiosResponse | undefined> {
+  public async getHubs(session: Context['session']): Promise<AxiosResponse | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -178,7 +178,7 @@ export class Fusion {
    * @param projectId
    * @param versionId
    */
-  async getItemVersionInfo(session: Context['session'], projectId: string, versionId: string): Promise<any> {
+  public async getItemVersionInfo(session: Context['session'], projectId: string, versionId: string): Promise<any> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -218,7 +218,7 @@ export class Fusion {
    * @param projectId
    * @param itemId
    */
-  async getItemVersions(
+  public async getItemVersions(
     session: Context['session'],
     projectId: string,
     itemId: string
@@ -247,7 +247,7 @@ export class Fusion {
    * @param hubId
    * @param projectId
    */
-  async getProject(
+  public async getProject(
     session: Context['session'],
     hubId: string,
     projectId: string
@@ -275,7 +275,7 @@ export class Fusion {
    * @param session
    * @param hubId
    */
-  async getProjects(session: Context['session'], hubId: string): Promise<AxiosResponse | undefined> {
+  public async getProjects(session: Context['session'], hubId: string): Promise<AxiosResponse | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -298,10 +298,10 @@ export class Fusion {
    * Returns thumbnail data URI
    * @param urn
    */
-  async getThumbnail(urn: string): Promise<string | undefined> {
+  public async getThumbnail(urn: string): Promise<string | undefined> {
     try {
       const authToken = await this.authHelper.createInternalToken(config.get('view_scope'));
-      if (authToken) {
+      if (!!authToken) {
         const res = await axios({
           headers: {
             Authorization: `Bearer ${authToken.access_token}`
@@ -327,7 +327,7 @@ export class Fusion {
    * @param hubId
    * @param projectId
    */
-  async getTopFolders(
+  public async getTopFolders(
     session: Context['session'],
     hubId: string, projectId: string): Promise<AxiosResponse | undefined> {
     try {
@@ -353,7 +353,7 @@ export class Fusion {
    * @param session
    * @param retry
    */
-  async getUserProfile(session: Context['session']): Promise<AxiosResponse | undefined> {
+  public async getUserProfile(session: Context['session']): Promise<AxiosResponse | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -383,7 +383,7 @@ export class Fusion {
    * @param projectId
    * @param versionId
    */
-  async getVersionRefs(
+  public async getVersionRefs(
     session: Context['session'],
     projectId: string,
     versionId: string

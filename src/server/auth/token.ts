@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable @typescript-eslint/camelcase */
 'use strict';
 
 import { Context } from 'koa';
@@ -7,7 +9,7 @@ export class Token {
 
   public session: Context['session'];
 
-  constructor(session: Context['session']) {
+  public constructor(session: Context['session']) {
     this.session = session;
   }
 
@@ -38,7 +40,7 @@ export class Token {
     if (this.session) { this.session.forge = forgeSession; }
   }
 
-  get isAuthorized() {
+  public get isAuthorized(): boolean | undefined {
     // !! converts value into boolean
     if (this.session) { return (!!this.session.passport.user); }
   }
@@ -46,7 +48,38 @@ export class Token {
   /**
    * The Forge oAuth2 client JSON template
    */
-  private getOAuthTemplate() {
+  private getOAuthTemplate(): {
+    authName: string;
+    authentication: {
+      authorizationUrl: string;
+      refreshTokenUrl: string;
+      scopes: {
+        'account:read': string;
+        'account:write': string;
+        'bucket:create': string;
+        'bucket:delete': string;
+        'bucket:read': string;
+        'bucket:update': string;
+        'code:all': string;
+        'data:create': string;
+        'data:read': string;
+        'data:search': string;
+        'data:write': string;
+        'user-profile:read': string;
+        'viewables:read': string;
+      };
+      tokenUrl: string;
+    };
+    autoRefresh: boolean;
+    basePath: string;
+    clientId: string;
+    clientSecret: string;
+    credentials: {
+      expires_at: number;
+    };
+    redirectUri: string;
+    scope: string;
+  } {
     return {
       authName: 'oauth2_access_code',
       authentication: {

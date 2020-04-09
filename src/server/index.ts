@@ -1,14 +1,14 @@
-import * as cors from '@koa/cors';
-import * as Router from '@koa/router';
-import * as config from 'config';
-import * as Koa from 'koa';
-import * as bodyParser from 'koa-bodyparser';
-import * as compress from 'koa-compress';
-import * as helmet from 'koa-helmet';
-import * as log4js from 'koa-log4';
-import * as passport from 'koa-passport';
-import * as session from 'koa-session';
-import * as serve from 'koa-static';
+import cors from '@koa/cors';
+import Router from '@koa/router';
+import config from 'config';
+import Koa from 'koa';
+import bodyParser from 'koa-bodyparser';
+import compress from 'koa-compress';
+import helmet from 'koa-helmet';
+import log4js from 'koa-log4';
+import passport from 'koa-passport';
+import session from 'koa-session';
+import serve from 'koa-static';
 import { historyApiFallback } from 'koa2-connect-history-api-fallback';
 import { connect } from 'mongoose';
 import adminRoutes from './routes/admin';
@@ -18,14 +18,6 @@ import fusionRoutes from './routes/fusion';
 import ossRoutes from './routes/oss';
 import publishRoutes from './routes/publish';
 import webHooksRoutes from './routes/webhooks';
-
-// Get 2-legged access token
-import { AuthHelper } from './helpers/auth-handler';
-const authHelper = new AuthHelper();
-
-// Create initial storage bucket
-import { OssHandler } from './helpers/oss-handler';
-const ossHandler = new OssHandler(config.get('oauth2.clientID'), config.get('oauth2.clientSecret'), config.get('bucket_scope'));
 
 // Create webAdmins setting
 import { Admin } from './controllers/admin';
@@ -105,36 +97,15 @@ app.on('ready', () => {
     const ms = (new Date()).valueOf() - start.valueOf();
     logger.info(`${ctx.method} ${ctx.url} - ${ms}ms`);
   });
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   app.use(router.routes()).use(router.allowedMethods);
-  const port = (process.env.PORT || config.get('http_port')) as number;
-  app.listen(port, async () => {
-    const authToken = await authHelper.createInternalToken(config.get('bucket_scope'));
-    if (authToken) {
-      const accessToken = authToken.access_token;
-      logger.info(`Generated 2-legged access token: ${accessToken}`);
-      const bucketInfo = await ossHandler.getBucketInfo(authToken, config.get('bucket_key'));
-      if (bucketInfo) {
-        switch (bucketInfo.statusCode) {
-          case 200:
-            logger.info(`Found bucket info: ${JSON.stringify(bucketInfo.body)}`);
-            break;
-          case 404: {
-            logger.info('... Attempting to create new bucket');
-            const newBucket = await ossHandler.createBucket(authToken, config.get('bucket_key'));
-            if (newBucket) { logger.info(`Created new bucket: ${JSON.stringify(newBucket.body)}`); }
-            break;
-          }
-          default:
-            logger.error('Something went wrong trying to retrieve bucket info.');
-        }
-      }
-      await adminController.clearCache();
-      logger.info('... Successfully cleared temporary cache');
-      await adminController.initializeDb();
+  adminController.wakeUp().then(() => {
+    const port = (process.env.PORT || config.get('http_port')) as number;
+    app.listen(port, () => {
       logger.info('... Successfully initialized the database');
       logger.info(`... Listening at port ${port}`);
-        }
     });
+  });
 });
 
 app.on('error', (err) => {

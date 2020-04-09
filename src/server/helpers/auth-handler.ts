@@ -1,7 +1,7 @@
-import * as config from 'config';
+import config from 'config';
 import { AuthClientThreeLegged, AuthClientTwoLegged, AuthToken, Scope } from 'forge-apis';
 import { Context } from 'koa';
-import * as log4 from 'koa-log4';
+import log4 from 'koa-log4';
 import { Token } from '../auth/token';
 import { ErrorHandler } from './error-handler';
 
@@ -14,7 +14,7 @@ export class AuthHelper {
   private auth3Leg!: AuthClientThreeLegged;
   private errorHandler: ErrorHandler;
 
-  constructor() {
+  public constructor() {
     this.errorHandler = new ErrorHandler();
   }
 
@@ -22,7 +22,7 @@ export class AuthHelper {
    * Generates a 2-legged bearer token
    * @param scope
    */
-  async createInternalToken(scope: Scope[]): Promise<AuthToken | undefined> {
+  public async createInternalToken(scope: Scope[]): Promise<AuthToken | undefined> {
     try {
       if (!this.auth2Leg) {
         this.auth2Leg = new AuthClientTwoLegged(
@@ -33,7 +33,7 @@ export class AuthHelper {
         );
       }
       const token = await this.auth2Leg.authenticate();
-      if (token) { return token; }
+      if (!!token) { return token; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -43,7 +43,7 @@ export class AuthHelper {
    * Refreshes a 3-legged bearer token
    * @param req
    */
-  async refreshToken(
+  public async refreshToken(
     refreshToken: string,
     session: Context['session']
   ): Promise<Context['session'] | undefined> {

@@ -1,4 +1,4 @@
-import * as log4 from 'koa-log4';
+import log4 from 'koa-log4';
 import { ICatalog } from '../../shared/catalog';
 import { ErrorHandler } from '../helpers/error-handler';
 import CatalogDb from '../models/catalog';
@@ -10,7 +10,7 @@ export class Catalog {
 
   private errorHandler: ErrorHandler;
 
-  constructor() {
+  public constructor() {
     this.errorHandler = new ErrorHandler();
   }
 
@@ -18,7 +18,7 @@ export class Catalog {
    * Deletes a catalog item
    * @param body
    */
-  async deleteCatalogFile(catalog: ICatalog): Promise<ICatalog | undefined> {
+  public async deleteCatalogFile(catalog: ICatalog): Promise<ICatalog | undefined> {
     try {
       const query = await CatalogDb.deleteOne({
         isFile: true,
@@ -37,7 +37,7 @@ export class Catalog {
    * Deletes a catalog folder
    * @param body
    */
-  async deleteCatalogFolder(catalog: ICatalog): Promise<ICatalog | undefined> {
+  public async deleteCatalogFolder(catalog: ICatalog): Promise<ICatalog | undefined> {
     try {
       const query = await CatalogDb.deleteOne({
         isFile: false,
@@ -56,7 +56,7 @@ export class Catalog {
    * Deletes a catalog folder and its content
    * @param body
    */
-  async deleteCatalogFolderWithContent(catalog: ICatalog): Promise<ICatalog | undefined> {
+  public async deleteCatalogFolderWithContent(catalog: ICatalog): Promise<ICatalog | undefined> {
     try {
       const deleteString = this.escapeRegExp (`${catalog.path}${catalog.name},`);
       const deleteQuery = await CatalogDb.deleteMany({
@@ -81,10 +81,10 @@ export class Catalog {
    * Retrieves catalog item by id
    * @param id
    */
-  async getCatalogFileById(id: string): Promise<ICatalog | undefined> {
+  public async getCatalogFileById(id: string): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findById(id).exec();
-      if (catalogFile) { return catalogFile; }
+      if (!!catalogFile) { return catalogFile; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -94,13 +94,13 @@ export class Catalog {
    * Retrieves catalog item by name
    * @param name
    */
-  async getCatalogFileByName(name: string): Promise<ICatalog | undefined> {
+  public async getCatalogFileByName(name: string): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOne({
         isFile: true,
         name
       }).exec();
-      if (catalogFile) { return catalogFile; }
+      if (!!catalogFile) { return catalogFile; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -110,13 +110,13 @@ export class Catalog {
    * Retrieves catalog item by its OSS design urn
    * @param urn
    */
-  async getCatalogFileByOSSDesignUrn(urn: string): Promise<ICatalog | undefined> {
+  public async getCatalogFileByOSSDesignUrn(urn: string): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOne({
         isFile: true,
         ossDesignUrn: urn
       }).exec();
-      if (catalogFile) { return catalogFile; }
+      if (!!catalogFile) { return catalogFile; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -126,13 +126,13 @@ export class Catalog {
    * Retrieves catalog item by its source design urn
    * @param body
    */
-  async getCatalogFileBySrcDesignUrn(urn: string): Promise<ICatalog | undefined> {
+  public async getCatalogFileBySrcDesignUrn(urn: string): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOne({
         isFile: true,
         srcDesignUrn: urn
       }).exec();
-      if (catalogFile) { return catalogFile; }
+      if (!!catalogFile) { return catalogFile; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -143,14 +143,14 @@ export class Catalog {
    * @param name
    * @param path
    */
-  async getCatalogFile(name: string, path: string): Promise<ICatalog | undefined> {
+  public async getCatalogFile(name: string, path: string): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOne({
         isFile: true,
         name,
         path
       }).exec();
-      if (catalogFile) { return catalogFile; }
+      if (!!catalogFile) { return catalogFile; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -160,10 +160,10 @@ export class Catalog {
    * Retrieves catalog folder by id
    * @param id
    */
-  async getCatalogFolderById(id: string): Promise<ICatalog | undefined> {
+  public async getCatalogFolderById(id: string): Promise<ICatalog | undefined> {
     try {
       const catalogFolder = await CatalogDb.findById(id).exec();
-      if (catalogFolder) { return catalogFolder; }
+      if (!!catalogFolder) { return catalogFolder; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -172,14 +172,14 @@ export class Catalog {
   /**
    * Retrieves catalog root folder
    */
-  async getCatalogRootFolder(): Promise<ICatalog | undefined> {
+  public async getCatalogRootFolder(): Promise<ICatalog | undefined> {
     try {
       const rootFolder = await CatalogDb.findOne({
         isFile: false,
         name: 'Root Folder',
         path: ''
       }).exec();
-      if (rootFolder) { return rootFolder; }
+      if (!!rootFolder) { return rootFolder; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -189,7 +189,7 @@ export class Catalog {
    * Retrieves catalog children
    * @param folder
    */
-  async getCatalogChildren(folder: string): Promise<ICatalog[] | undefined> {
+  public async getCatalogChildren(folder: string): Promise<ICatalog[] | undefined> {
     try {
       const searchString = this.escapeRegExp (`,${folder},$`);
       const catalogChildren = await CatalogDb.find(
@@ -199,7 +199,7 @@ export class Catalog {
         ['name', 'path', 'isFile', 'isPublished'],
         { name: 1, path: 1 }
       ).exec();
-      if (catalogChildren) { return catalogChildren; }
+      if (!!catalogChildren) { return catalogChildren; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -209,7 +209,7 @@ export class Catalog {
    * Renames a catalog folder
    * @param body
    */
-  async renameCatalogFolder(catalog: ICatalog): Promise<{
+  public async renameCatalogFolder(catalog: ICatalog): Promise<{
     new: string;
     old: string;
   } | undefined> {
@@ -227,7 +227,7 @@ export class Catalog {
           upsert: true
         }
       ).exec();
-      if (catalogFolder) {
+      if (!!catalogFolder) {
         const oldNameWithCommas = this.escapeRegExp(`,${catalog.name},`);
         const newNameWithCommas = this.escapeRegExp(`,${catalog.newName},`);
         const renameFolderQuery = CatalogDb.find({
@@ -255,10 +255,10 @@ export class Catalog {
    * Creates new catalog item
    * @param body
    */
-  async setCatalogFile(catalog: ICatalog): Promise<ICatalog | undefined>  {
+  public async setCatalogFile(catalog: ICatalog): Promise<ICatalog | undefined>  {
     try {
       const duplicateFile = await CatalogDb.find(catalog).exec();
-      if (duplicateFile.length > 0) { throw new Error('Duplicate catalog file found.'); }
+      if (!!duplicateFile && duplicateFile.length > 0) { throw new Error('Duplicate catalog file found.'); }
       const catalogFile = await CatalogDb.findOneAndUpdate(
         {
           isFile: true,
@@ -284,10 +284,10 @@ export class Catalog {
    * Creates new catalog folder
    * @param body
    */
-  async setCatalogFolder(catalog: ICatalog): Promise<ICatalog | void> {
+  public async setCatalogFolder(catalog: ICatalog): Promise<ICatalog | void> {
     try {
       const duplicateFolder = await CatalogDb.find(catalog).exec();
-      if (duplicateFolder.length > 0) { throw new Error('Duplicate Catalog Folder Found.'); }
+      if (!!duplicateFolder && duplicateFolder.length > 0) { throw new Error('Duplicate Catalog Folder Found.'); }
       const folder = new CatalogDb(catalog);
       const newFolder = await folder.save();
       return newFolder;
@@ -299,7 +299,7 @@ export class Catalog {
   /**
    * Creates new catalog root folder
    */
-  async setCatalogRootFolder(): Promise<ICatalog | undefined> {
+  public async setCatalogRootFolder(): Promise<ICatalog | undefined> {
     try {
       const rootJson = {
         isFile: false,
@@ -313,7 +313,7 @@ export class Catalog {
           upsert: true
         }
       ).exec();
-      if (catalogRootFolder) {
+      if (!!catalogRootFolder) {
         logger.info(`Setting catalog root folder: ${JSON.stringify(catalogRootFolder)}\n`);
         return catalogRootFolder;
       }
@@ -327,7 +327,7 @@ export class Catalog {
    * @param payload
    * @param ossDesignUrn
    */
-  async updateCatalogFile(payload: any, ossDesignUrn: string): Promise<ICatalog | undefined> {
+  public async updateCatalogFile(payload: any, ossDesignUrn: string): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOneAndUpdate(
         payload,
@@ -338,7 +338,7 @@ export class Catalog {
           new: true
         }
       ).exec();
-      if (catalogFile) { return catalogFile; }
+      if (!!catalogFile) { return catalogFile; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -349,7 +349,7 @@ export class Catalog {
    * @param payload
    * @param gltf
    */
-  async updateCatalogFileGltf(payload: any, gltf: any): Promise<ICatalog | undefined> {
+  public async updateCatalogFileGltf(payload: any, gltf: any): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOneAndUpdate(
         payload,
@@ -360,7 +360,7 @@ export class Catalog {
           new: true
         }
       ).exec();
-      if (catalogFile) { return catalogFile; }
+      if (!!catalogFile) { return catalogFile; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -371,7 +371,7 @@ export class Catalog {
    * @param payload
    * @param rootFilename
    */
-  async updateCatalogFileRootFilename(payload: any, rootFilename: string): Promise<ICatalog | undefined> {
+  public async updateCatalogFileRootFilename(payload: any, rootFilename: string): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOneAndUpdate(
         payload,
@@ -382,7 +382,7 @@ export class Catalog {
           new: true
         }
       ).exec();
-      if (catalogFile) { return catalogFile; }
+      if (!!catalogFile) { return catalogFile; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -393,7 +393,7 @@ export class Catalog {
    * @param payload
    * @param svfUrn
    */
-  async updateCatalogFileSvf(payload: any, svfUrn: string): Promise<ICatalog | undefined> {
+  public async updateCatalogFileSvf(payload: any, svfUrn: string): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOneAndUpdate(
         payload,
@@ -405,7 +405,7 @@ export class Catalog {
           new: true
         }
       ).exec();
-      if (catalogFile) { return catalogFile; }
+      if (!!catalogFile) { return catalogFile; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }

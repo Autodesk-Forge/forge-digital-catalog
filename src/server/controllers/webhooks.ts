@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
-import * as config from 'config';
-import * as log4 from 'koa-log4';
+import config from 'config';
+import log4 from 'koa-log4';
 import { AuthHelper } from '../helpers/auth-handler';
 import { ErrorHandler } from '../helpers/error-handler';
 
@@ -14,7 +14,7 @@ export class WebHooks {
   private authHelper: AuthHelper;
   private errorHandler: ErrorHandler;
 
-  constructor() {
+  public constructor() {
     this.authHelper = new AuthHelper();
     this.errorHandler = new ErrorHandler();
   }
@@ -23,10 +23,10 @@ export class WebHooks {
    * Delete Webhook
    * @param hookId
    */
-  async deleteWebHook(hookId: string): Promise<AxiosResponse | undefined> {
+  public async deleteWebHook(hookId: string): Promise<AxiosResponse | undefined> {
     try {
       const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
-      if (authToken) {
+      if (!!authToken) {
         const res = await axios({
           headers: {
             'Authorization': `Bearer ${authToken.access_token}`,
@@ -47,10 +47,10 @@ export class WebHooks {
   /**
    * Retrieves Webhooks
    */
-  async getWebHooks(): Promise<AxiosResponse | undefined> {
+  public async getWebHooks(): Promise<AxiosResponse | undefined> {
     try {
       const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
-      if (authToken) {
+      if (!!authToken) {
         const res = await axios({
           headers: {
             Authorization: `Bearer ${authToken.access_token}`
@@ -70,10 +70,10 @@ export class WebHooks {
   /**
    * Creates Model Derivative WebHook
    */
-  async setWebHook(): Promise<AxiosResponse | undefined> {
+  public async setWebHook(): Promise<AxiosResponse | undefined> {
     try {
       const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
-      if (authToken) {
+      if (!!authToken) {
         const callbackUrl = (process.env.NODE_ENV === 'production') ? config.get('webhook.callbackURL') : config.get('ngrok.callbackURL');
         const data = {
           callbackUrl,

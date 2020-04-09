@@ -1,10 +1,10 @@
-import * as archiver from 'archiver';
+import archiver from 'archiver';
 import axios, { AxiosResponse } from 'axios';
-import * as config from 'config';
-import * as fs from 'fs';
-import * as log4 from 'koa-log4';
-import * as os from 'os';
-import * as path from 'path';
+import config from 'config';
+import fs from 'fs';
+import log4 from 'koa-log4';
+import os from 'os';
+import path from 'path';
 import { AuthHelper } from '../helpers/auth-handler';
 import { ErrorHandler } from '../helpers/error-handler';
 import { FileHandler } from '../helpers/file-handler';
@@ -32,7 +32,7 @@ export class Publish {
   private fileHandler: FileHandler;
   private forgeHandler: ForgeHandler;
 
-  constructor() {
+  public constructor() {
     this.adminController = new Admin();
     this.authHelper = new AuthHelper();
     this.arvrController = new ArvrToolkit();
@@ -46,7 +46,7 @@ export class Publish {
    * Archives and uploads optimized Gltf files to OSS bucket
    * @param urn
    */
-  async compressGltfOutput(urn: string): Promise<void> {
+  public async compressGltfOutput(urn: string): Promise<void> {
     try {
       const tmpDir = os.tmpdir();
       const outputFolder = path.join(tmpDir, 'cache');
@@ -56,7 +56,7 @@ export class Publish {
         filePaths.push(filePath);
       });
       const catalogFile = await this.catalogController.getCatalogFileByOSSDesignUrn(urn);
-      if (catalogFile && catalogFile.svfUrn) {
+      if (!!catalogFile && catalogFile.svfUrn) {
         await this.createArchive(catalogFile.svfUrn, filePaths, urnFolder);
       }
     } catch (err) {
@@ -70,7 +70,7 @@ export class Publish {
    * @param fileNames
    * @param basePath
    */
-  async createArchive(archiveName: string, fileNames: string[], basePath: string): Promise<number | undefined> {
+  public async createArchive(archiveName: string, fileNames: string[], basePath: string): Promise<number | undefined> {
     try {
       return new Promise((resolve, reject) => {
         const zipFileName = path.basename(archiveName, path.extname(archiveName));
@@ -123,7 +123,7 @@ export class Publish {
    * Runs the tasks needed post translation
    * @param resourceUrn
    */
-  async finalizePublishJob(resourceUrn: string): Promise<void> {
+  public async finalizePublishJob(resourceUrn: string): Promise<void> {
     try {
       const buffer: Buffer = Buffer.from(resourceUrn, 'base64');
       if (buffer) {
@@ -136,9 +136,9 @@ export class Publish {
         const featureToggles = await this.adminController.getSetting('featureToggles');
         const catalogFile = await this.catalogController.getCatalogFileByOSSDesignUrn(asciiResourceUrn);
         if (
-          featureToggles
+          !!featureToggles
           && featureToggles[0].featureToggles.arvr_toolkit
-          && catalogFile
+          && !!catalogFile
           && !catalogFile.name.toLowerCase().endsWith('.drw')
           && !catalogFile.name.toLowerCase().endsWith('.dwg')
           && !catalogFile.name.toLowerCase().endsWith('.slddrw')
@@ -159,10 +159,10 @@ export class Publish {
   /**
    * Retrieve Publisher Logs
    */
-  async getPublishLogs(): Promise<IPublishJob[] | undefined> {
+  public async getPublishLogs(): Promise<IPublishJob[] | undefined> {
     try {
       const logs = await Publisher.find({}).exec();
-      if (logs) { return logs; }
+      if (!!logs) { return logs; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -174,7 +174,7 @@ export class Publish {
    * in production as we should rely on the WebHook instead
    * @param base64Urn
    */
-  async getTranslateJobStatus(base64Urn: string): Promise<AxiosResponse | undefined> {
+  public async getTranslateJobStatus(base64Urn: string): Promise<AxiosResponse | undefined> {
     try {
       const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
       let url;
@@ -194,7 +194,7 @@ export class Publish {
             'API_derivative_host'
           )}/designdata/${base64Urn}/manifest`;
       }
-      if (authToken) {
+      if (!!authToken) {
         const res = await axios({
           headers: {
             Authorization: `Bearer ${authToken.access_token}`
@@ -213,12 +213,12 @@ export class Publish {
    * Sets Publish Log Entry
    * @param body
    */
-  setPublishLog(body: any): IPublishJob | undefined {
+  public setPublishLog(body: any): IPublishJob | undefined {
     try {
       const log = new Publisher(body);
       log.save((err, logEntry) => {
         if (err) { throw new Error(err); }
-        logger.info(`... successfully saved new publisher log entry`);
+        logger.info(`... successfully saved new publisher log entry: ${logEntry}`);
       });
       return log;
     } catch (err) {
@@ -231,14 +231,14 @@ export class Publish {
    * @param payload
    * @param retry
    */
-  async translateJob(payload: any): Promise<AxiosResponse | undefined> {
+  public async translateJob(payload: any): Promise<AxiosResponse | undefined> {
     try {
       const region = config.get('region');
       const workflow = config.get('webhook.workflow');
       payload.misc.workflow = workflow;
       payload.output.destination.region = region;
       const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
-      if (authToken) {
+      if (!!authToken) {
         const res = await axios({
           data: payload,
           headers: {
@@ -260,12 +260,12 @@ export class Publish {
    * Translate SVF bubble to glTF format
    * @param urn
    */
-  async translateSvfToGltf(urn: string): Promise<void> {
+  public async translateSvfToGltf(urn: string): Promise<void> {
     try {
       const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
       if (authToken) {
         const catalogFile = await this.catalogController.getCatalogFileByOSSDesignUrn(urn);
-        if (catalogFile && catalogFile.svfUrn) {
+        if (!!catalogFile && catalogFile.svfUrn) {
           const manifest = await this.forgeHandler.getManifest(catalogFile.svfUrn, authToken.access_token);
           const guids: string[] = [];
           this.forgeHandler.traverseManifest(manifest, (node: any) => {
@@ -295,19 +295,19 @@ export class Publish {
    * @param status
    * @param svfUrn
    */
-  async updatePublishLogEntry(payload: any, status: string, svfUrn: string): Promise<IPublishJob | undefined>  {
+  public async updatePublishLogEntry(payload: any, status: string, svfUrn: string): Promise<IPublishJob | undefined>  {
     try {
       const publishLog = await Publisher.findOneAndUpdate(
         payload, {
           $set: {
             'job.output.svfUrn': svfUrn,
-            'status': status
+            status
           }
         }, {
           new: true,
           upsert: true
         }).exec();
-      if (publishLog) { return publishLog; }
+      if (!!publishLog) { return publishLog; }
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -317,14 +317,14 @@ export class Publish {
    * Upload Gltf archive to OSS bucket
    * @param urn
    */
-  async uploadGltfArchiveToBucket(urn: string): Promise<void> {
+  public async uploadGltfArchiveToBucket(urn: string): Promise<void> {
     try {
       const tmpDir = os.tmpdir();
       const outputFolder = path.join(tmpDir, 'cache');
       const catalogFile = await this.catalogController.getCatalogFileByOSSDesignUrn(urn);
-      if (catalogFile) {
+      if (!!catalogFile) {
         const zipFileName = `${catalogFile.svfUrn}_gltf.zip`;
-        let zipFileSize: number = 0;
+        let zipFileSize = 0;
         this.listFilesInDirectory(outputFolder, (filePath) => {
           if (filePath.endsWith(zipFileName)) {
             const stats = fs.statSync(filePath);
@@ -333,7 +333,7 @@ export class Publish {
         });
         logger.info(`... Uploading glTF archive ${zipFileName} to bucket [${zipFileSize.toString()} total bytes]`);
         const uploadZipRes = await this.fileHandler.uploadZipObject(zipFileName, zipFileSize);
-        if (uploadZipRes) {
+        if (!!uploadZipRes) {
           const payload = {
             isFile: true,
             isPublished: true,
@@ -341,7 +341,7 @@ export class Publish {
             svfUrn: catalogFile.svfUrn
           };
           const catalogItem = await this.catalogController.updateCatalogFileGltf(payload, uploadZipRes);
-          if (catalogItem) {
+          if (!!catalogItem) {
             logger.info('... Updated catalog item with glTF data');
           }
         }
@@ -361,7 +361,11 @@ export class Publish {
       fs.readdirSync(dir).forEach((f) => {
         const dirPath = path.join(dir, f);
         const isDirectory = fs.statSync(dirPath).isDirectory();
-        isDirectory ? this.listFilesInDirectory(dirPath, callback) : callback(path.join(dir, f));
+        if (isDirectory) {
+          this.listFilesInDirectory(dirPath, callback);
+        } else {
+          callback(path.join(dir, f));
+        }
       });
     } catch (err) {
       this.errorHandler.handleError(err);

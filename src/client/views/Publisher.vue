@@ -191,12 +191,12 @@
 <script lang='ts'>
 import { AxiosResponse } from 'axios';
 import { Component, Vue } from 'vue-property-decorator';
+import { IXRef } from '../../shared/publish';
 import autodeskTree from '../components/AutodeskTree.vue';
 import catalogTree from '../components/CatalogTree.vue';
 import publishLogs from '../components/publish/PublishLogs.vue';
 import config from '../config';
 import { encodeBase64, validateSession } from '../utils/utils';
-import { IXRef } from '../../shared/publish';
 
 @Component({
   components: {
@@ -469,7 +469,7 @@ export default class Publisher extends Vue {
     try {
       this.$store.dispatch('setLoading', { modelRefs: true });
       const selectedModelInfo = await this.getSelectedModelInfo() as any;
-      if (selectedModelInfo) {
+      if (!!selectedModelInfo) {
         this.$store.dispatch('setRootFileName', selectedModelInfo.message.name);
         const fileType = selectedModelInfo.message.fileType;
         const projectId = this.$store.state.defaultHubProjectSetting.projectId;
@@ -485,7 +485,7 @@ export default class Publisher extends Vue {
           this.$log.info('... successfully retrieved the object references');
           const refsData = res.data.included;
           const refs = await this.setReferenceTree(refsData);
-          if (refs) {
+          if (!!refs) {
             if (fileType === 'iam') {
               this.$store.dispatch('setFileType', 'Inventor');
               const invTree = await this.setInventorChildReferences(projectId, refs, selectedModelInfo.message.name);
@@ -530,7 +530,7 @@ export default class Publisher extends Vue {
   private async moveObject(): Promise<void> {
     try {
       const selectedModelInfo = await this.getSelectedModelInfo() as any;
-      if (selectedModelInfo) {
+      if (!!selectedModelInfo) {
         const bucketKey = selectedModelInfo.message.storageLocation.split('/')[0].split(':')[3];
         const objectName = selectedModelInfo.message.storageLocation.split('/')[1];
         const res = await this.$axios({
@@ -575,12 +575,12 @@ export default class Publisher extends Vue {
       const now = new Date();
       this.$store.dispatch('setStartDate', now);
       const selectedCatalogInfo = await this.getSelectedCatalogInfo() as any;
-      if (selectedCatalogInfo) {
+      if (!!selectedCatalogInfo) {
         this.$store.dispatch('setAutodeskPath', `${selectedCatalogInfo.data.path}${selectedCatalogInfo.data.name},`);
         const selectedModelInfo = await this.getSelectedModelInfo() as any;
-        if (selectedModelInfo) {
+        if (!!selectedModelInfo) {
           const existingCatalogItem = await this.findCatalogItemByName(selectedModelInfo.message.name) as any;
-          if (existingCatalogItem && (selectedModelInfo.message.name === existingCatalogItem.name)) {
+          if (!!existingCatalogItem && (selectedModelInfo.message.name === existingCatalogItem.name)) {
             throw new Error('Found existing catalog item with same name, aborting publishing job ...');
           }
           const res = await this.$axios({
@@ -653,7 +653,7 @@ export default class Publisher extends Vue {
           if (res.status === 200 && Array.isArray(res.data.included) && res.data.included.length > 0) {
             const subRefsData = res.data.included;
             const subRefs = await this.setReferenceTree(subRefsData, ref.name);
-            if (subRefs) {
+            if (!!subRefs) {
               ref.children = subRefs; // Sets children on sub-assembly
               await this.setInventorChildReferences(projectId, subRefs, ref.name); // recurse through children
             }
@@ -754,7 +754,7 @@ export default class Publisher extends Vue {
           if (res.status === 200 && Array.isArray(res.data.included) && res.data.included.length > 0) {
             const subRefsData = res.data.included;
             const subRefs = await this.setReferenceTree(subRefsData, ref.name);
-            if (subRefs) {
+            if (!!subRefs) {
               ref.children = subRefs; // Sets children on sub-assembly
               await this.setSolidWorksChildReferences(projectId, subRefs, ref.name); // recurse through children
             }

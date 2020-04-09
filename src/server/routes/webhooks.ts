@@ -1,8 +1,8 @@
 'use strict';
 
-import * as Router from '@koa/router';
+import Router from '@koa/router';
 import { Context, DefaultState, Next } from 'koa';
-import * as log4 from 'koa-log4';
+import log4 from 'koa-log4';
 import { Publish } from '../controllers/publish';
 import { WebHooks } from '../controllers/webhooks';
 
@@ -19,7 +19,7 @@ const webHooksController = new WebHooks();
 router.delete('/webhooks/:hookId', async (ctx: Context): Promise<void> => {
     try {
       const response = await webHooksController.deleteWebHook(ctx.params.hookId);
-      if (response) {
+      if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
       }
@@ -36,7 +36,7 @@ router.delete('/webhooks/:hookId', async (ctx: Context): Promise<void> => {
 router.get('/webhooks', async (ctx: Context): Promise<void> => {
     try {
       const response = await webHooksController.getWebHooks();
-      if (response) {
+      if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
       }
@@ -53,7 +53,7 @@ router.get('/webhooks', async (ctx: Context): Promise<void> => {
 router.post('/webhooks', async (ctx: Context): Promise<void> => {
     try {
       const response = await webHooksController.setWebHook();
-      if (response) {
+      if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
       }

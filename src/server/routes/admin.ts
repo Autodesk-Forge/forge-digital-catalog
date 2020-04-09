@@ -1,8 +1,8 @@
 'use strict';
 
-import * as Router from '@koa/router';
+import Router from '@koa/router';
 import { Context, DefaultState } from 'koa';
-import * as log4 from 'koa-log4';
+import log4 from 'koa-log4';
 import { Admin } from '../controllers/admin';
 
 const logger = log4.getLogger('admin');
@@ -17,7 +17,7 @@ const router = new Router<DefaultState, Context>({ prefix: '/api/admin' });
 router.get('/ApplicationName', async (ctx: Context): Promise<void> => {
   try {
     const settings = await adminController.getSetting('applicationName');
-    if (settings && settings.length > 0) {
+    if (!!settings && settings.length > 0) {
       ctx.status = 200;
       ctx.body = settings;
     }
@@ -34,7 +34,7 @@ router.get('/ApplicationName', async (ctx: Context): Promise<void> => {
 router.post('/ApplicationName', async (ctx: Context): Promise<void> => {
   try {
     const setting = await adminController.setApplicationName(ctx.request.body);
-    if (setting) {
+    if (!!setting) {
       ctx.status = 200;
       ctx.body = setting;
     }
@@ -51,7 +51,7 @@ router.post('/ApplicationName', async (ctx: Context): Promise<void> => {
 router.get('/CompanyLogo', async (ctx: Context): Promise<void> => {
   try {
     const settings = await adminController.getSetting('companyLogo');
-    if (settings && settings.length > 0) {
+    if (!!settings && settings.length > 0) {
       ctx.status = 200;
       ctx.body = settings;
     }
@@ -68,7 +68,7 @@ router.get('/CompanyLogo', async (ctx: Context): Promise<void> => {
 router.post('/CompanyLogo', async (ctx: Context): Promise<void> => {
   try {
     const setting = await adminController.setCompanyLogo(ctx.request.body);
-    if (setting) {
+    if (!!setting) {
       ctx.status = 200;
       ctx.body = setting;
     }
@@ -85,7 +85,7 @@ router.post('/CompanyLogo', async (ctx: Context): Promise<void> => {
 router.post('/default/hub/project', async (ctx: Context): Promise<void> => {
   try {
     const setting = await adminController.setAndUpdateDefaultHubProject(ctx.request.body);
-    if (setting) {
+    if (!!setting) {
       ctx.status = 200;
       ctx.body = setting;
     }
@@ -105,12 +105,14 @@ router.get('/settings/:name/email/:email', async (ctx: Context): Promise<void> =
       ctx.params.name,
       ctx.params.email
     );
-    if (settings!.length > 0) {
-      ctx.status = 200;
-      ctx.body = settings;
-    } else if (settings!.length === 0) {
-      ctx.status = 200;
-      ctx.body = 'No setting found';
+    if (!!settings) {
+      if (settings.length > 0) {
+        ctx.status = 200;
+        ctx.body = settings;
+      } else if (settings.length === 0) {
+        ctx.status = 200;
+        ctx.body = 'No setting found';
+      }
     }
   } catch (err) {
     logger.error(err);
@@ -125,7 +127,7 @@ router.get('/settings/:name/email/:email', async (ctx: Context): Promise<void> =
 router.post('/settings/features', async (ctx: Context): Promise<void> => {
   try {
     const setting = await adminController.setFeatureToggles(ctx.request.body);
-    if (setting) {
+    if (!!setting) {
       ctx.status = 200;
       ctx.body = setting;
     }
@@ -142,7 +144,7 @@ router.post('/settings/features', async (ctx: Context): Promise<void> => {
 router.get('/settings/features', async (ctx: Context): Promise<void> => {
   try {
     const settings = await adminController.getSetting('featureToggles');
-    if (settings) {
+    if (!!settings) {
       ctx.status = 200;
       ctx.body = settings;
     }
@@ -159,7 +161,7 @@ router.get('/settings/features', async (ctx: Context): Promise<void> => {
 router.post('/settings/fileformats', async (ctx: Context): Promise<void> => {
   try {
     const setting = await adminController.setFileFormatToggles(ctx.request.body);
-    if (setting) {
+    if (!!setting) {
       ctx.status = 200;
       ctx.body = setting;
     }
@@ -176,7 +178,7 @@ router.post('/settings/fileformats', async (ctx: Context): Promise<void> => {
 router.get('/settings/fileformats', async (ctx: Context): Promise<void> => {
   try {
     const settings = await adminController.getSetting('fileFormatToggles');
-    if (settings) {
+    if (!!settings) {
       ctx.status = 200;
       ctx.body = settings;
     }
@@ -193,7 +195,7 @@ router.get('/settings/fileformats', async (ctx: Context): Promise<void> => {
 router.get('/sysadmins', async (ctx: Context): Promise<void> => {
   try {
     const settings = await adminController.getSetting('webAdmins');
-    if (settings) {
+    if (!!settings) {
       ctx.status = 200;
       ctx.body = settings;
     }
@@ -210,7 +212,7 @@ router.get('/sysadmins', async (ctx: Context): Promise<void> => {
 router.post('/sysadmins', async (ctx: Context): Promise<void> => {
   try {
     const setting = await adminController.setSysAdmins(ctx.request.body);
-    if (setting) {
+    if (!!setting) {
       ctx.status = 200;
       ctx.body = setting;
     }

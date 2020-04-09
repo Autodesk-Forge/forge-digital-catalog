@@ -1,10 +1,12 @@
-import * as config from 'config';
+/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable camelcase */
+import config from 'config';
 import { GltfWriter, SvfReader } from 'forge-convert-utils';
 import { IDerivativeResourceChild, ManifestHelper, ModelDerivativeClient } from 'forge-server-utils';
 import { IAuthOptions } from 'forge-server-utils/dist/common';
-import * as fs from 'fs';
-import * as log4 from 'koa-log4';
-import * as path from 'path';
+import fs from 'fs';
+import log4 from 'koa-log4';
+import path from 'path';
 import { ErrorHandler } from '../helpers/error-handler';
 import { Admin } from './admin';
 
@@ -16,7 +18,7 @@ export class ArvrToolkit {
     private adminController: Admin;
     private errorHandler: ErrorHandler;
 
-    constructor() {
+    public constructor() {
         this.adminController = new Admin();
         this.errorHandler = new ErrorHandler();
     }
@@ -27,7 +29,7 @@ export class ArvrToolkit {
      * @param guid
      * @param folder
      */
-    async convertToGltf(urn: string, guid: string, folder: string): Promise<void> {
+    public async convertToGltf(urn: string, guid: string, folder: string): Promise<void> {
         try {
             const viewableFolder = path.join(folder, guid); // colon ":" is an invalid character in UNIX folder names
             const outputFolder = path.join(viewableFolder, 'gltf');
@@ -40,7 +42,7 @@ export class ArvrToolkit {
             const derivatives = helper.search({ type: 'resource', role: 'graphics' }) as IDerivativeResourceChild[];
             const featureToggles = await this.adminController.getSetting('featureToggles');
             if (
-                featureToggles
+                !!featureToggles
                 && featureToggles[0].featureToggles.arvr_toolkit
                 ) {
                     const readerOptions = {

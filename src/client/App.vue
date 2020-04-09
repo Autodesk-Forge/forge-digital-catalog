@@ -49,7 +49,6 @@ export default class App extends Vue {
   beforeMount(): void {
     this.getCompanyLogo();
     this.getApplicationName();
-    this.$log.info(`beforeMount: koahost: ${config.koahost}`);
   }
 
   private async getApplicationName(): Promise<void> {

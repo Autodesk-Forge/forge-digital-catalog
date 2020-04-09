@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable camelcase */
 import { deserializeUser, serializeUser, use } from 'koa-passport';
 import { Strategy, VerifyCallback } from 'passport-oauth2';
 
-import * as config from 'config';
+import config from 'config';
 import { Authenticator } from 'passport';
 
 const OAuth2Strategy = Strategy;

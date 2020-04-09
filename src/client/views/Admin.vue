@@ -189,7 +189,10 @@ export default class Admin extends Vue {
       if (this.$store.state.user.email) {
         const res = await this.$axios({
           method: 'GET',
-          url: new URL(`/api/admin/settings/defaultHubProject/email/${this.$store.state.user.email}`, config.koahost).href
+          url: new URL(
+            `/api/admin/settings/defaultHubProject/email/${this.$store.state.user.email}`,
+            config.koahost
+          ).href
         });
         if (res?.status === 200 && res?.data?.length === 1) {
           this.isDefaultHubProjectDefined = true;

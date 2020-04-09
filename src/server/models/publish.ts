@@ -1,3 +1,4 @@
+/* eslint-disable id-blacklist */
 import { model, Schema } from 'mongoose';
 import { IPublishJob } from '../../shared/publish';
 
