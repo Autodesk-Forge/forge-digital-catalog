@@ -3,7 +3,7 @@
 'use strict';
 
 import { Context } from 'koa';
-import { IForgeSession } from '../../shared/auth';
+import { IForgeSession, IForgePassportSession, IOAuthTemplate } from '../../shared/auth';
 
 export class Token {
 
@@ -13,7 +13,7 @@ export class Token {
     this.session = session;
   }
 
-  public getForgeSession() {
+  public getForgeSession(): IForgePassportSession | undefined {
     // reconstruct JSON structure per template
     if (this.session) {
       const forgeSession = {
@@ -48,38 +48,7 @@ export class Token {
   /**
    * The Forge oAuth2 client JSON template
    */
-  private getOAuthTemplate(): {
-    authName: string;
-    authentication: {
-      authorizationUrl: string;
-      refreshTokenUrl: string;
-      scopes: {
-        'account:read': string;
-        'account:write': string;
-        'bucket:create': string;
-        'bucket:delete': string;
-        'bucket:read': string;
-        'bucket:update': string;
-        'code:all': string;
-        'data:create': string;
-        'data:read': string;
-        'data:search': string;
-        'data:write': string;
-        'user-profile:read': string;
-        'viewables:read': string;
-      };
-      tokenUrl: string;
-    };
-    autoRefresh: boolean;
-    basePath: string;
-    clientId: string;
-    clientSecret: string;
-    credentials: {
-      expires_at: number;
-    };
-    redirectUri: string;
-    scope: string;
-  } {
+  private getOAuthTemplate(): IOAuthTemplate {
     return {
       authName: 'oauth2_access_code',
       authentication: {

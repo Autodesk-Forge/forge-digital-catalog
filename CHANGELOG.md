@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2020-04-14
+
+- Changed
+  - Added gltf-pipeline for binary and draco compression
+  - Added center option to glTF conversions
+  - Various ESLINT fixes
+
 ## [1.0.1] - 2020-04-09
 
 - Changed

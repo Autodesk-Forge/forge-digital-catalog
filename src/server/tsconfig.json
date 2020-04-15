@@ -8,8 +8,10 @@
         "sourceMap": true,
         "strict": true,
         "target": "es6",
+        "types": ["gltf-pipeline"],
         "typeRoots": [
-            "../../node_modules/@types"
+            "../../node_modules/@types",
+            "../types"
         ]
     },
     "include": [

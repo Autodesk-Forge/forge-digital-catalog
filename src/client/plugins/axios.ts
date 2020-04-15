@@ -59,6 +59,7 @@ axiosInstance.interceptors.response.use(
 );
 
 const AxiosPlugin = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   install(vue: VueConstructor, options: any[]) {
     vue.mixin({
       mounted() {
@@ -69,6 +70,7 @@ const AxiosPlugin = {
 };
 
 // eslint-disable-next-line @typescript-eslint/unbound-method
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 AxiosPlugin.install = (vue: VueConstructor, options: any[]) => {
   try {
     (vue as any).axios = axiosInstance;
