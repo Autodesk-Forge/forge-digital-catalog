@@ -213,7 +213,7 @@ export class Publish {
    * Sets Publish Log Entry
    * @param body
    */
-  public setPublishLog(body: any): IPublishJob | undefined {
+  public setPublishLog(body: IPublishJob): IPublishJob | undefined {
     try {
       const log = new Publisher(body);
       log.save((err, logEntry) => {

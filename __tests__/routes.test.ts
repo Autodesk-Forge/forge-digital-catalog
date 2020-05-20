@@ -39,6 +39,21 @@ afterAll(done => {
 });
 
 describe(
+  'Set Application Name',
+  () => {
+    test('Set Application Name', async () => {
+      const setting = await adminControlller.setApplicationName({
+        name: 'applicationName',
+        value: 'ACME Catalog'
+      });
+      if(!!setting) {
+        expect(typeof setting.appName).toEqual('string');
+      }
+    });
+  }
+);
+
+describe(
   'Get Application Name',
   () => {
     test('Get Application Name', async () => {
@@ -47,6 +62,7 @@ describe(
         const setting = settings[0];
         expect(Array.isArray(settings)).toEqual(true);
         expect(typeof setting.appName).toEqual('string');
+        expect(setting.appName).toEqual('ACME Catalog');
       }
   });
 });
@@ -61,6 +77,24 @@ describe(
         expect(Array.isArray(settings)).toEqual(true);
         expect(typeof setting.imageSrc).toEqual('string');
         expect(setting.imageSrc).toMatch(/^(data\:image\/png\;base64)/);
+      }
+  });
+});
+
+describe(
+  'Set Feature Toggles',
+  () => {
+    test('set Feature Toggles', async () => {
+      const setting = await adminControlller.setFeatureToggles({
+        animation: true,
+        arvr: true,
+        binary: true,
+        compress: true,
+        dedupe: false,
+        uvs: true
+      });
+      if(!!setting) {
+        expect(typeof setting.featureToggles).toEqual('object');
       }
   });
 });
@@ -137,18 +171,3 @@ describe(
       }
     });
 });
-
-describe(
-  'Set Application Name',
-  () => {
-    test('Set Application Name', async () => {
-      const setting = await adminControlller.setApplicationName({
-        name: 'applicationName',
-        value: 'Test Application'
-      });
-      if(!!setting) {
-        expect(typeof setting.appName).toEqual('string');
-      }
-    });
-  }
-);

@@ -61,10 +61,7 @@ export class AuthHelper {
       const forgeSession = token.getForgeSession();
       if (forgeSession) {
         const publicCredentials = await this.auth3Leg.refreshToken({
-          access_token: forgeSession.session.passport.user.access_token,
-          expires_in: forgeSession.session.passport.user.expires_in,
-          refresh_token: refreshToken,
-          token_type: forgeSession.session.passport.user.token_type
+          refresh_token: refreshToken
         });
         const now = new Date();
         if (session) {

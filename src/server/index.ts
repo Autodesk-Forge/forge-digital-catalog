@@ -64,7 +64,9 @@ app.on('ready', () => {
   });
   app.use(bodyParser());
   app.use(compress({
-    flush: require('zlib').Z_SYNC_FLUSH,
+    gzip: {
+      flush: require('zlib').Z_SYNC_FLUSH
+    },
     threshold: 2048
   }));
   app.use(cors({ credentials: true }));

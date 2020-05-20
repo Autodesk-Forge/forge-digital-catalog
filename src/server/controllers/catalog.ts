@@ -196,9 +196,10 @@ export class Catalog {
         {
           path: { $regex: searchString }
         },
-        ['name', 'path', 'isFile', 'isPublished'],
-        { name: 1, path: 1 }
-      ).exec();
+        ['name', 'path', 'isFile', 'isPublished']
+      )
+        .sort({ name: 1, path: 1 })
+        .exec();
       if (!!catalogChildren) { return catalogChildren; }
     } catch (err) {
       this.errorHandler.handleError(err);

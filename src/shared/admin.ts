@@ -1,5 +1,24 @@
 import mongoose from 'mongoose';
 
+export interface IApplicationName {
+  name: string;
+  value: string;
+}
+
+export interface ICompanyLogo {
+  imageSrc: string;
+  name: string;
+}
+
+export interface IDefaultHubProject {
+  email: string;
+  hubId: string;
+  hubName: string;
+  name: string;
+  projectId: string;
+  projectName: string;
+}
+
 export interface IFeatureToggles {
   arvr_toolkit: boolean;
   fusion_animation: boolean;

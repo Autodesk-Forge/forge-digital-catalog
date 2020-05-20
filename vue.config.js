@@ -21,9 +21,11 @@ module.exports = {
         algorithm: 'gzip',
         test: /\.(js|json|css|html|svg|ttf|woff)$/
       }),
-      new CopyPlugin([
-        { from: 'src/client/public/img/icons', to: 'img/icons' }
-      ]),
+      new CopyPlugin({
+        patterns: [
+          { from: 'src/client/public/img/icons', to: 'img/icons' }
+        ]
+      }),
       new FriendlyErrorsWebpackPlugin()
     ],
     stats: {

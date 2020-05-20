@@ -5,7 +5,7 @@ import fsExtra from 'fs-extra';
 import log4 from 'koa-log4';
 import os from 'os';
 import path from 'path';
-import { ISetting } from '../../shared/admin';
+import { IApplicationName, ICompanyLogo, IDefaultHubProject, IFileFormatToggles, ISetting } from '../../shared/admin';
 import { AuthHelper } from '../helpers/auth-handler';
 import { ErrorHandler } from '../helpers/error-handler';
 import { OssHandler } from '../helpers/oss-handler';
@@ -164,7 +164,7 @@ export class Admin {
    * Stores in MongoDB defaultHubProject setting
    * @param {*} body
    */
-  public async setAndUpdateDefaultHubProject(body: any): Promise<ISetting|undefined> {
+  public async setAndUpdateDefaultHubProject(body: IDefaultHubProject): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -187,7 +187,7 @@ export class Admin {
    * Set Application Name
    * @param {*} body
    */
-  public async setApplicationName(body: any): Promise<ISetting|undefined> {
+  public async setApplicationName(body: IApplicationName): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -210,7 +210,7 @@ export class Admin {
    * Set companyLogo
    * @param {*} body
    */
-  public async setCompanyLogo(body: any): Promise<ISetting|undefined> {
+  public async setCompanyLogo(body: ICompanyLogo): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -233,7 +233,14 @@ export class Admin {
    * Set Features Toggles
    * @param {*} body
    */
-  public async setFeatureToggles(body: any): Promise<ISetting|undefined> {
+  public async setFeatureToggles(body: {
+    animation: boolean;
+    arvr: boolean;
+    binary: boolean;
+    compress: boolean;
+    dedupe: boolean;
+    uvs: boolean;
+  }): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -265,7 +272,7 @@ export class Admin {
    * Set File Format Toggles
    * @param {*} body
    */
-  public async setFileFormatToggles(body: any): Promise<ISetting|undefined> {
+  public async setFileFormatToggles(body: IFileFormatToggles): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {
@@ -300,7 +307,7 @@ export class Admin {
    * Set System Administators
    * @param {*} body
    */
-  public async setSysAdmins(body: any): Promise<ISetting|undefined> {
+  public async setSysAdmins(body: string[]): Promise<ISetting|undefined> {
     try {
       const setting = await Settings.findOneAndUpdate(
         {

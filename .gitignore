@@ -15,7 +15,6 @@ coverage/
 
 # NPM registry
 .npmrc
-package-lock.json
 
 # Generated files
 node_modules/
