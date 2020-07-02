@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-/* eslint-disable camelcase */
 import config from 'config';
 import { GltfWriter, SvfReader } from 'forge-convert-utils';
 import { IDerivativeResourceChild, ManifestHelper, ModelDerivativeClient } from 'forge-server-utils';

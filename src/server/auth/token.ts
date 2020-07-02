@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-/* eslint-disable @typescript-eslint/camelcase */
 'use strict';
 
 import { Context } from 'koa';
@@ -26,12 +24,12 @@ export class Token {
           }
         }
       };
-      forgeSession.session.oauth2.forge.clientId = this.session.forge.oauth2.client_id;
-      forgeSession.session.oauth2.forge.clientSecret = this.session.forge.oauth2.client_secret;
-      forgeSession.session.oauth2.forge.credentials.expires_at = this.session.forge.oauth2.expires_at;
-      forgeSession.session.oauth2.forge.autoRefresh = this.session.forge.oauth2.auto_refresh;
-      forgeSession.session.oauth2.forge.scope = this.session.forge.oauth2.scope;
-      forgeSession.session.oauth2.forge.redirectUri = this.session.forge.oauth2.redirect_uri;
+      forgeSession.session.oauth2.forge.clientId = this.session.forge.oauth2.client_id as string;
+      forgeSession.session.oauth2.forge.clientSecret = this.session.forge.oauth2.client_secret as string;
+      forgeSession.session.oauth2.forge.credentials.expires_at = this.session.forge.oauth2.expires_at as number;
+      forgeSession.session.oauth2.forge.autoRefresh = this.session.forge.oauth2.auto_refresh as boolean;
+      forgeSession.session.oauth2.forge.scope = this.session.forge.oauth2.scope as string;
+      forgeSession.session.oauth2.forge.redirectUri = this.session.forge.oauth2.redirect_uri as string;
       return forgeSession;
     }
   }

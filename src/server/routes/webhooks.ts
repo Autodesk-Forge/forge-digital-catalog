@@ -76,7 +76,7 @@ router.post('/webhook/callback', (ctx: Context, next: Next): void => {
         ctx.request.body.payload.Payload.status === 'success'
       ) {
         logger.info('... translation completed, finalizing the publishing job');
-        publishController.finalizePublishJob(ctx.request.body.payload.URN);
+        void publishController.finalizePublishJob(ctx.request.body.payload.URN);
       }
       next();
     } catch (err) {

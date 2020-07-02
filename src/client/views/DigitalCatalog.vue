@@ -121,12 +121,12 @@ export default class DigitalCatalog extends Vue {
       if (res.status === 200) {
         this.$log.info('... retrieved feature toggles in database.');
         this.$store.dispatch('setFeatureToggles', {
-          animation: res.data[0].featureToggles.fusion_animation,
-          arvrtoolkit: res.data[0].featureToggles.arvr_toolkit,
-          binary: res.data[0].featureToggles.gltf_binary_output,
-          compress: res.data[0].featureToggles.gltf_draco_compression,
-          dedupe: res.data[0].featureToggles.gltf_deduplication,
-          uvs: res.data[0].featureToggles.gltf_skip_unused_uvs
+          arvr_toolkit: res.data[0].featureToggles.arvr_toolkit,
+          fusion_animation: res.data[0].featureToggles.fusion_animation,
+          gltf_binary_output: res.data[0].featureToggles.gltf_binary_output,
+          gltf_deduplication: res.data[0].featureToggles.gltf_deduplication,
+          gltf_draco_compression: res.data[0].featureToggles.gltf_draco_compression,
+          gltf_skip_unused_uvs: res.data[0].featureToggles.gltf_skip_unused_uvs
         });
       }
     } catch (err) {

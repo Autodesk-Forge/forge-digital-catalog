@@ -29,8 +29,8 @@ export interface IFeatureToggles {
 }
 
 export interface IFileFormatToggles {
-  dwg: boolean;
   creo: boolean;
+  dwg: boolean;
   fbx: boolean;
   fusion: boolean;
   inventor: boolean;

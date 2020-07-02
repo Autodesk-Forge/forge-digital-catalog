@@ -19,7 +19,6 @@
     ],
     "rules": {
         "@typescript-eslint/array-type": "error",
-        "@typescript-eslint/camelcase": ["error", { "properties": "never" }],
         "@typescript-eslint/explicit-member-accessibility": [
             "error",
             {
@@ -39,7 +38,6 @@
                 }
             }
         ],
-        "@typescript-eslint/interface-name-prefix": ["error", { "prefixWithI": "always" }],
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-parameter-properties": "off",
         "@typescript-eslint/no-use-before-define": "off",
@@ -53,7 +51,6 @@
             "error"
         ],
         "@typescript-eslint/unified-signatures": "error",
-        "camelcase": "off",
         "comma-dangle": "off",
         "complexity": "off",
         "constructor-super": "error",

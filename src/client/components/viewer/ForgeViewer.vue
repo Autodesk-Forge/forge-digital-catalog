@@ -11,7 +11,7 @@
       ref="forgeViewer"
       class="forgeViewer"
     />
-    <animationPanel v-if="$store.state.featureToggles.animation" />
+    <animationPanel v-if="$store.state.featureToggles.fusion_animation" />
   </div>
 </template>
 

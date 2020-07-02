@@ -177,11 +177,13 @@ export class FileHandler {
         if (err) throw err;
         zip.loadAsync(data)
           .then((archive) => {
-            return archive.file('Manifest.json').async('text');
+            return archive?.file('Manifest.json')?.async('text');
           })
-          .then((rootFilename: string) => {
+          .then((rootFilename) => {
             logger.info(`... found rootFilename value in Manifest.json: ${rootFilename}`);
-            resolve(JSON.parse(rootFilename));
+            if (rootFilename) {
+              resolve(JSON.parse(rootFilename));
+            }
           })
           .catch((loadErr: Error) => {
             reject(loadErr);
@@ -233,6 +235,7 @@ export class FileHandler {
   ): Promise<any> {
     try {
       let moveOp;
+      logger.info(`moveObject: payload: ${JSON.stringify(payload)}`);
       if (!Array.isArray(payload.refs)) { return; }
       if (payload.refs.length === 0) {
         logger.info(`... preparing to move single object ${objectName}`);

@@ -20,7 +20,7 @@
     "http_port": 3000,
     "https_port": 3001,
     "oss_file_upload_max_size": 524288900,
-    "scope": "[\"data:create\", \"data:read\"]",
+    "scope": ["data:create", "data:read"],
     "bucket_scope": ["bucket:create", "bucket:read", "data:create", "data:read", "data:write"],
     "view_scope": ["viewables:read"],
     "region": "US",

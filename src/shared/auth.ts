@@ -54,3 +54,9 @@ export interface IOAuthTemplate {
     redirectUri: string;
     scope: string;
 }
+
+export interface ISession {
+  email: string;
+  fullName: string;
+  picture: string;
+}

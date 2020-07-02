@@ -1,8 +1,8 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, WriteOpResult } from 'mongodb';
 import MongoUri from 'mongodb-uri';
 import config from 'config';
 
-console.info(`config: ${JSON.stringify(config)}`);
+console.info(`configuration: ${JSON.stringify(config)}`);
 const url: string = config.get('db.url');
 
 MongoClient.connect(url, (connectErr: Error, db) => {
@@ -12,21 +12,21 @@ MongoClient.connect(url, (connectErr: Error, db) => {
     const query = {};
     dbo
         .collection('catalogs')
-        .remove(query, (catalogsErr: Error, result) => {
+        .remove(query, (catalogsErr: Error, result: WriteOpResult) => {
             if (catalogsErr) { throw catalogsErr; }
-            console.log(`... removed catalog collection: ${result}`);
+            console.info(`... removed catalog collection: ${JSON.stringify(result.result)}`);
         });
     dbo
         .collection('publishjobs')
-        .remove(query, (publishjobsErr: Error, result) => {
+        .remove(query, (publishjobsErr: Error, result: WriteOpResult) => {
             if (publishjobsErr) { throw publishjobsErr; }
-            console.log(`... removed publishjobs collection: ${result}`);
+            console.info(`... removed publishjobs collection: ${JSON.stringify(result.result)}`);
         });
     dbo
         .collection('settings')
-        .remove(query, (settingsErr: Error, result) => {
+        .remove(query, (settingsErr: Error, result: WriteOpResult) => {
             if (settingsErr) { throw settingsErr; }
-            console.log(`... removed settings collection: ${result}`);
+            console.info(`... removed settings collection: ${JSON.stringify(result.result)}`);
         });
-    db.close();
+    void db.close();
 });

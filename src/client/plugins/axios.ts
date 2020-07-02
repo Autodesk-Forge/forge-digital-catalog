@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable no-underscore-dangle */
 'use strict';
 
@@ -88,7 +91,7 @@ AxiosPlugin.install = (vue: VueConstructor, options: any[]) => {
       }
     });
   } catch (err) {
-    (Vue as any).$log.error(`AxiosPlugin.install: error : ${err}`);
+    (Vue as any).$log.error('Error in AxiosPlugin.install');
   }
 };
 

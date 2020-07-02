@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-/* eslint-disable camelcase */
 import config from 'config';
 import fsExtra from 'fs-extra';
 import log4 from 'koa-log4';

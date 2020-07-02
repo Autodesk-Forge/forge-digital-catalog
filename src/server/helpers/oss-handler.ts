@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { AxiosResponse } from 'axios';
 import config from 'config';
 import { ApiResponse, AuthClientTwoLegged, AuthToken, BucketsApi, ObjectsApi, Scope } from 'forge-apis';

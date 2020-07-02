@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-/* eslint-disable @typescript-eslint/camelcase */
 'use strict';
 
 import Router from '@koa/router';

@@ -45,15 +45,17 @@ connect(
         if (!validator.isEmail(email)) {
           console.error('Value entered is not a valid email. Aborting.');
           rl.close();
-          disconnect();
+          void disconnect();
         } else {
           adminController.setSysAdmins([email]).then(
             () => {
               console.info(`... New webAdmin added for ${email}`);
               rl.close();
-              disconnect();
+              void disconnect();
             }
-          );
+          ).catch((err: Error) => {
+            console.error(`Error while attempting to set web admins: ${err.message}`);
+          });
         }
       });
     } else if (args[2].includes('add')) {
@@ -65,14 +67,14 @@ connect(
         newWebAdmins.push(args[i]);
       }
       await adminController.setSysAdmins(newWebAdmins);
-      console.info(`... new webAdmins added for ${newWebAdmins}`);
-      disconnect();
+      console.info(`... new webAdmins added for ${JSON.stringify(newWebAdmins)}`);
+      void disconnect();
     } else if (args[2].includes('list')) {
       const admins = await adminController.getSetting('webAdmins');
       if (!!admins) {
-        console.info(`... current webAdmins are ${admins[0].webAdmins}`);
+        console.info(`... current webAdmins are ${JSON.stringify(admins[0].webAdmins)}`);
       }
-      disconnect();
+      void disconnect();
     } else if (args[2].includes('remove')) {
       if (args.length === 4 && validator.isEmail(args[3])) {
         await adminController.deleteWebAdmin(args[3]);
@@ -80,20 +82,20 @@ connect(
       } else {
         console.error('Email is invalid or multiple emails provided. Aborting.');
       }
-      disconnect();
+      void disconnect();
     } else {
       console.info('... Found at least one webAdmin');
-      disconnect();
+      void disconnect();
     }
   })
   .catch((err) => {
     console.error('Error occurred trying to connect to MongoDB', err);
-    disconnect();
+    void disconnect();
   });
 
-connection.on('error', err => {
-  console.error(`Error event occurred: ${err}`);
-  disconnect();
+connection.on('error', (err: Error) => {
+  console.error(`Error event occurred: ${err.message}`);
+  void disconnect();
 });
 
 connection.on('close', () => {
