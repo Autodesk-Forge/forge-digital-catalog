@@ -66,7 +66,7 @@ router.post('/translate', async (ctx: Context): Promise<void> => {
 /**
  * Get Translation Job Status
  */
-router.get('/translate/*', async (ctx: Context): Promise<void> => {
+router.get('/translate/(.*)', async (ctx: Context): Promise<void> => {
     try {
       const requestUrl = url.parse(ctx.request.url);
       const newUrl = requestUrl.pathname;

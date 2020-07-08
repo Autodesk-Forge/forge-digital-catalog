@@ -219,7 +219,7 @@ router.post(
  * Update a Catalog Item
  */
 router.put(
-  '/file/oss/*',
+  '/file/oss/(.*)',
   async (ctx: Context): Promise<void> => {
     try {
       const urlRequest = url.parse(ctx.request.url);
@@ -244,7 +244,7 @@ router.put(
  * Update SVF urn in Catalog Item
  */
 router.put(
-  '/file/svf/*',
+  '/file/svf/(.*)',
   async (ctx: Context): Promise<void> => {
     try {
       const urlRequest = url.parse(ctx.request.url);
