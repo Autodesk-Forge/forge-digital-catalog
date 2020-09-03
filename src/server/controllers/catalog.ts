@@ -228,7 +228,7 @@ export class Catalog {
           upsert: true
         }
       ).exec();
-      if (!!catalogFolder) {
+      if (!!catalogFolder && catalog.newName) {
         const oldNameWithCommas = this.escapeRegExp(`,${catalog.name},`);
         const newNameWithCommas = this.escapeRegExp(`,${catalog.newName},`);
         const renameFolderQuery = CatalogDb.find({

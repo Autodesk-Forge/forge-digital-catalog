@@ -4,6 +4,8 @@ import log4 from 'koa-log4';
 import { AuthHelper } from '../helpers/auth-handler';
 import { ErrorHandler } from '../helpers/error-handler';
 
+const apiWebHookHost: string = config.get('API_webhook_host');
+
 const logger = log4.getLogger('webhooks');
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug'; }
 
@@ -33,9 +35,7 @@ export class WebHooks {
             'Content-Type': 'application/json'
           },
           method: 'DELETE',
-          url: `${config.get(
-            'API_webhook_host'
-          )}/systems/derivative/events/extraction.finished/hooks/${hookId}`
+          url: `${apiWebHookHost}/systems/derivative/events/extraction.finished/hooks/${hookId}`
         });
         if (res.status === 204) { return res; }
       }
@@ -56,9 +56,7 @@ export class WebHooks {
             Authorization: `Bearer ${authToken.access_token}`
           },
           method: 'GET',
-          url: `${config.get(
-            'API_webhook_host'
-          )}/systems/derivative/events/extraction.finished/hooks`
+          url: `${apiWebHookHost}/systems/derivative/events/extraction.finished/hooks`
         });
         if (res.status === 200) { return res; }
       }
@@ -88,9 +86,7 @@ export class WebHooks {
             'Content-Type': 'application/json'
           },
           method: 'POST',
-          url: `${config.get(
-            'API_webhook_host'
-          )}/systems/derivative/events/extraction.finished/hooks`
+          url: `${apiWebHookHost}/systems/derivative/events/extraction.finished/hooks`
         });
         if (res.status === 201) { return res; }
       }

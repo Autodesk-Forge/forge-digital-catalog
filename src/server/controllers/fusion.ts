@@ -3,10 +3,15 @@ import config from 'config';
 import { Context } from 'koa';
 import log4 from 'koa-log4';
 import url from 'url';
+import { IFolderContents, IItem } from '../../shared/data';
 import { Token } from '../auth/token';
 import { AuthHelper } from '../helpers/auth-handler';
 import { ErrorHandler } from '../helpers/error-handler';
 import { Admin } from './admin';
+
+const apiDataHost: string = config.get('API_data_host');
+const apiDerivativeHost: string = config.get('API_derivative_host');
+const apiProjectHost: string = config.get('API_project_host');
 
 const logger = log4.getLogger('fusion');
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug'; }
@@ -58,17 +63,17 @@ export class Fusion {
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
-          url: `${config.get('API_data_host')}/projects/${projectId}/folders/${folderId}/contents?filter[extension.type]=${filters}`
+          url: `${apiDataHost}/projects/${projectId}/folders/${folderId}/contents?filter[extension.type]=${filters}`
         });
         if (res.status === 200) {
-          const items: any = {};
-          items.data = [];
-          const folderDocs = res.data.data.filter((item: any) => {
+          const contents = res.data as IFolderContents;
+          const items: { data: IItem[] } = { data: [] };
+          const folderDocs = contents.data.filter((item: IItem) => {
             return item.type === 'folders';
           });
           items.data.push(...folderDocs);
           if (fileFormats && fileFormats[0].fileFormatToggles.creo) {
-            const creoDocs = res.data.data.filter((item: any) => {
+            const creoDocs = contents.data.filter((item: IItem) => {
               return item.type === 'items'
                 && (item.attributes.displayName.toLowerCase().endsWith('.asm')
                 || item.attributes.displayName.toLowerCase().endsWith('.drw')
@@ -77,27 +82,27 @@ export class Fusion {
             items.data.push(...creoDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.dwg) {
-            const dwgDocs = res.data.data.filter((item: any) => {
+            const dwgDocs = contents.data.filter((item: IItem) => {
               return item.type === 'items'
                 && item.attributes.displayName.toLowerCase().endsWith('.dwg');
             });
             items.data.push(...dwgDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.fbx) {
-            const fbxDocs = res.data.data.filter((item: any) => {
+            const fbxDocs = contents.data.filter((item: IItem) => {
               return item.type === 'items'
                 && item.attributes.displayName.toLowerCase().endsWith('.fbx');
             });
             items.data.push(...fbxDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.fusion) {
-            const fusionDocs = res.data.data.filter((item: any) => {
+            const fusionDocs = contents.data.filter((item: IItem) => {
               return item.attributes.extension.type === 'items:autodesk.fusion360:Design';
             });
             items.data.push(...fusionDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.inventor) {
-            const inventorDocs = res.data.data.filter((item: any) => {
+            const inventorDocs = contents.data.filter((item: IItem) => {
               return item.type === 'items'
                 && (item.attributes.displayName.toLowerCase().endsWith('.iam')
                 || item.attributes.displayName.toLowerCase().endsWith('.idw')
@@ -106,21 +111,21 @@ export class Fusion {
             items.data.push(...inventorDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.navisworks) {
-            const navisworksDocs = res.data.data.filter((item: any) => {
+            const navisworksDocs = contents.data.filter((item: IItem) => {
               return item.type === 'items'
                 && item.attributes.displayName.toLowerCase().endsWith('.nwd');
             });
             items.data.push(...navisworksDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.obj) {
-            const objDocs = res.data.data.filter((item: any) => {
+            const objDocs = contents.data.filter((item: IItem) => {
               return item.type === 'items'
                 && item.attributes.displayName.toLowerCase().endsWith('.obj');
             });
             items.data.push(...objDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.solidworks) {
-            const solidworksDocs = res.data.data.filter((item: any) => {
+            const solidworksDocs = contents.data.filter((item: IItem) => {
               return item.type === 'items'
                 && (item.attributes.displayName.toLowerCase().endsWith('.sldasm')
                 || item.attributes.displayName.toLowerCase().endsWith('.slddrw')
@@ -129,7 +134,7 @@ export class Fusion {
             items.data.push(...solidworksDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.step) {
-            const stepDocs = res.data.data.filter((item: any) => {
+            const stepDocs = contents.data.filter((item: IItem) => {
               return item.type === 'items'
                 && (item.attributes.displayName.toLowerCase().endsWith('.step')
                 || item.attributes.displayName.toLowerCase().endsWith('.stp'));
@@ -163,7 +168,7 @@ export class Fusion {
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
-          url: `${config.get('API_project_host')}/hubs?filter[extension.type]=hubs:autodesk.core:Hub&filter[extension.type]=hubs:autodesk.bim360:Account`
+          url: `${apiProjectHost}/hubs?filter[extension.type]=hubs:autodesk.core:Hub&filter[extension.type]=hubs:autodesk.bim360:Account`
         });
         if (res.status === 200) { return res; }
       }
@@ -188,7 +193,7 @@ export class Fusion {
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
-          url: `${config.get('API_data_host')}/projects/${projectId}/versions/${encodeURIComponent(versionId)}`
+          url: `${apiDataHost}/projects/${projectId}/versions/${encodeURIComponent(versionId)}`
         });
         if (res.status === 200) {
           const fileType: string = (res.data.data.attributes.fileType)
@@ -232,7 +237,7 @@ export class Fusion {
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
-          url: `${config.get('API_data_host')}/projects/${projectId}/items/${itemId}/versions`
+          url: `${apiDataHost}/projects/${projectId}/items/${itemId}/versions`
         });
         if (res.status === 200) { return res; }
       }
@@ -261,7 +266,7 @@ export class Fusion {
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
-          url: `${config.get('API_project_host')}/hubs/${hubId}/projects/${projectId}`
+          url: `${apiProjectHost}/hubs/${hubId}/projects/${projectId}`
         });
         if (res.status === 200) { return res; }
       }
@@ -285,7 +290,7 @@ export class Fusion {
           },
           method: 'GET',
           timeout: config.get('axios_long_timeout'),
-          url: `${config.get('API_project_host')}/hubs/${hubId}/projects`
+          url: `${apiProjectHost}/hubs/${hubId}/projects`
         });
         if (res.status === 200) { return res; }
       }
@@ -308,7 +313,7 @@ export class Fusion {
           },
           method: 'GET',
           responseType: 'arraybuffer',
-          url: `${config.get('API_derivative_host')}/designdata/${urn}/thumbnail?width=100&height=100`
+          url: `${apiDerivativeHost}/designdata/${urn}/thumbnail?width=100&height=100`
         });
         if (res.status === 200) {
           const b64Encoded = Buffer.from(res.data, 'binary').toString('base64');
@@ -339,7 +344,7 @@ export class Fusion {
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
-          url: `${config.get('API_project_host')}/hubs/${hubId}/projects/${projectId}/topFolders`
+          url: `${apiProjectHost}/hubs/${hubId}/projects/${projectId}/topFolders`
         });
         if (res.status === 200) { return res; }
       }
@@ -367,7 +372,7 @@ export class Fusion {
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
-          url: url.resolve(config.get('API_data_host'), url.resolve(config.get('userprofile_path'), 'users/@me'))
+          url: url.resolve(apiDataHost, url.resolve(config.get('userprofile_path'), 'users/@me'))
         });
         if (res.status === 200) { return res; }
       }
@@ -396,7 +401,7 @@ export class Fusion {
             Authorization: `Bearer ${token.session.passport.user.access_token}`
           },
           method: 'GET',
-          url: `${config.get('API_data_host')}/projects/${projectId}/versions/${encodeURIComponent(versionId)}/relationships/refs?filter[type]=versions&filter[direction]=from`
+          url: `${apiDataHost}/projects/${projectId}/versions/${encodeURIComponent(versionId)}/relationships/refs?filter[type]=versions&filter[direction]=from`
         });
         if (res.status === 200) { return res; }
       }

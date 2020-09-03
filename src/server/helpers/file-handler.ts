@@ -9,11 +9,16 @@ import log4 from 'koa-log4';
 import os from 'os';
 import path from 'path';
 import util from 'util';
-import { IXRef } from '../../shared/publish';
+import { IXRef, IMoveJob } from '../../shared/publish';
 import { Catalog } from '../controllers/catalog';
 import { AuthHelper } from './auth-handler';
 import { ErrorHandler } from './error-handler';
 import { XrefHandler } from './xref-handler';
+import { IDownloadJob, IOSSObject } from '../../shared/data';
+
+const apiDataHost: string = config.get('API_data_host');
+const apiOssHost: string = config.get('API_oss_host');
+const bucketOssKey: string = config.get('bucket_key');
 
 const logger = log4.getLogger('file-handler');
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug'; }
@@ -46,7 +51,7 @@ export class FileHandler {
     projectId: string,
     versionId: string,
     fileType: string
-  ): Promise<AxiosResponse | undefined> {
+  ): Promise<AxiosResponse<IDownloadJob[]> | undefined> {
     try {
       const payload = {
         data: {
@@ -78,9 +83,12 @@ export class FileHandler {
           },
           method: 'POST',
           timeout: config.get('axios_long_timeout'),
-          url: `${config.get('API_data_host')}/projects/${projectId}/downloads`
+          url: `${apiDataHost}/projects/${projectId}/downloads`
         });
-        if (res.status === 202) { return res.data; }
+        if (res.status === 202) {
+          const result = res.data as AxiosResponse<IDownloadJob[]>;
+          return result;
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -107,7 +115,7 @@ export class FileHandler {
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
-          url: `${config.get('API_data_host')}/projects/${projectId}/versions/${encodeURIComponent(versionId)}/downloadFormats`
+          url: `${apiDataHost}/projects/${projectId}/versions/${encodeURIComponent(versionId)}/downloadFormats`
         });
         if (res.status === 200) { return res; }
       }
@@ -135,7 +143,7 @@ export class FileHandler {
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
-          url: `${config.get('API_data_host')}/projects/${projectId}/downloads/${downloadId}`
+          url: `${apiDataHost}/projects/${projectId}/downloads/${downloadId}`
         });
         if (res.status === 200) { return res.data; }
       }
@@ -171,7 +179,7 @@ export class FileHandler {
    * Read Manifest.json to retrieve rootFilename
    * @param filePath
    */
-  public async getRootFileFromManifest(filePath: string): Promise<any> {
+  public async getRootFileFromManifest(filePath: string): Promise<{ root: string }> {
     return new Promise((resolve, reject) => {
       fs.readFile(filePath, (err, data) => {
         if (err) throw err;
@@ -180,8 +188,8 @@ export class FileHandler {
             return archive?.file('Manifest.json')?.async('text');
           })
           .then((rootFilename) => {
-            logger.info(`... found rootFilename value in Manifest.json: ${rootFilename}`);
             if (rootFilename) {
+              logger.info(`... found rootFilename value in Manifest.json: ${rootFilename}`);
               resolve(JSON.parse(rootFilename));
             }
           })
@@ -201,18 +209,17 @@ export class FileHandler {
    */
   public async getUploadStatus(
     token: AuthToken,
-    bucketKey: string,
     objectName: string,
     sessionId: string
   ): Promise<AxiosResponse | undefined> {
     try {
       const res = await axios({
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token.access_token}`
         },
         method: 'GET',
         timeout: config.get('axios_timeout'),
-        url: `${config.get('API_oss_host')}/buckets/${bucketKey}/objects/${objectName}/status/${sessionId}`
+        url: `${apiOssHost}/buckets/${bucketOssKey}/objects/${objectName}/status/${sessionId}`
       });
       if (res.status === 202) { return res; }
     } catch (err) {
@@ -231,11 +238,10 @@ export class FileHandler {
     session: Context['session'],
     bucketKey: string,
     objectName: string,
-    payload: any
-  ): Promise<any> {
+    payload: IMoveJob
+  ): Promise<AxiosResponse<IOSSObject> | undefined> {
     try {
-      let moveOp;
-      logger.info(`moveObject: payload: ${JSON.stringify(payload)}`);
+      let moveOp: AxiosResponse<IOSSObject> | undefined = { config: {}, data: {}, headers: {}, status: 0, statusText: '' };
       if (!Array.isArray(payload.refs)) { return; }
       if (payload.refs.length === 0) {
         logger.info(`... preparing to move single object ${objectName}`);
@@ -296,9 +302,10 @@ export class FileHandler {
             },
             maxContentLength: config.get('oss_file_upload_max_size'),
             method: 'PUT',
-            url: `${config.get('API_oss_host')}/buckets/${config.get('bucket_key')}/objects/${archiveName}`
+            url: `${apiOssHost}/buckets/${bucketOssKey}/objects/${archiveName}`
           });
-          if (uploadRes.status === 200) { return uploadRes.data; }
+          const result = uploadRes.data as AxiosResponse<IOSSObject>;
+          if (uploadRes.status === 200) { return result; }
         }
       }
     } catch (err) {
@@ -392,8 +399,9 @@ export class FileHandler {
     session: Context['session'],
     objectName: string,
     payload: any
-  ): Promise<any> {
+  ): Promise<AxiosResponse<IOSSObject> | undefined> {
     try {
+      let uploadResponse: AxiosResponse<IOSSObject> = { config: {}, data: {}, headers: {}, status: 0, statusText: '' };
       const response = await this.downloadFile(session, payload.projectId, payload.versionId, 'f3z') as any;
       if (response) {
         const jobResponse = await this.pollDownloadJobInfo(session, response.links.self.href);
@@ -410,11 +418,11 @@ export class FileHandler {
           if (file.status === 200 && file.filesize > 0) {
             let archiveName = objectName.replace('.f3d', '.zip');
             archiveName = `${path.parse(archiveName).name}.zip`;
-            const uploadResponse = await this.uploadZipObject(archiveName, file.filesize);
-            if (!!uploadResponse) { return uploadResponse; }
+            uploadResponse = await this.uploadZipObject(archiveName, file.filesize) as AxiosResponse<IOSSObject>;
           }
         }
       }
+      return uploadResponse;
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -435,9 +443,13 @@ export class FileHandler {
     session: Context['session'],
     bucketKey: string,
     objectName: string,
-    payload: any
-  ): Promise<any> {
+    payload: IMoveJob
+  ): Promise<AxiosResponse<IOSSObject> | undefined> {
     try {
+      let response: AxiosResponse<IOSSObject> = { config: {}, data: {}, headers: {}, status: 0, statusText: '' };
+      if (!payload.name) {
+        throw new Error('Expecting a name value!');
+      }
       const parentRef: IXRef = {
         extension: 'versions:autodesk.core:File',
         fileType,
@@ -446,19 +458,17 @@ export class FileHandler {
         type: 'versions'
       };
       payload.refs.push(parentRef);
-      const downloadAll = await this.xrefHandler.downloadCADReferences(session, payload);
-      if (!!downloadAll) {
-        logger.info('... all reference files downloaded to temporary cache');
-        const fileNames = this.xrefHandler.setCADReferenceFilesList(payload);
-        if (fileNames && fileNames.length > 0) {
-          const zipFileSize = await this.makeZipArchive(objectName, fileNames);
-          if (zipFileSize > 0) {
-            const archiveName = `${path.parse(objectName).name}.zip`;
-            const response = await this.uploadZipObject(archiveName, zipFileSize);
-            if (!!response) { return response; }
-          }
+      await this.xrefHandler.downloadCADReferences(session, payload);
+      logger.info('... all reference files downloaded to temporary cache');
+      const fileNames = this.xrefHandler.setCADReferenceFilesList(payload);
+      if (fileNames && fileNames.length > 0) {
+        const zipFileSize = await this.makeZipArchive(objectName, fileNames);
+        if (zipFileSize > 0) {
+          const archiveName = `${path.parse(objectName).name}.zip`;
+          response = await this.uploadZipObject(archiveName, zipFileSize) as AxiosResponse<IOSSObject>;
         }
       }
+      return response;
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -478,10 +488,10 @@ export class FileHandler {
     session: Context['session'],
     bucketKey: string,
     objectName: string,
-    payload: any
-  ): Promise<any> {
+    payload: IMoveJob
+  ): Promise<AxiosResponse<IOSSObject> | undefined> {
     try {
-      let moveOp;
+      let moveOp: AxiosResponse<IOSSObject> | undefined = { config: {}, data: {}, headers: {}, status: 0, statusText: '' };
       if (payload.fileType === 'Inventor') {
         moveOp = await this.moveAndCompressCadFiles('iam', session, bucketKey, objectName, payload);
         if (!!moveOp) {
@@ -513,7 +523,7 @@ export class FileHandler {
    * @param bucketKey
    * @param objectName
    */
-  private async moveSingleObject(session: Context['session'], bucketKey: string, objectName: string): Promise<any> {
+  private async moveSingleObject(session: Context['session'], bucketKey: string, objectName: string): Promise<AxiosResponse<IOSSObject> | undefined> {
     try {
       const mimeType = this.getMimeType(objectName);
       if (!mimeType) { throw new Error('Unknown MIME type. Aborting move operation.'); }
@@ -524,7 +534,7 @@ export class FileHandler {
           },
           method: 'GET',
           responseType: 'arraybuffer',
-          url: `${config.get('API_oss_host')}/buckets/${bucketKey}/objects/${objectName}`
+          url: `${apiOssHost}/buckets/${bucketOssKey}/objects/${objectName}`
         });
         logger.info(`... successfully downloaded object ${objectName}`);
         if (res.status === 200 || res.status === 206) {
@@ -540,10 +550,11 @@ export class FileHandler {
               },
               maxContentLength: config.get('oss_file_upload_max_size'),
               method: 'PUT',
-              url: `${config.get('API_oss_host')}/buckets/${config.get('bucket_key')}/objects/${objectName}`
+              url: `${apiOssHost}/buckets/${bucketOssKey}/objects/${objectName}`
             });
             if (uploadRes.status === 200) {
               logger.info('... file uploaded to OSS');
+              logger.info(`moveSingleObject: uploadRes.data: ${JSON.stringify(uploadRes.data)}`);
               return uploadRes.data;
             }
           }
@@ -615,17 +626,19 @@ export class FileHandler {
    * rootFilename.
    * @param payload
    */
-  private async translateFixForFusionRefs(payload: any): Promise<any> {
+  private async translateFixForFusionRefs(payload: IMoveJob): Promise<any> {
     try {
-      const archiveFile = path.basename(payload.storageLocation).replace('.f3d', '.zip');
-      const tmpDir = os.tmpdir();
-      const archivePath = path.join(tmpDir, 'cache', archiveFile);
-      const srcDesignUrn = payload.storageLocation;
-      const rootFilename = await this.getRootFileFromManifest(archivePath);
-      if (!!rootFilename) {
-        logger.info(`... retrieved new rootFilename value from Manifest.json ${rootFilename.root}`);
-        await this.catalogController.updateCatalogFileRootFilename({ isFile: true, srcDesignUrn }, rootFilename.root);
-        logger.info('... successfully stored new rootFilename value in catalog item');
+      if (payload.storageLocation) {
+        const archiveFile = path.basename(payload.storageLocation).replace('.f3d', '.zip');
+        const tmpDir = os.tmpdir();
+        const archivePath = path.join(tmpDir, 'cache', archiveFile);
+        const srcDesignUrn = payload.storageLocation;
+        const rootFilename = await this.getRootFileFromManifest(archivePath);
+        if (!!rootFilename) {
+          logger.info(`... retrieved new rootFilename value from Manifest.json ${rootFilename.root}`);
+          await this.catalogController.updateCatalogFileRootFilename({ isFile: true, srcDesignUrn }, rootFilename.root);
+          logger.info('... successfully stored new rootFilename value in catalog item');
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);

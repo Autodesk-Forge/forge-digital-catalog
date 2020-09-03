@@ -1,6 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
 import config from 'config';
 import { ErrorHandler } from './error-handler';
+import { IDerivative, IDerivativeChild, IManifest } from '../../shared/publish';
+
+const apiDerivativeHost: string = config.get('API_derivative_host');
+const apiDerivativeService: string = config.get('API_derivative_service');
 
 export class ForgeHandler {
 
@@ -15,18 +19,18 @@ export class ForgeHandler {
    * @param urn
    * @param token
    */
-  public async getManifest(urn: string, token: string): Promise<AxiosResponse | undefined> {
+  public async getManifest(urn: string, token: string): Promise<AxiosResponse<IManifest> | undefined> {
     try {
       let url;
       switch (config.get('region')) {
         case 'US':
-          url = `${config.get('API_derivative_host')}/designdata/${urn}/manifest`;
+          url = `${apiDerivativeHost}/designdata/${urn}/manifest`;
           break;
         case 'EMEA':
-          url = `${config.get('API_derivative_host')}/regions/eu/designdata/${urn}/manifest`;
+          url = `${apiDerivativeHost}/regions/eu/designdata/${urn}/manifest`;
           break;
         default:
-          url = `${config.get('API_derivative_host')}/designdata/${urn}/manifest`;
+          url = `${apiDerivativeHost}/designdata/${urn}/manifest`;
       }
       const res = await axios({
         headers: {
@@ -36,7 +40,8 @@ export class ForgeHandler {
         url
       });
       if (res.status !== 200) { throw new Error(res.data); }
-      return res.data;
+      const manifest = res.data as AxiosResponse<IManifest>;
+      return manifest;
     } catch (err) {
       this.errorHandler.handleError(err);
     }
@@ -55,7 +60,7 @@ export class ForgeHandler {
         },
         method: 'GET',
         responseType: 'arraybuffer',
-        url: `${config.get('API_derivative_service')}/derivatives/${urn}`
+        url: `${apiDerivativeService}/derivatives/${urn}`
       });
       if (res.status !== 200) {
         const message = await res.data.text();
@@ -73,13 +78,13 @@ export class ForgeHandler {
    * @param node
    * @param callback
    */
-  public traverseManifest(node: any, callback: (node: any) => void): void {
+  public traverseManifest(node: IManifest | IDerivative | IDerivativeChild, callback: (node: IManifest | IDerivative | IDerivativeChild) => void): void {
     callback(node);
-    if (node.derivatives) {
+    if ('derivatives' in node) {
       for (const child of node.derivatives) {
         this.traverseManifest(child, callback);
       }
-    } else if (node.children) {
+    } else if ('children' in node) {
       for (const child of node.children) {
         this.traverseManifest(child, callback);
       }

@@ -7,8 +7,9 @@ import validator from 'validator';
 
 const init = async (): Promise<void> => {
   try {
+    let deployTarget = 'localhost';
     if (!process.env.DEPLOY_TARGET) {
-      throw new Error('DEPLOY_TARGET is not set.');
+      console.info('DEPLOY_TARGET is not set, defaulting to localhost.');
     }
     if (!process.env.FORGE_CALLBACK_URL) {
       throw new Error('FORGE_CALLBACK_URL is not set.');
@@ -30,8 +31,7 @@ const init = async (): Promise<void> => {
     }
     if (['development', 'production', 'test'].includes(process.env.NODE_ENV)) {
       const configPath = `./config/${process.env.NODE_ENV}.json`;
-      let deployTarget = 'localhost';
-      if (['heroku', 'aws', 'azure'].includes(process.env.DEPLOY_TARGET)) {
+      if (process.env.DEPLOY_TARGET && ['heroku', 'aws', 'azure'].includes(process.env.DEPLOY_TARGET)) {
         deployTarget = process.env.DEPLOY_TARGET;
       }
       config.bucket_key = `digital-catalog-${deployTarget}-${process.env.NODE_ENV}`;

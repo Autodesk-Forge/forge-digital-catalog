@@ -3,6 +3,7 @@ import log4 from 'koa-log4';
 import { ErrorHandler } from './error-handler';
 import { OssHandler } from './oss-handler';
 import { Context } from 'koa';
+import { IMoveJob, IXRef } from '../../shared/publish';
 
 const logger = log4.getLogger('xref-handler');
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug'; }
@@ -22,16 +23,16 @@ export class XrefHandler {
    * @param session
    * @param payload
    */
-  public async downloadCADReferences(session: Context['session'], payload: any): Promise<any> {
+  public async downloadCADReferences(session: Context['session'], payload: IMoveJob): Promise<any> {
     try {
-      const downloadPromises = await Promise.all(payload.refs.map(async (ref: any) => {
+      const downloadPromises = await Promise.all(payload.refs.map(async (ref: IXRef) => {
         const refBucketKey = ref.location.split('/')[0].split(':')[3];
         const refObjectName = ref.location.split('/')[1];
         const srcFileName = ref.name;
         const downloadRef = await this.ossHandler.downloadObject(refBucketKey, refObjectName, srcFileName, session);
         if (!!downloadRef && downloadRef.status === 200) {
-          if (ref.hasOwnProperty('children') && ref.children.length > 0) {
-            const childPayload: any = {};
+          if (ref.hasOwnProperty('children') && ref.children && ref.children.length > 0) {
+            const childPayload: IMoveJob = { refs: [] };
             childPayload.refs = ref.children;
             await this.downloadCADReferences(session, childPayload);
           }
@@ -48,12 +49,12 @@ export class XrefHandler {
    * Creates list of CAD files to archive
    * @param payload
    */
-  public setCADReferenceFilesList(payload: any): string[] | undefined {
+  public setCADReferenceFilesList(payload: IMoveJob): string[] | undefined {
     try {
-      return payload.refs.reduce((fileNames: string[], ref: any) => {
+      return payload.refs.reduce((fileNames: string[], ref: IXRef) => {
         fileNames.push(ref.name);
-        if (ref.hasOwnProperty('children') && ref.children.length > 0) {
-          const childPayload: any = {};
+        if (ref.hasOwnProperty('children') && ref.children && ref.children.length > 0) {
+          const childPayload: IMoveJob = { refs: [] };
           childPayload.refs = ref.children;
           const refList = this.setCADReferenceFilesList(childPayload) as ConcatArray<string>;
           fileNames = fileNames.concat(refList);

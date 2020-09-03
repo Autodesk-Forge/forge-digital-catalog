@@ -13,9 +13,11 @@ import { Admin } from './admin';
 import { ArvrToolkit } from './arvr-toolkit';
 import { Catalog } from './catalog';
 
-import { IPublishJob } from '../../shared/publish';
+import { IDerivative, IDerivativeChild, IManifest, IPublishJob, ITranslateJob } from '../../shared/publish';
 
 import Publisher from '../models/publish';
+
+const apiDerivativeHost: string = config.get('API_derivative_host');
 
 const logger = log4.getLogger('publish');
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug'; }
@@ -132,7 +134,14 @@ export class Publish {
           { isFile: true, ossDesignUrn: asciiResourceUrn },
           resourceUrn
         );
-        await this.updatePublishLogEntry({ 'job.input.designUrn': asciiResourceUrn }, 'FINISHED', resourceUrn);
+        const jobInput = {
+          job: {
+            input: {
+              designUrn: asciiResourceUrn
+            }
+          }
+        } as IPublishJob;
+        await this.updatePublishLogEntry(jobInput, 'FINISHED', resourceUrn);
         const featureToggles = await this.adminController.getSetting('featureToggles');
         const catalogFile = await this.catalogController.getCatalogFileByOSSDesignUrn(asciiResourceUrn);
         if (
@@ -180,19 +189,13 @@ export class Publish {
       let url;
       switch (config.get('region')) {
         case 'US':
-          url = `${config.get(
-            'API_derivative_host'
-          )}/designdata/${base64Urn}/manifest`;
+          url = `${apiDerivativeHost}/designdata/${base64Urn}/manifest`;
           break;
         case 'EMEA':
-          url = `h${config.get(
-            'API_derivative_host'
-          )}/regions/eu/designdata/${base64Urn}/manifest`;
+          url = `${apiDerivativeHost}/regions/eu/designdata/${base64Urn}/manifest`;
           break;
         default:
-          url = `h${config.get(
-            'API_derivative_host'
-          )}/designdata/${base64Urn}/manifest`;
+          url = `${apiDerivativeHost}/designdata/${base64Urn}/manifest`;
       }
       if (!!authToken) {
         const res = await axios({
@@ -231,10 +234,10 @@ export class Publish {
    * @param payload
    * @param retry
    */
-  public async translateJob(payload: any): Promise<AxiosResponse | undefined> {
+  public async translateJob(payload: ITranslateJob): Promise<AxiosResponse | undefined> {
     try {
-      const region = config.get('region');
-      const workflow = config.get('webhook.workflow');
+      const region: string = config.get('region');
+      const workflow: string = config.get('webhook.workflow');
       payload.misc.workflow = workflow;
       payload.output.destination.region = region;
       const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
@@ -247,7 +250,7 @@ export class Publish {
             'x-ads-force': true
           },
           method: 'POST',
-          url: `${config.get('API_derivative_host')}/designdata/job`
+          url: `${apiDerivativeHost}/designdata/job`
         });
         if (res.status === 200 || res.status === 201) { return res; }
       }
@@ -268,20 +271,22 @@ export class Publish {
         if (!!catalogFile && catalogFile.svfUrn) {
           const manifest = await this.forgeHandler.getManifest(catalogFile.svfUrn, authToken.access_token);
           const guids: string[] = [];
-          this.forgeHandler.traverseManifest(manifest, (node: any) => {
-            if (node.mime === 'application/autodesk-svf') {
-              guids.push(node.guid);
-            }
-          });
-          const tmpDir = os.tmpdir();
-          const outputFolder = path.join(tmpDir, 'cache');
-          const urnFolder = path.join(outputFolder, urn.replace(/:/g, '-')); // colon ":" is invalid character on MacOS
-          await Promise.all(guids.map(async (guid) => {
-            if (catalogFile && catalogFile.svfUrn) {
-              logger.info(`... Starting translation to glTF of viewable guid: ${guid}`);
-              return await this.arvrController.convertToGltf(catalogFile.svfUrn, guid, urnFolder);
-            }
-          }));
+          if (manifest && 'derivatives' in manifest) {
+            this.forgeHandler.traverseManifest(manifest, (node: IManifest | IDerivative | IDerivativeChild) => {
+              if ('mime' in node && node.mime === 'application/autodesk-svf') {
+                guids.push(node.guid);
+              }
+            });
+            const tmpDir = os.tmpdir();
+            const outputFolder = path.join(tmpDir, 'cache');
+            const urnFolder = path.join(outputFolder, urn.replace(/:/g, '-')); // colon ":" is invalid character on MacOS
+            await Promise.all(guids.map(async (guid) => {
+              if (catalogFile.svfUrn) {
+                logger.info(`... Starting translation to glTF of viewable guid: ${guid}`);
+                return await this.arvrController.convertToGltf(catalogFile.svfUrn, guid, urnFolder);
+              }
+            }));
+          }
         }
       }
     } catch (err) {
@@ -295,7 +300,7 @@ export class Publish {
    * @param status
    * @param svfUrn
    */
-  public async updatePublishLogEntry(payload: any, status: string, svfUrn: string): Promise<IPublishJob | undefined>  {
+  public async updatePublishLogEntry(payload: IPublishJob, status: string, svfUrn: string): Promise<IPublishJob | undefined>  {
     try {
       const publishLog = await Publisher.findOneAndUpdate(
         payload, {
@@ -323,26 +328,28 @@ export class Publish {
       const outputFolder = path.join(tmpDir, 'cache');
       const catalogFile = await this.catalogController.getCatalogFileByOSSDesignUrn(urn);
       if (!!catalogFile) {
-        const zipFileName = `${catalogFile.svfUrn}_gltf.zip`;
-        let zipFileSize = 0;
-        this.listFilesInDirectory(outputFolder, (filePath) => {
-          if (filePath.endsWith(zipFileName)) {
-            const stats = fs.statSync(filePath);
-            zipFileSize = stats.size;
-          }
-        });
-        logger.info(`... Uploading glTF archive ${zipFileName} to bucket [${zipFileSize.toString()} total bytes]`);
-        const uploadZipRes = await this.fileHandler.uploadZipObject(zipFileName, zipFileSize);
-        if (!!uploadZipRes) {
-          const payload = {
-            isFile: true,
-            isPublished: true,
-            ossDesignUrn: urn,
-            svfUrn: catalogFile.svfUrn
-          };
-          const catalogItem = await this.catalogController.updateCatalogFileGltf(payload, uploadZipRes);
-          if (!!catalogItem) {
-            logger.info('... Updated catalog item with glTF data');
+        if (catalogFile.svfUrn) {
+          const zipFileName = `${catalogFile.svfUrn}_gltf.zip`;
+          let zipFileSize = 0;
+          this.listFilesInDirectory(outputFolder, (filePath) => {
+            if (filePath.endsWith(zipFileName)) {
+              const stats = fs.statSync(filePath);
+              zipFileSize = stats.size;
+            }
+          });
+          logger.info(`... Uploading glTF archive ${zipFileName} to bucket [${zipFileSize.toString()} total bytes]`);
+          const uploadZipRes = await this.fileHandler.uploadZipObject(zipFileName, zipFileSize);
+          if (!!uploadZipRes) {
+            const payload = {
+              isFile: true,
+              isPublished: true,
+              ossDesignUrn: urn,
+              svfUrn: catalogFile.svfUrn
+            };
+            const catalogItem = await this.catalogController.updateCatalogFileGltf(payload, uploadZipRes);
+            if (!!catalogItem) {
+              logger.info('... Updated catalog item with glTF data');
+            }
           }
         }
       }
