@@ -534,7 +534,7 @@ export class FileHandler {
           },
           method: 'GET',
           responseType: 'arraybuffer',
-          url: `${apiOssHost}/buckets/${bucketOssKey}/objects/${objectName}`
+          url: `${apiOssHost}/buckets/${bucketKey}/objects/${objectName}`
         });
         logger.info(`... successfully downloaded object ${objectName}`);
         if (res.status === 200 || res.status === 206) {
@@ -548,19 +548,20 @@ export class FileHandler {
                 'Content-Length': res.headers['content-length'],
                 'Content-Type': mimeType
               },
+              maxBodyLength: Infinity,
               maxContentLength: config.get('oss_file_upload_max_size'),
               method: 'PUT',
               url: `${apiOssHost}/buckets/${bucketOssKey}/objects/${objectName}`
             });
             if (uploadRes.status === 200) {
               logger.info('... file uploaded to OSS');
-              logger.info(`moveSingleObject: uploadRes.data: ${JSON.stringify(uploadRes.data)}`);
               return uploadRes.data;
             }
           }
         }
       }
     } catch (err) {
+      // logger.error(`moveSingleObject; err: ${JSON.stringify(err)}`);
       this.errorHandler.handleError(err);
     }
   }
