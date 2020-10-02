@@ -20,11 +20,12 @@ router.post(
   '/download/fusion/projects/:projectId/versions/:versionId',
   async (ctx: Context): Promise<void> => {
     try {
+      const params = ctx.params as { filetype: string; projectId: string; versionId: string };
       const response = await fileHelper.downloadFile(
         ctx.session,
-        ctx.params.projectId,
-        ctx.params.versionId,
-        ctx.params.filetype
+        params.projectId,
+        params.versionId,
+        params.filetype
       );
       if (!!response) {
         ctx.status = response.status;
@@ -45,7 +46,8 @@ router.get(
   '/download/projects/:projectId/downloads/:downloadId',
   async (ctx: Context): Promise<void> => {
     try {
-      const response = await fileHelper.getDownloadInfo(ctx.session, ctx.params.projectId, ctx.params.downloadId);
+      const params = ctx.params as { downloadId: string; projectId: string };
+      const response = await fileHelper.getDownloadInfo(ctx.session, params.projectId, params.downloadId);
       if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
@@ -65,10 +67,11 @@ router.post(
   '/transfer/bucket/:bucketKey/object/:objectName',
   async (ctx: Context): Promise<void> => {
     try {
+      const params = ctx.params as { bucketKey: string; objectName: string };
       const transfer = await fileHelper.moveObject(
         ctx.session,
-        ctx.params.bucketKey,
-        ctx.params.objectName,
+        params.bucketKey,
+        params.objectName,
         ctx.request.body
       );
       if (!!transfer) {
@@ -90,7 +93,8 @@ router.get(
   '/thumbnail/:urn',
   async (ctx: Context): Promise<void> => {
     try {
-      const thumbnail = await fusionController.getThumbnail(ctx.params.urn);
+      const params = ctx.params as { urn: string };
+      const thumbnail = await fusionController.getThumbnail(params.urn);
       if (!!thumbnail) {
         ctx.status = 200;
         ctx.body = thumbnail;
@@ -150,7 +154,8 @@ router.get(
   '/hubs/:hubId/projects/:projectId',
   async (ctx: Context): Promise<void> => {
     try {
-      const response = await fusionController.getProject(ctx.session, ctx.params.hubId, ctx.params.projectId);
+      const params = ctx.params as { hubId: string; projectId: string };
+      const response = await fusionController.getProject(ctx.session, params.hubId, params.projectId);
       if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
@@ -170,7 +175,8 @@ router.get(
   '/hubs/:hubId/projects',
   async (ctx: Context): Promise<void> => {
     try {
-      const response = await fusionController.getProjects(ctx.session, ctx.params.hubId);
+      const params = ctx.params as { hubId: string };
+      const response = await fusionController.getProjects(ctx.session, params.hubId);
       if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
@@ -190,7 +196,8 @@ router.get(
   '/hubs/:hubId/projects/:projectId/topFolders',
   async (ctx: Context): Promise<void> => {
     try {
-      const response = await fusionController.getTopFolders(ctx.session, ctx.params.hubId, ctx.params.projectId);
+      const params = ctx.params as { hubId: string; projectId: string };
+      const response = await fusionController.getTopFolders(ctx.session, params.hubId, params.projectId);
       if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
@@ -210,10 +217,11 @@ router.get(
   '/projects/:projectId/folders/:folderId/contents',
   async (ctx: Context): Promise<void> => {
     try {
+      const params = ctx.params as { folderId: string; projectId: string };
       const folderContents = await fusionController.getFolderContents(
         ctx.session,
-        ctx.params.projectId,
-        ctx.params.folderId
+        params.projectId,
+        params.folderId
       );
       if (!!folderContents) {
         ctx.status = 200;
@@ -234,10 +242,11 @@ router.get(
   '/projects/:projectId/versions/:versionId',
   async (ctx: Context): Promise<void> => {
     try {
+      const params = ctx.params as { projectId: string; versionId: string };
       const version = await fusionController.getItemVersionInfo(
         ctx.session,
-        ctx.params.projectId,
-        ctx.params.versionId
+        params.projectId,
+        params.versionId
       );
       if (!!version) {
         ctx.status = 200;
@@ -259,7 +268,8 @@ router.get(
   '/projects/:projectId/versions/:versionId/formats',
   async (ctx: Context): Promise<void> => {
     try {
-      const response = await fileHelper.downloadFormats(ctx.session, ctx.params.projectId, ctx.params.versionId);
+      const params = ctx.params as { projectId: string; versionId: string };
+      const response = await fileHelper.downloadFormats(ctx.session, params.projectId, params.versionId);
       if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
@@ -279,7 +289,8 @@ router.get(
   '/projects/:projectId/items/:itemId/versions',
   async (ctx: Context): Promise<void> => {
     try {
-      const response = await fusionController.getItemVersions(ctx.session, ctx.params.projectId, ctx.params.itemId);
+      const params = ctx.params as { itemId: string; projectId: string };
+      const response = await fusionController.getItemVersions(ctx.session, params.projectId, params.itemId);
       if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
@@ -299,7 +310,8 @@ router.get(
   '/projects/:projectId/versions/:versionId/refs',
   async (ctx: Context): Promise<void> => {
     try {
-      const response = await fusionController.getVersionRefs(ctx.session, ctx.params.projectId, ctx.params.versionId);
+      const params = ctx.params as { projectId: string; versionId: string };
+      const response = await fusionController.getVersionRefs(ctx.session, params.projectId, params.versionId);
       if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;

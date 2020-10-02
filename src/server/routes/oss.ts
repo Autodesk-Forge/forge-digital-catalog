@@ -19,8 +19,8 @@ router.get(
   '/download/bucket/:bucketKey/object/:objectKey',
   async (ctx: Context): Promise<void> => {
     try {
-      const { bucketKey, objectKey } = ctx.params;
-      const response = await ossHelper.downloadObject(bucketKey, objectKey, objectKey, ctx.session);
+      const params = ctx.params as { bucketKey: string; objectKey: string };
+      const response = await ossHelper.downloadObject(params.bucketKey, params.objectKey, params.objectKey, ctx.session);
       if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;
@@ -40,8 +40,8 @@ router.get(
   '/download/gltf/bucket/:bucketKey/object/:objectKey',
   async (ctx: Context): Promise<void> => {
     try {
-      const { bucketKey, objectKey } = ctx.params;
-      const response = await ossHelper.downloadGltfObject(bucketKey, objectKey, objectKey);
+      const params = ctx.params as { bucketKey: string; objectKey: string };
+      const response = await ossHelper.downloadGltfObject(params.bucketKey, params.objectKey, params.objectKey);
       if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;

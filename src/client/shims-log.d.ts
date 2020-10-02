@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 import Vue from 'vue';
 
 declare module 'vue/types/vue' {

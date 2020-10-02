@@ -72,7 +72,7 @@
     "vue-property-decorator": "9.0.0",
     "vue-router": "3.4.5",
     "vuejs-logger": "1.5.3",
-    "vuetify": "2.3.10",
+    "vuetify": "2.3.12",
     "vuex": "3.5.1"
   },
   "devDependencies": {
@@ -86,7 +86,7 @@
     "@types/jest": "26.0.14",
     "@types/koa": "2.11.4",
     "@types/koa-bodyparser": "4.3.0",
-    "@types/koa-compress": "4.0.0",
+    "@types/koa-compress": "4.0.1",
     "@types/koa-helmet": "5.2.0",
     "@types/koa-log4": "2.3.2",
     "@types/koa-passport": "4.0.2",

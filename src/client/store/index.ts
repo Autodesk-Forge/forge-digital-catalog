@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { MutationTree, ActionTree } from 'vuex';

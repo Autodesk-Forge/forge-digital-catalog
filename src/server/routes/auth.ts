@@ -27,7 +27,8 @@ router.get(
   '/authenticate/:mode',
   async (ctx: Context): Promise<void> => {
     try {
-      const scope: Scope[] = ( (ctx.params.mode === 'viewer') ? config.get('view_scope') : config.get('bucket_scope') );
+      const params = ctx.params as { mode: string };
+      const scope: Scope[] = ( (params.mode === 'viewer') ? config.get('view_scope') : config.get('bucket_scope') );
       const authToken = await authHelper.createInternalToken(scope);
       if (!!authToken) {
         ctx.status = 200;
@@ -49,9 +50,10 @@ router.get(
 router.get(
   '/authenticate',
   (ctx: Context, next: Next): void => {
+    const query = ctx.query as { state: string };
     const options = {
       scope: config.get('scope'),
-      state: ctx.query.state
+      state: query.state
     };
     return passport.authenticate(
       'oauth2',
@@ -131,7 +133,8 @@ router.post(
   '/auth/refreshtoken/:refreshToken',
   async (ctx: Context) => {
     try {
-      const session = await authHelper.refreshToken(ctx.params.refreshToken, ctx.session);
+      const params = ctx.params as { refreshToken: string };
+      const session = await authHelper.refreshToken(params.refreshToken, ctx.session);
       if (!!session) {
         ctx.status = 200;
         ctx.body = session;

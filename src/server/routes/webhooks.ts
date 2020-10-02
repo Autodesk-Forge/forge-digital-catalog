@@ -18,7 +18,8 @@ const webHooksController = new WebHooks();
  */
 router.delete('/webhooks/:hookId', async (ctx: Context): Promise<void> => {
     try {
-      const response = await webHooksController.deleteWebHook(ctx.params.hookId);
+      const params = ctx.params as { hookId: string };
+      const response = await webHooksController.deleteWebHook(params.hookId);
       if (!!response) {
         ctx.status = response.status;
         ctx.body = response.data;

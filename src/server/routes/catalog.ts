@@ -61,7 +61,8 @@ router.get(
   '/file/id/:id',
   async (ctx: Context): Promise<void> => {
     try {
-      const file = await catalogController.getCatalogFileById(ctx.params.id);
+      const params = ctx.params as { id: string };
+      const file = await catalogController.getCatalogFileById(params.id);
       if (!!file) {
         ctx.status = 200;
         ctx.body = JSON.stringify(file);
@@ -81,7 +82,8 @@ router.get(
   '/file/name/:name',
   async (ctx: Context): Promise<void> => {
     try {
-      const file = await catalogController.getCatalogFileByName(ctx.params.name);
+      const params = ctx.params as { name: string };
+      const file = await catalogController.getCatalogFileByName(params.name);
       if (!!file) {
         ctx.status = 200;
         ctx.body = JSON.stringify(file);
@@ -102,7 +104,8 @@ router.get(
   '/file/path/:path/name/:name',
   async (ctx: Context): Promise<void> => {
     try {
-      const file = await catalogController.getCatalogFile(ctx.params.name, ctx.params.path);
+      const params = ctx.params as { name: string; path: string };
+      const file = await catalogController.getCatalogFile(params.name, params.path);
       if (!!file) {
         ctx.status = 200;
         ctx.body = JSON.stringify(file);
@@ -122,7 +125,8 @@ router.get(
   '/file/storage/:urn',
   async (ctx: Context): Promise<void> => {
     try {
-      const file = await catalogController.getCatalogFileBySrcDesignUrn(ctx.params.urn);
+      const params = ctx.params as { urn: string };
+      const file = await catalogController.getCatalogFileBySrcDesignUrn(params.urn);
       if (!!file) {
         ctx.status = 200;
         ctx.body = JSON.stringify(file);
@@ -142,7 +146,8 @@ router.get(
   '/folder/id/:id',
   async (ctx: Context): Promise<void> => {
     try {
-      const folder = await catalogController.getCatalogFolderById(ctx.params.id);
+      const params = ctx.params as { id: string };
+      const folder = await catalogController.getCatalogFolderById(params.id);
       if (!!folder) {
         ctx.status = 200;
         ctx.body = JSON.stringify(folder);
@@ -182,7 +187,8 @@ router.get(
   '/folder/path/:path',
   async (ctx: Context): Promise<void> => {
     try {
-      const children = await catalogController.getCatalogChildren(ctx.params.path);
+      const params = ctx.params as { path: string };
+      const children = await catalogController.getCatalogChildren(params.path);
       if (!!children) {
         ctx.status = 200;
         ctx.body = JSON.stringify(children);

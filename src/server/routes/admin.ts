@@ -101,9 +101,10 @@ router.post('/default/hub/project', async (ctx: Context): Promise<void> => {
  */
 router.get('/settings/:name/email/:email', async (ctx: Context): Promise<void> => {
   try {
+    const params = ctx.params as { email: string; name: string };
     const settings = await adminController.getSettingByNameAndEmail(
-      ctx.params.name,
-      ctx.params.email
+      params.name,
+      params.email
     );
     if (!!settings) {
       if (settings.length > 0) {
