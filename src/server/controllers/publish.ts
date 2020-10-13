@@ -134,13 +134,7 @@ export class Publish {
           { isFile: true, ossDesignUrn: asciiResourceUrn },
           resourceUrn
         );
-        const jobInput = {
-          job: {
-            input: {
-              designUrn: asciiResourceUrn
-            }
-          }
-        } as IPublishJob;
+        const jobInput = { 'job.input.designUrn': asciiResourceUrn };
         await this.updatePublishLogEntry(jobInput, 'FINISHED', resourceUrn);
         const featureToggles = await this.adminController.getSetting('featureToggles');
         const catalogFile = await this.catalogController.getCatalogFileByOSSDesignUrn(asciiResourceUrn);
@@ -300,10 +294,10 @@ export class Publish {
    * @param status
    * @param svfUrn
    */
-  public async updatePublishLogEntry(payload: IPublishJob, status: string, svfUrn: string): Promise<IPublishJob | undefined>  {
+  public async updatePublishLogEntry(filter: { 'job.input.designUrn': string }, status: string, svfUrn: string): Promise<IPublishJob | undefined>  {
     try {
       const publishLog = await Publisher.findOneAndUpdate(
-        payload, {
+        filter, {
           $set: {
             'job.output.svfUrn': svfUrn,
             status
@@ -312,7 +306,10 @@ export class Publish {
           new: true,
           upsert: true
         }).exec();
-      if (!!publishLog) { return publishLog; }
+      if (!!publishLog) {
+        logger.info(`... successfully updated publisher log entry: ${JSON.stringify(publishLog)}`);
+        return publishLog;
+      }
     } catch (err) {
       this.errorHandler.handleError(err);
     }

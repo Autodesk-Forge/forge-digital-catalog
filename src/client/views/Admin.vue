@@ -81,8 +81,8 @@
     <v-content>
       <v-container>
         <v-row>
-          <applicationName />
-          <companyLogo />
+          <applicationName :key="appNameKey" />
+          <companyLogo :key="companyLogoKey" />
         </v-row>
         <v-row>
           <defaultHubProject 
@@ -91,11 +91,11 @@
             @newDefaultHubProject="getDefaultHubProject"
             @resetDefaultHubProject="() => { isDefaultHubProjectDefined=false }"
           />
-          <globalSettings />
-          <supportedFileFormats />
+          <globalSettings :key="globalSettingsKey" />
+          <supportedFileFormats :key="supportedFileFormatsKey" />
         </v-row>
         <v-row>
-          <webHooks />
+          <webHooks :key="webHooksKey" />
         </v-row>
       </v-container>
     </v-content>
@@ -127,10 +127,15 @@ export default class Admin extends Vue {
 
   protected alert: boolean = false;
   protected alertMessage: string = '';
+  protected appNameKey: number = 0;
+  protected companyLogoKey: number = 0;
   protected defaultHubProject: string[] = [];
+  protected globalSettingsKey: number = 0;
   protected isDefaultHubProjectDefined: boolean = false;
   protected isWebAdminsDefined: boolean = false;
+  protected supportedFileFormatsKey: number = 0;
   protected webAdmins: string = '';
+  protected webHooksKey: number = 0;
 
   async beforeMount(): Promise<void> {
     let retrievedSession: boolean = false;
@@ -146,7 +151,16 @@ export default class Admin extends Vue {
       await this.setUserData();
       await this.getDefaultHubProject();
       await this.getSysAdmins();
+      await this.forceReRender();
     }
+  }
+
+  protected forceReRender(): void {
+    this.appNameKey += 1;
+    this.companyLogoKey += 1;
+    this.globalSettingsKey += 1;
+    this.supportedFileFormatsKey += 1;
+    this.webHooksKey += 1;
   }
 
   protected goToHelp(): void {
