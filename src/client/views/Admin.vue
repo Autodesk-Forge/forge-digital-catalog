@@ -78,7 +78,7 @@
         {{ $t('admin.clearAlerts') }}
       </v-btn>
     </div>
-    <v-content>
+    <v-main>
       <v-container>
         <v-row>
           <applicationName :key="appNameKey" />
@@ -98,7 +98,7 @@
           <webHooks :key="webHooksKey" />
         </v-row>
       </v-container>
-    </v-content>
+    </v-main>
   </div>
 </template>
 

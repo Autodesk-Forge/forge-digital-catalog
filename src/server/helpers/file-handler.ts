@@ -300,6 +300,7 @@ export class FileHandler {
               'Content-Length': fileSize,
               'Content-Type': mimeType
             },
+            maxBodyLength: Infinity,
             maxContentLength: config.get('oss_file_upload_max_size'),
             method: 'PUT',
             url: `${apiOssHost}/buckets/${bucketOssKey}/objects/${archiveName}`

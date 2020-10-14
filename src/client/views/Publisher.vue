@@ -75,7 +75,7 @@
     >
       {{ alertMessage }}
     </v-alert>
-    <v-content>
+    <v-main>
       <v-container
         class="bg"
         fluid
@@ -161,7 +161,7 @@
           </v-col>
         </v-row>
       </v-container>
-    </v-content>
+    </v-main>
     <template>
       <v-dialog
         v-model="userNotAdminDialog"

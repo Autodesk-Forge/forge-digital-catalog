@@ -2,7 +2,7 @@
   <v-row>
     <v-col>
       <v-card flat>
-        <v-content>
+        <v-main>
           <v-container
             fluid
           >
@@ -25,7 +25,7 @@
               </v-chip>
             </v-chip-group>
           </v-container>
-        </v-content>
+        </v-main>
       </v-card>
     </v-col>
   </v-row>

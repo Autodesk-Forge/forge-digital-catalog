@@ -24,7 +24,7 @@
     >
       {{ alertMessage }}
     </v-alert>
-    <v-content v-if="this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm'">
+    <v-main v-if="this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm'">
       <v-container fluid>
         <v-row class="text-center">
           <v-col
@@ -65,8 +65,8 @@
           </v-col>
         </v-row>
       </v-container>
-    </v-content>
-    <v-content v-if="this.$vuetify.breakpoint.name === 'md' || this.$vuetify.breakpoint.name === 'lg' || this.$vuetify.breakpoint.name === 'xl'">
+    </v-main>
+    <v-main v-if="this.$vuetify.breakpoint.name === 'md' || this.$vuetify.breakpoint.name === 'lg' || this.$vuetify.breakpoint.name === 'xl'">
       <v-container fluid>
         <v-row class="text-center">
           <v-col cols="4">
@@ -89,7 +89,7 @@
           </v-col>
         </v-row>
       </v-container>
-    </v-content>
+    </v-main>
   </div>
 </template>
 
