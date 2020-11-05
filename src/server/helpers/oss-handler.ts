@@ -6,6 +6,7 @@ import log4 from 'koa-log4';
 import os from 'os';
 import path from 'path';
 import util from 'util';
+import { IPassportUser } from '../../shared/auth';
 import { ErrorHandler } from './error-handler';
 import { AuthHelper } from '../helpers/auth-handler';
 import { Context } from 'koa';
@@ -65,11 +66,12 @@ export class OssHandler {
     session?: Context['session']
   ): Promise<AxiosResponse | undefined> {
     try {
-      if (session && session.passport.user.access_token) {
+      if (session) {
+        const passport = session.passport as IPassportUser;
         const credentials = {
-          access_token: session.passport.user.access_token,
+          access_token: passport.user.access_token,
           expires_in: 3600,
-          refresh_token: session.passport.user.refresh_token,
+          refresh_token: passport.user.refresh_token,
           token_type: 'Bearer'
         };
         const objectsApi = new ObjectsApi();

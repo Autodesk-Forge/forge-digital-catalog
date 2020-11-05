@@ -233,6 +233,7 @@ export class Publish {
       const region: string = config.get('region');
       const workflow: string = config.get('webhook.workflow');
       payload.misc.workflow = workflow;
+      payload.misc.workflowAttribute = { file: payload.input.rootFilename };
       payload.output.destination.region = region;
       const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
       if (!!authToken) {
@@ -360,7 +361,7 @@ export class Publish {
    * @param dir
    * @param callback
    */
-  private listFilesInDirectory(dir: string, callback: (path: string) => void): void {
+  private listFilesInDirectory(dir: string, callback: (location: string) => void): void {
     try {
       fs.readdirSync(dir).forEach((f) => {
         const dirPath = path.join(dir, f);

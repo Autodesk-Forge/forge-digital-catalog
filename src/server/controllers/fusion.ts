@@ -3,7 +3,8 @@ import config from 'config';
 import { Context } from 'koa';
 import log4 from 'koa-log4';
 import url from 'url';
-import { IFolderContents, IItem } from '../../shared/data';
+import { IPassportUser } from '../../shared/auth';
+import { IFolderContents, IItem, IVersion } from '../../shared/data';
 import { Token } from '../auth/token';
 import { AuthHelper } from '../helpers/auth-handler';
 import { ErrorHandler } from '../helpers/error-handler';
@@ -57,9 +58,10 @@ export class Fusion {
             filters += ',items:autodesk.core:File,items:autodesk.bim360:File';
           }
         }
+        const passport = token.session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${token.session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
@@ -162,9 +164,10 @@ export class Fusion {
           throw new Error('Found empty passport session');
         }
         // Limit to A360 Teams hubs & BIM360 Docs only (no personal hubs allowed)
+        const passport = token.session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${token.session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
@@ -187,26 +190,28 @@ export class Fusion {
     try {
       const token = new Token(session);
       if (token.session) {
+        const passport = token.session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${token.session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
           url: `${apiDataHost}/projects/${projectId}/versions/${encodeURIComponent(versionId)}`
         });
         if (res.status === 200) {
-          const fileType: string = (res.data.data.attributes.fileType)
-            ? res.data.data.attributes.fileType
-            : res.data.data.attributes.extension.type;
+          const versionInfo = res.data as IVersion;
+          const fileType: string = (versionInfo.data.attributes.fileType)
+            ? versionInfo.data.attributes.fileType
+            : versionInfo.data.attributes.extension.type;
           return {
             message: {
-              derivativeUrn: res.data.data.relationships.derivatives.data.id,
-              designUrn: res.data.data.id,
+              derivativeUrn: versionInfo.data.relationships.derivatives.data.id,
+              designUrn: versionInfo.data.id,
               fileType,
-              name: res.data.data.attributes.displayName,
-              size: res.data.data.attributes.storageSize,
-              storageLocation: res.data.data.relationships.storage.data.id
+              name: versionInfo.data.attributes.displayName,
+              size: versionInfo.data.attributes.storageSize,
+              storageLocation: versionInfo.data.relationships.storage.data.id
             },
             status: 200
           };
@@ -231,9 +236,10 @@ export class Fusion {
     try {
       const token = new Token(session);
       if (token.session) {
+        const passport = token.session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${token.session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
@@ -260,9 +266,10 @@ export class Fusion {
     try {
       const token = new Token(session);
       if (token.session) {
+        const passport = token.session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${token.session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
@@ -284,9 +291,10 @@ export class Fusion {
     try {
       const token = new Token(session);
       if (token.session) {
+        const passport = token.session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${token.session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_long_timeout'),
@@ -338,9 +346,10 @@ export class Fusion {
     try {
       const token = new Token(session);
       if (token.session) {
+        const passport = token.session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${token.session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
@@ -366,9 +375,10 @@ export class Fusion {
           logger.error('... Found empty passport session');
           throw new Error('Found empty passport session');
         }
+        const passport = token.session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${token.session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
@@ -396,9 +406,10 @@ export class Fusion {
     try {
       const token = new Token(session);
       if (token.session) {
+        const passport = token.session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${token.session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           url: `${apiDataHost}/projects/${projectId}/versions/${encodeURIComponent(versionId)}/relationships/refs?filter[type]=versions&filter[direction]=from`

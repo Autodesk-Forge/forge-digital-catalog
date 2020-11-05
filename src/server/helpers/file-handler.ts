@@ -9,12 +9,13 @@ import log4 from 'koa-log4';
 import os from 'os';
 import path from 'path';
 import util from 'util';
+import { IPassportUser } from '../../shared/auth';
 import { IXRef, IMoveJob } from '../../shared/publish';
 import { Catalog } from '../controllers/catalog';
 import { AuthHelper } from './auth-handler';
 import { ErrorHandler } from './error-handler';
 import { XrefHandler } from './xref-handler';
-import { IDownloadJob, IOSSObject } from '../../shared/data';
+import { IDownloadInfo, IDownloadJob, IOSSObject, ITypes } from '../../shared/data';
 
 const apiDataHost: string = config.get('API_data_host');
 const apiOssHost: string = config.get('API_oss_host');
@@ -75,10 +76,11 @@ export class FileHandler {
         }
       };
       if (session) {
+        const passport = session.passport as IPassportUser;
         const res = await axios({
           data: payload,
           headers: {
-            'Authorization': `Bearer ${session.passport.user.access_token}`,
+            'Authorization': `Bearer ${passport.user.access_token}`,
             'Content-Type': 'application/vnd.api+json'
           },
           method: 'POST',
@@ -109,9 +111,10 @@ export class FileHandler {
   ): Promise<AxiosResponse | undefined> {
     try {
       if (session) {
+        const passport = session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
@@ -134,18 +137,22 @@ export class FileHandler {
     session: Context['session'],
     projectId: string,
     downloadId: string
-  ): Promise<AxiosResponse | undefined> {
+  ): Promise<IDownloadInfo | undefined> {
     try {
       if (session) {
+        const passport = session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
           url: `${apiDataHost}/projects/${projectId}/downloads/${downloadId}`
         });
-        if (res.status === 200) { return res.data; }
+        if (res.status === 200) {
+          const downloadInfo = res.data as IDownloadInfo;
+          return downloadInfo;
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -160,9 +167,10 @@ export class FileHandler {
   public async getDownloadJobInfo(session: Context['session'], href: string): Promise<AxiosResponse | undefined> {
     try {
       if (session) {
+        const passport = session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           timeout: config.get('axios_timeout'),
@@ -323,7 +331,7 @@ export class FileHandler {
     const search = /(?:\.([^.]+))?$/; // regexp to extract file extension
     if (filename) {
       const extension = search.exec(filename);
-      const types: any = {
+      const types: ITypes = {
         dwf: 'application/vnd.autodesk.autocad.dwf',
         dwg: 'application/vnd.autodesk.autocad.dwg',
         f2d: 'application/vnd.autodesk.fusiondoc',
@@ -346,7 +354,10 @@ export class FileHandler {
         zip: 'application/zip'
       };
       if (extension && extension.length > 1) {
-        return (types[extension[1]] !== null ? types[extension[1]] : 'application/' + extension[1]);
+        if (types[extension[1]] === null) {
+          return 'application/' + extension[1];
+        }
+        return types[extension[1]];
       }
     }
   }
@@ -529,9 +540,10 @@ export class FileHandler {
       const mimeType = this.getMimeType(objectName);
       if (!mimeType) { throw new Error('Unknown MIME type. Aborting move operation.'); }
       if (session) {
+        const passport = session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           responseType: 'arraybuffer',
@@ -577,9 +589,10 @@ export class FileHandler {
   private async saveF3ZFile(session: Context['session'], objectName: string, href: string): Promise<any> {
     try {
       if (session) {
+        const passport = session.passport as IPassportUser;
         const res = await axios({
           headers: {
-            Authorization: `Bearer ${session.passport.user.access_token}`
+            Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           responseType: 'arraybuffer',

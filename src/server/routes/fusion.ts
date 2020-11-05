@@ -47,10 +47,10 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { downloadId: string; projectId: string };
-      const response = await fileHelper.getDownloadInfo(ctx.session, params.projectId, params.downloadId);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const download = await fileHelper.getDownloadInfo(ctx.session, params.projectId, params.downloadId);
+      if (!!download) {
+        ctx.status = 200;
+        ctx.body = download.data;
       }
     } catch (err) {
       logger.error(err);

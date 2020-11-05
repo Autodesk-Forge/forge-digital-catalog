@@ -328,7 +328,7 @@ export class Catalog {
    * @param payload
    * @param ossDesignUrn
    */
-  public async updateCatalogFile(payload: any, ossDesignUrn: string): Promise<ICatalog | undefined> {
+  public async updateCatalogFile(payload: { srcDesignUrn: string }, ossDesignUrn: string): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOneAndUpdate(
         payload,
@@ -350,7 +350,7 @@ export class Catalog {
    * @param payload
    * @param gltf
    */
-  public async updateCatalogFileGltf(payload: any, gltf: any): Promise<ICatalog | undefined> {
+  public async updateCatalogFileGltf(payload: { isFile: boolean; isPublished: boolean; ossDesignUrn: string; svfUrn: string }, gltf: any): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOneAndUpdate(
         payload,
@@ -394,7 +394,7 @@ export class Catalog {
    * @param payload
    * @param svfUrn
    */
-  public async updateCatalogFileSvf(payload: any, svfUrn: string): Promise<ICatalog | undefined> {
+  public async updateCatalogFileSvf(payload: { isFile: boolean; ossDesignUrn: string }, svfUrn: string): Promise<ICatalog | undefined> {
     try {
       const catalogFile = await CatalogDb.findOneAndUpdate(
         payload,

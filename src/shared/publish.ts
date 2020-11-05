@@ -70,6 +70,7 @@ export interface ITranslateJob {
     };
     misc: {
         workflow: string;
+        workflowAttribute: any;
     };
     output: {
         destination: {

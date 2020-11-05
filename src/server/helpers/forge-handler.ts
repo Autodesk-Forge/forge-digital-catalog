@@ -78,7 +78,7 @@ export class ForgeHandler {
    * @param node
    * @param callback
    */
-  public traverseManifest(node: IManifest | IDerivative | IDerivativeChild, callback: (node: IManifest | IDerivative | IDerivativeChild) => void): void {
+  public traverseManifest(node: IManifest | IDerivative | IDerivativeChild, callback: (childNode: IManifest | IDerivative | IDerivativeChild) => void): void {
     callback(node);
     if ('derivatives' in node) {
       for (const child of node.derivatives) {

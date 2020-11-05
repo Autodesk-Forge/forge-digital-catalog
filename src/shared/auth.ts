@@ -19,7 +19,7 @@ interface IOAuth2 {
     client_secret: string;
     expires_at: string;
     redirect_uri: string;
-    scope: string[];
+    scope: string;
 }
 
 export interface IOAuthTemplate {
@@ -49,10 +49,17 @@ export interface IOAuthTemplate {
     clientId: string;
     clientSecret: string;
     credentials: {
-      expires_at: number;
+      expires_at: string;
     };
     redirectUri: string;
     scope: string;
+}
+
+export interface IPassportUser {
+  user: {
+    access_token: string;
+    refresh_token: string;
+  };
 }
 
 export interface ISession {

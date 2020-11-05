@@ -22,8 +22,9 @@ export class ErrorHandler {
       } else if (axiosError.request) {
         /* The request was made but no response was received
         err.request is an instance of http.ClientRequest in Node.js */
-        logger.error(`request.message - ${axiosError.request.message}`);
-        throw new Error(axiosError.request.message);
+        const request = axiosError.request as AxiosError<Request>;
+        logger.error(`request.message - ${request.message}`);
+        throw new Error(request.message);
       } else {
         logger.error(`err.message - ${err.message}`);
         if (err.message === 'Found empty passport session' && ctx) {

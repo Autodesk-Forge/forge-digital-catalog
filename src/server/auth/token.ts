@@ -1,7 +1,7 @@
 'use strict';
 
 import { Context } from 'koa';
-import { IForgeSession, IForgePassportSession, IOAuthTemplate } from '../../shared/auth';
+import { IForgeSession, IForgePassportSession, IOAuthTemplate, IPassportUser } from '../../shared/auth';
 
 export class Token {
 
@@ -14,22 +14,24 @@ export class Token {
   public getForgeSession(): IForgePassportSession | undefined {
     // reconstruct JSON structure per template
     if (this.session) {
+      const passport = this.session.passport as IPassportUser;
+      const forge = this.session.forge as IForgeSession;
       const forgeSession = {
         session: {
           oauth2: {
             forge: this.getOAuthTemplate()
           },
           passport: {
-            user: this.session.passport.user
+            user: passport.user
           }
         }
       };
-      forgeSession.session.oauth2.forge.clientId = this.session.forge.oauth2.client_id as string;
-      forgeSession.session.oauth2.forge.clientSecret = this.session.forge.oauth2.client_secret as string;
-      forgeSession.session.oauth2.forge.credentials.expires_at = this.session.forge.oauth2.expires_at as number;
-      forgeSession.session.oauth2.forge.autoRefresh = this.session.forge.oauth2.auto_refresh as boolean;
-      forgeSession.session.oauth2.forge.scope = this.session.forge.oauth2.scope as string;
-      forgeSession.session.oauth2.forge.redirectUri = this.session.forge.oauth2.redirect_uri as string;
+      forgeSession.session.oauth2.forge.clientId = forge.oauth2.client_id;
+      forgeSession.session.oauth2.forge.clientSecret = forge.oauth2.client_secret;
+      forgeSession.session.oauth2.forge.credentials.expires_at = forge.oauth2.expires_at;
+      forgeSession.session.oauth2.forge.autoRefresh = forge.oauth2.auto_refresh;
+      forgeSession.session.oauth2.forge.scope = forge.oauth2.scope;
+      forgeSession.session.oauth2.forge.redirectUri = forge.oauth2.redirect_uri;
       return forgeSession;
     }
   }
@@ -40,7 +42,10 @@ export class Token {
 
   public get isAuthorized(): boolean | undefined {
     // !! converts value into boolean
-    if (this.session) { return (!!this.session.passport.user); }
+    if (this.session) {
+      const passport = this.session.passport as IPassportUser;
+      return (!!passport.user);
+    }
   }
 
   /**
@@ -74,7 +79,7 @@ export class Token {
       clientId: '',
       clientSecret: '',
       credentials: {
-        expires_at: 0
+        expires_at: '0'
       },
       redirectUri: '',
       scope: 'data:read data:write data:create data:search bucket:create bucket:read bucket:update bucket:delete'
