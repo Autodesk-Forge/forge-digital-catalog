@@ -89,11 +89,12 @@ router.get(
           }
         };
         tokenSession.setForgeSession(forgeSession);
+        const host = ctx.req.headers.host as string;
+        const relativeUrl = `/${ctx.query.state}?isAdminUserLoggedIn=true`;
         ctx.redirect(url.resolve(
           config.get('vuehost') === 'origin'
-          ? `http://${ctx.req.headers.host}`
-          : config.get('vuehost'),
-          `/${ctx.query.state}?isAdminUserLoggedIn=true`)
+          ? `http://${host}`
+          : config.get('vuehost'), relativeUrl)
           );
       })(ctx, next);
   });

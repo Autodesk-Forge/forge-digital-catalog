@@ -21,15 +21,15 @@ router.post(
   async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { filetype: string; projectId: string; versionId: string };
-      const response = await fileHelper.downloadFile(
+      const download = await fileHelper.downloadFile(
         ctx.session,
         params.projectId,
         params.versionId,
         params.filetype
       );
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      if (!!download) {
+        ctx.status = download.status;
+        ctx.body = download.data;
       }
     } catch (err) {
       logger.error(err);

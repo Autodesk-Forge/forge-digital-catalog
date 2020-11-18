@@ -15,7 +15,7 @@ import { Catalog } from '../controllers/catalog';
 import { AuthHelper } from './auth-handler';
 import { ErrorHandler } from './error-handler';
 import { XrefHandler } from './xref-handler';
-import { IDownloadFormats, IDownloadInfo, IDownloadJob, IJob, IOSSObject, ITypes } from '../../shared/data';
+import { IDownloadFormats, IDownloadInfo, IDownloads, IJob, IOSSObject, ITypes } from '../../shared/data';
 
 const apiDataHost: string = config.get('API_data_host');
 const apiOssHost: string = config.get('API_oss_host');
@@ -52,7 +52,7 @@ export class FileHandler {
     projectId: string,
     versionId: string,
     fileType: string
-  ): Promise<AxiosResponse<IDownloadJob[]> | undefined> {
+  ): Promise<AxiosResponse<IDownloads> | undefined> {
     try {
       const payload = {
         data: {
@@ -88,7 +88,7 @@ export class FileHandler {
           url: `${apiDataHost}/projects/${projectId}/downloads`
         });
         if (res.status === 202) {
-          const result = res.data as AxiosResponse<IDownloadJob[]>;
+          const result = res as AxiosResponse<IDownloads>;
           return result;
         }
       }
@@ -413,24 +413,26 @@ export class FileHandler {
   private async moveAndCompressFusionFiles(
     session: Context['session'],
     objectName: string,
-    payload: any
+    payload: IMoveJob
   ): Promise<AxiosResponse<IOSSObject> | undefined> {
     try {
       let uploadResponse: AxiosResponse<IOSSObject> = { config: {}, data: {}, headers: {}, status: 0, statusText: '' };
-      const response = await this.downloadFile(session, payload.projectId, payload.versionId, 'f3z') as any;
-      if (response) {
-        const jobResponse = await this.pollDownloadJobInfo(session, response.links.self.href);
-        if (!!jobResponse && jobResponse.data[0].type === 'failed') {
+      const projectId = payload.projectId as string;
+      const versionId = payload.versionId as string;
+      const download = await this.downloadFile(session, projectId, versionId, 'f3z');
+      if (download) {
+        const jobInfo = await this.pollDownloadJobInfo(session, download.data.links.self.href);
+        if (!!jobInfo && jobInfo.data[0].type === 'failed') {
           throw new Error('Fusion Archive Download Failed');
         }
-        if (!!jobResponse && jobResponse.data[0].type === 'downloads') {
-          logger.info(`... Fusion Archive is downloadable from ${jobResponse.data[0].relationships.storage.meta.link.href}`);
+        if (!!jobInfo && jobInfo.data[0].type === 'downloads') {
+          logger.info(`... Fusion Archive is downloadable from ${jobInfo.data[0].relationships.storage.meta.link.href}`);
           const file = await this.saveF3ZFile(
             session,
             objectName,
-            jobResponse.data[0].relationships.storage.meta.link.href
+            jobInfo.data[0].relationships.storage.meta.link.href
           );
-          if (file.status === 200 && file.filesize > 0) {
+          if (file && file.status === 200 && file.filesize > 0) {
             let archiveName = objectName.replace('.f3d', '.zip');
             archiveName = `${path.parse(archiveName).name}.zip`;
             uploadResponse = await this.uploadZipObject(archiveName, file.filesize) as AxiosResponse<IOSSObject>;
@@ -590,7 +592,12 @@ export class FileHandler {
    * @param objectName
    * @param href
    */
-  private async saveF3ZFile(session: Context['session'], objectName: string, href: string): Promise<any> {
+  private async saveF3ZFile(session: Context['session'], objectName: string, href: string): Promise<{
+    filesize: number;
+    message: Buffer;
+    path: string;
+    status: number;
+  } | undefined> {
     try {
       if (session) {
         const passport = session.passport as IPassportUser;
@@ -621,7 +628,7 @@ export class FileHandler {
           if (fileSizeInBytes > 0) {
             return {
               filesize: fileSizeInBytes,
-              message: res.data,
+              message: buffer,
               path: f3zFile,
               status: res.status
             };

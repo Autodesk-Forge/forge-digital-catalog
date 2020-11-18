@@ -34,13 +34,17 @@ export interface IDownloadInfo {
     };
 }
 
-export interface IDownloadJob {
-    type: string;
-    id: string;
-    attributes: {
-        status: string;
-    };
+export interface IDownloads {
+    jsonapi: IJsonApi;
     links: ISelfHref;
+    data: {
+        type: string;
+        id: string;
+        attributes: {
+            status: string;
+        };
+        links: ISelfHref;
+    };
 }
 
 export interface IDownloadObject {

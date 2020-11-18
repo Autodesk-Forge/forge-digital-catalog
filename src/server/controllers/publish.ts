@@ -213,9 +213,9 @@ export class Publish {
   public setPublishLog(body: IPublishJob): IPublishJob | undefined {
     try {
       const log = new Publisher(body);
-      log.save((err, logEntry) => {
+      void log.save((err, logEntry) => {
         if (err) { throw new Error(err); }
-        logger.info(`... successfully saved new publisher log entry: ${logEntry}`);
+        logger.info(`... successfully saved new publisher log entry: ${JSON.stringify(logEntry)}`);
       });
       return log;
     } catch (err) {
