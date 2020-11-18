@@ -3,6 +3,7 @@ import config from 'config';
 import log4 from 'koa-log4';
 import { AuthHelper } from '../helpers/auth-handler';
 import { ErrorHandler } from '../helpers/error-handler';
+import { IWebHook, IWebHooks } from '../../shared/webhooks';
 
 const apiWebHookHost: string = config.get('API_webhook_host');
 
@@ -47,7 +48,7 @@ export class WebHooks {
   /**
    * Retrieves Webhooks
    */
-  public async getWebHooks(): Promise<AxiosResponse | undefined> {
+  public async getWebHooks(): Promise<AxiosResponse<IWebHooks> | undefined> {
     try {
       const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
       if (!!authToken) {
@@ -58,7 +59,10 @@ export class WebHooks {
           method: 'GET',
           url: `${apiWebHookHost}/systems/derivative/events/extraction.finished/hooks`
         });
-        if (res.status === 200) { return res; }
+        if (res.status === 200) {
+          const webhooks = res as AxiosResponse<IWebHooks>;
+          return webhooks;
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -68,7 +72,7 @@ export class WebHooks {
   /**
    * Creates Model Derivative WebHook
    */
-  public async setWebHook(): Promise<AxiosResponse | undefined> {
+  public async setWebHook(): Promise<AxiosResponse<IWebHook> | undefined> {
     try {
       const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
       if (!!authToken) {
@@ -88,7 +92,9 @@ export class WebHooks {
           method: 'POST',
           url: `${apiWebHookHost}/systems/derivative/events/extraction.finished/hooks`
         });
-        if (res.status === 201) { return res; }
+        if (res.status === 201) {
+          const webhook = res as AxiosResponse<IWebHook>;
+          return webhook; }
       }
     } catch (err) {
       this.errorHandler.handleError(err);

@@ -13,7 +13,7 @@ import { Admin } from './admin';
 import { ArvrToolkit } from './arvr-toolkit';
 import { Catalog } from './catalog';
 
-import { IDerivative, IDerivativeChild, IManifest, IPublishJob, ITranslateJob } from '../../shared/publish';
+import { IDerivative, IDerivativeChild, IManifest, IPublishJob, ITranslateJob, ITranslateJobResult } from '../../shared/publish';
 
 import Publisher from '../models/publish';
 
@@ -88,9 +88,9 @@ export class Publish {
         output.on('end', () => {
           logger.info('... data has been drained');
         });
-        output.on('warning', (err) => {
+        output.on('warning', (err: NodeJS.ErrnoException) => {
           if (err.code === 'ENOENT') {
-            logger.warn(`Warning occurred while compressing the files: ${err}`);
+            logger.warn(`Warning occurred while compressing the files: ${err.message}`);
           } else {
             logger.warn(err);
             reject(err);
@@ -114,7 +114,7 @@ export class Publish {
             archive.file(filePath, { name: outputToFilePath });
           }
         });
-        archive.finalize();
+        void archive.finalize();
       });
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -228,7 +228,7 @@ export class Publish {
    * @param payload
    * @param retry
    */
-  public async translateJob(payload: ITranslateJob): Promise<AxiosResponse | undefined> {
+  public async translateJob(payload: ITranslateJob): Promise<AxiosResponse<ITranslateJobResult> | undefined> {
     try {
       const region: string = config.get('region');
       const workflow: string = config.get('webhook.workflow');
@@ -247,7 +247,10 @@ export class Publish {
           method: 'POST',
           url: `${apiDerivativeHost}/designdata/job`
         });
-        if (res.status === 200 || res.status === 201) { return res; }
+        if (res.status === 200 || res.status === 201) {
+          const job = res as AxiosResponse<ITranslateJobResult>;
+          return job;
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);

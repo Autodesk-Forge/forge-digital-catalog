@@ -55,6 +55,7 @@ router.get(
       scope: config.get('scope'),
       state: query.state
     };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return passport.authenticate(
       'oauth2',
       options,
@@ -70,6 +71,7 @@ router.get(
 router.get(
   '/callback/oauth',
   (ctx: Context, next: Next): void => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return passport.authenticate(
       'oauth2',
       async (err, user) => {

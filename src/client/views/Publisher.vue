@@ -470,8 +470,8 @@ export default class Publisher extends Vue {
       this.$store.dispatch('setLoading', { modelRefs: true });
       const selectedModelInfo = await this.getSelectedModelInfo() as any;
       if (!!selectedModelInfo) {
-        this.$store.dispatch('setRootFileName', selectedModelInfo.message.name);
-        const fileType = selectedModelInfo.message.fileType;
+        this.$store.dispatch('setRootFileName', selectedModelInfo.name);
+        const fileType = selectedModelInfo.fileType;
         const projectId = this.$store.state.defaultHubProjectSetting.projectId;
         const versionId = this.$store.state.selectedModel;
         const res = await this.$axios({
@@ -488,7 +488,7 @@ export default class Publisher extends Vue {
           if (!!refs) {
             if (fileType === 'iam') {
               this.$store.dispatch('setFileType', 'Inventor');
-              const invTree = await this.setInventorChildReferences(projectId, refs, selectedModelInfo.message.name);
+              const invTree = await this.setInventorChildReferences(projectId, refs, selectedModelInfo.name);
               if (Array.isArray(invTree) && invTree.length > 0) {
                 this.$log.info('... storing Inventor reference tree in state');
                 this.$store.dispatch('setModelRefs', invTree);
@@ -498,7 +498,7 @@ export default class Publisher extends Vue {
               this.$store.dispatch('setFileType', 'Fusion');
               const fusionRefs = refs.filter((ref: any) => {
                 return ref.extension.includes('autodesk.fusion360') &&
-                  ref.name !== selectedModelInfo.message.name;
+                  ref.name !== selectedModelInfo.name;
               });
               if (Array.isArray(fusionRefs) && fusionRefs.length > 0) {
                 this.$store.dispatch('setModelRefs', fusionRefs);
@@ -509,7 +509,7 @@ export default class Publisher extends Vue {
             }
             if (fileType === 'sldasm') {
               this.$store.dispatch('setFileType', 'SolidWorks');
-              const slwTree = await this.setSolidWorksChildReferences(projectId, refs, selectedModelInfo.message.name);
+              const slwTree = await this.setSolidWorksChildReferences(projectId, refs, selectedModelInfo.name);
               if (Array.isArray(slwTree) && slwTree.length > 0) {
                 this.$log.info('... storing SolidWorks reference tree in state');
                 this.$store.dispatch('setModelRefs', slwTree);
@@ -531,15 +531,15 @@ export default class Publisher extends Vue {
     try {
       const selectedModelInfo = await this.getSelectedModelInfo() as any;
       if (!!selectedModelInfo) {
-        const bucketKey = selectedModelInfo.message.storageLocation.split('/')[0].split(':')[3];
-        const objectName = selectedModelInfo.message.storageLocation.split('/')[1];
+        const bucketKey = selectedModelInfo.storageLocation.split('/')[0].split(':')[3];
+        const objectName = selectedModelInfo.storageLocation.split('/')[1];
         const res = await this.$axios({
           data: {
             fileType: (this.$store.state.fileType) ? this.$store.state.fileType : '',
-            name: selectedModelInfo.message.name,
+            name: selectedModelInfo.name,
             projectId: this.$store.state.defaultHubProjectSetting.projectId,
             refs: (this.$store.state.modelRefs.length > 0) ? this.$store.state.modelRefs : [],
-            storageLocation: selectedModelInfo.message.storageLocation,
+            storageLocation: selectedModelInfo.storageLocation,
             versionId: this.$store.state.selectedModel[0]
           },
           headers: {
@@ -553,7 +553,7 @@ export default class Publisher extends Vue {
           this.$log.info('... successfully moved object to OSS bucket');
           const updateRes = await this.$axios({
             data: {
-              srcDesignUrn: selectedModelInfo.message.storageLocation
+              srcDesignUrn: selectedModelInfo.storageLocation
             },
             method: 'PUT',
             url: new URL(`/api/catalog/file/oss/${res.data.objectId}`, config.koahost).href
@@ -579,19 +579,19 @@ export default class Publisher extends Vue {
         this.$store.dispatch('setAutodeskPath', `${selectedCatalogInfo.data.path}${selectedCatalogInfo.data.name},`);
         const selectedModelInfo = await this.getSelectedModelInfo() as any;
         if (!!selectedModelInfo) {
-          const existingCatalogItem = await this.findCatalogItemByName(selectedModelInfo.message.name) as any;
-          if (!!existingCatalogItem && (selectedModelInfo.message.name === existingCatalogItem.name)) {
+          const existingCatalogItem = await this.findCatalogItemByName(selectedModelInfo.name) as any;
+          if (!!existingCatalogItem && (selectedModelInfo.name === existingCatalogItem.name)) {
             throw new Error('Found existing catalog item with same name, aborting publishing job ...');
           }
           const res = await this.$axios({
             data: {
               isFile: true,
               isPublished: false,
-              name: selectedModelInfo.message.name,
+              name: selectedModelInfo.name,
               ossDesignUrn: '',
               path: `${selectedCatalogInfo.data.path}${selectedCatalogInfo.data.name},`,
-              size: selectedModelInfo.message.size,
-              srcDesignUrn: selectedModelInfo.message.storageLocation,
+              size: selectedModelInfo.size,
+              srcDesignUrn: selectedModelInfo.storageLocation,
               svfUrn: ''
             },
             method: 'POST',
@@ -613,11 +613,11 @@ export default class Publisher extends Vue {
   private async setFusionRefsRootFilename(): Promise<void> {
     try {
       const selectedModelInfo = await this.getSelectedModelInfo() as any;
-      if (selectedModelInfo && selectedModelInfo.message.fileType === 'versions:autodesk.fusion360:Design') {
+      if (selectedModelInfo && selectedModelInfo.fileType === 'versions:autodesk.fusion360:Design') {
         const res = await this.$axios({
           method: 'GET',
           url: new URL(
-            `/api/catalog/file/storage/${encodeURIComponent(selectedModelInfo.message.storageLocation)}`,
+            `/api/catalog/file/storage/${encodeURIComponent(selectedModelInfo.storageLocation)}`,
             config.koahost).href
         });
         if (res.status === 200 && res.data.rootFilename) {

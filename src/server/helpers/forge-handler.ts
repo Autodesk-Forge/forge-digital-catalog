@@ -4,7 +4,6 @@ import { ErrorHandler } from './error-handler';
 import { IDerivative, IDerivativeChild, IManifest } from '../../shared/publish';
 
 const apiDerivativeHost: string = config.get('API_derivative_host');
-const apiDerivativeService: string = config.get('API_derivative_service');
 
 export class ForgeHandler {
 
@@ -42,32 +41,6 @@ export class ForgeHandler {
       if (res.status !== 200) { throw new Error(res.data); }
       const manifest = res.data as AxiosResponse<IManifest>;
       return manifest;
-    } catch (err) {
-      this.errorHandler.handleError(err);
-    }
-  }
-
-  /**
-   * Retrieve the derivatives
-   * @param urn
-   * @param token
-   */
-  public async getDerivative(urn: string, token: string): Promise<Buffer | undefined> {
-    try {
-      const res = await axios({
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        method: 'GET',
-        responseType: 'arraybuffer',
-        url: `${apiDerivativeService}/derivatives/${urn}`
-      });
-      if (res.status !== 200) {
-        const message = await res.data.text();
-        throw new Error(message);
-      }
-      const buffer = Buffer.from(res.data);
-      return buffer;
     } catch (err) {
       this.errorHandler.handleError(err);
     }

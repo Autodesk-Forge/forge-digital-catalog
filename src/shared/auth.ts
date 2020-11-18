@@ -55,6 +55,40 @@ export interface IOAuthTemplate {
     scope: string;
 }
 
+export interface IUser {
+  userId: string;
+  userName: string;
+  emailId: string;
+  firstName: string;
+  lastName: string;
+  emailVerified: boolean;
+  '2FaEnabled': boolean;
+  countryCode: string;
+  language: string;
+  optin: boolean;
+  lastModified: string;
+  profileImages: {
+    sizeX20: string;
+    sizeX40: string;
+    sizeX50: string;
+    sizeX58: string;
+    sizeX80: string;
+    sizeX120: string;
+    sizeX160: string;
+    sizeX176: string;
+    sizeX240: string;
+    sizeX360: string;
+  };
+  ldapInfo: {
+    ldapEnabled: boolean;
+    domainName: string;
+  };
+  socialUserInfoList: string[];
+  twoFactorAuthType: string;
+  contactMode: string;
+  createdDate: string;
+}
+
 export interface IPassportUser {
   user: {
     access_token: string;

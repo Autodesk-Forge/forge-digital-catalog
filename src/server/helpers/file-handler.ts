@@ -15,7 +15,7 @@ import { Catalog } from '../controllers/catalog';
 import { AuthHelper } from './auth-handler';
 import { ErrorHandler } from './error-handler';
 import { XrefHandler } from './xref-handler';
-import { IDownloadInfo, IDownloadJob, IOSSObject, ITypes } from '../../shared/data';
+import { IDownloadFormats, IDownloadInfo, IDownloadJob, IJob, IOSSObject, ITypes } from '../../shared/data';
 
 const apiDataHost: string = config.get('API_data_host');
 const apiOssHost: string = config.get('API_oss_host');
@@ -108,7 +108,7 @@ export class FileHandler {
     session: Context['session'],
     projectId: string,
     versionId: string
-  ): Promise<AxiosResponse | undefined> {
+  ): Promise<AxiosResponse<IDownloadFormats> | undefined> {
     try {
       if (session) {
         const passport = session.passport as IPassportUser;
@@ -120,7 +120,9 @@ export class FileHandler {
           timeout: config.get('axios_timeout'),
           url: `${apiDataHost}/projects/${projectId}/versions/${encodeURIComponent(versionId)}/downloadFormats`
         });
-        if (res.status === 200) { return res; }
+        if (res.status === 200) {
+          const formats = res as AxiosResponse<IDownloadFormats>;
+          return formats; }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -164,7 +166,7 @@ export class FileHandler {
    * @param session
    * @param href
    */
-  public async getDownloadJobInfo(session: Context['session'], href: string): Promise<AxiosResponse | undefined> {
+  public async getDownloadJobInfo(session: Context['session'], href: string): Promise<IJob | undefined> {
     try {
       if (session) {
         const passport = session.passport as IPassportUser;
@@ -176,7 +178,8 @@ export class FileHandler {
           timeout: config.get('axios_timeout'),
           url: href
         });
-        if (res.status === 200) { return res.data; }
+        const job = res.data as IJob;
+        if (res.status === 200) { return job; }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -270,14 +273,14 @@ export class FileHandler {
    * @param session
    * @param href
    */
-  public async pollDownloadJobInfo(session: Context['session'], href: string): Promise<AxiosResponse | undefined> {
+  public async pollDownloadJobInfo(session: Context['session'], href: string): Promise<IJob | undefined> {
     while (true) {
       try {
-        const response = await this.getDownloadJobInfo(session, href);
-        if (!!response
-            && (response.data[0].type === 'downloads'
-            || response.data[0].type === 'failed')) {
-          return response;
+        const job = await this.getDownloadJobInfo(session, href);
+        if (!!job
+            && (job.data[0].type === 'downloads'
+            || job.data[0].type === 'failed')) {
+              return job;
         }
       } catch (err) {
         this.errorHandler.handleError(err);
@@ -381,9 +384,9 @@ export class FileHandler {
       output.on('end', () => {
         logger.info('... data has been drained');
       });
-      output.on('warning', (err) => {
+      output.on('warning', (err: NodeJS.ErrnoException) => {
         if (err.code === 'ENOENT') {
-          logger.warn(`Warning occurred while compressing the files: ${err}`);
+          logger.warn(`Warning occurred while compressing the files: ${err.message}`);
         } else {
           reject(err);
         }
@@ -396,7 +399,7 @@ export class FileHandler {
         const filePath = path.join(tmpDir, 'cache', file);
         archive.file(filePath, { name: file });
       });
-      archive.finalize();
+      void archive.finalize();
     });
   }
 
@@ -554,7 +557,7 @@ export class FileHandler {
           const buffer = Buffer.from(res.data);
           const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
           if (!!authToken) {
-            const uploadRes = await axios({
+            const upload = await axios({
               data: buffer,
               headers: {
                 'Authorization': `Bearer ${authToken.access_token}`,
@@ -566,9 +569,10 @@ export class FileHandler {
               method: 'PUT',
               url: `${apiOssHost}/buckets/${bucketOssKey}/objects/${objectName}`
             });
-            if (uploadRes.status === 200) {
+            if (upload.status === 200) {
               logger.info('... file uploaded to OSS');
-              return uploadRes.data;
+              const data = upload.data as AxiosResponse<IOSSObject>;
+              return data;
             }
           }
         }

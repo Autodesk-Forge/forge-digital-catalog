@@ -5,6 +5,7 @@ import { Context, DefaultState, Next } from 'koa';
 import log4 from 'koa-log4';
 import { Publish } from '../controllers/publish';
 import { WebHooks } from '../controllers/webhooks';
+import { IWebHookCallback } from '../../shared/webhooks';
 
 const logger = log4.getLogger('webhooks');
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug'; }
@@ -19,10 +20,9 @@ const webHooksController = new WebHooks();
 router.delete('/webhooks/:hookId', async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { hookId: string };
-      const response = await webHooksController.deleteWebHook(params.hookId);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const webhook = await webHooksController.deleteWebHook(params.hookId);
+      if (!!webhook) {
+        ctx.status = webhook.status;
       }
     } catch (err) {
       logger.error(err);
@@ -36,10 +36,10 @@ router.delete('/webhooks/:hookId', async (ctx: Context): Promise<void> => {
  */
 router.get('/webhooks', async (ctx: Context): Promise<void> => {
     try {
-      const response = await webHooksController.getWebHooks();
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const webhooks = await webHooksController.getWebHooks();
+      if (!!webhooks) {
+        ctx.status = webhooks.status;
+        ctx.body = webhooks.data;
       }
     } catch (err) {
       logger.error(err);
@@ -53,10 +53,10 @@ router.get('/webhooks', async (ctx: Context): Promise<void> => {
  */
 router.post('/webhooks', async (ctx: Context): Promise<void> => {
     try {
-      const response = await webHooksController.setWebHook();
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const webhook = await webHooksController.setWebHook();
+      if (!!webhook) {
+        ctx.status = webhook.status;
+        ctx.body = webhook.data;
       }
     } catch (err) {
       logger.error(err);
@@ -72,14 +72,14 @@ router.post('/webhook/callback', (ctx: Context, next: Next): void => {
     try {
       ctx.status = 200;
       ctx.body = {};
-      if (
-        ctx.request.body &&
-        ctx.request.body.payload.Payload.status === 'success'
-      ) {
-        logger.info('... translation completed, finalizing the publishing job');
-        void publishController.finalizePublishJob(ctx.request.body.payload.URN);
+      if (ctx.request.body) {
+        const callback = ctx.request.body as IWebHookCallback;
+        if (callback.payload.Payload.status === 'success') {
+          logger.info('... translation completed, finalizing the publishing job');
+          void publishController.finalizePublishJob(callback.payload.URN);
+        }
       }
-      next();
+      void next();
     } catch (err) {
       logger.error(err);
     }

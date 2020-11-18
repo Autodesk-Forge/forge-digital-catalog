@@ -114,10 +114,10 @@ router.get(
   '/user/profile',
   async (ctx: Context): Promise<void> => {
     try {
-      const response = await fusionController.getUserProfile(ctx.session);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const profile = await fusionController.getUserProfile(ctx.session);
+      if (!!profile) {
+        ctx.status = profile.status;
+        ctx.body = profile.data;
       }
     } catch (err) {
       logger.error(err);
@@ -134,10 +134,10 @@ router.get(
   '/hubs',
   async (ctx: Context): Promise<void> => {
     try {
-      const response = await fusionController.getHubs(ctx.session);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const hubs = await fusionController.getHubs(ctx.session);
+      if (!!hubs) {
+        ctx.status = hubs.status;
+        ctx.body = hubs.data;
       }
     } catch (err) {
       logger.error(err);
@@ -155,10 +155,10 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { hubId: string; projectId: string };
-      const response = await fusionController.getProject(ctx.session, params.hubId, params.projectId);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const project = await fusionController.getProject(ctx.session, params.hubId, params.projectId);
+      if (!!project) {
+        ctx.status = project.status;
+        ctx.body = project.data;
       }
     } catch (err) {
       logger.error(err);
@@ -176,10 +176,10 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { hubId: string };
-      const response = await fusionController.getProjects(ctx.session, params.hubId);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const projects = await fusionController.getProjects(ctx.session, params.hubId);
+      if (!!projects) {
+        ctx.status = projects.status;
+        ctx.body = projects.data;
       }
     } catch (err) {
       logger.error(err);
@@ -197,10 +197,10 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { hubId: string; projectId: string };
-      const response = await fusionController.getTopFolders(ctx.session, params.hubId, params.projectId);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const folders = await fusionController.getTopFolders(ctx.session, params.hubId, params.projectId);
+      if (!!folders) {
+        ctx.status = folders.status;
+        ctx.body = folders.data;
       }
     } catch (err) {
       logger.error(err);
@@ -269,10 +269,10 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { projectId: string; versionId: string };
-      const response = await fileHelper.downloadFormats(ctx.session, params.projectId, params.versionId);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const formats = await fileHelper.downloadFormats(ctx.session, params.projectId, params.versionId);
+      if (!!formats) {
+        ctx.status = formats.status;
+        ctx.body = formats.data;
       }
     } catch (err) {
       logger.error(err);
@@ -290,10 +290,10 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { itemId: string; projectId: string };
-      const response = await fusionController.getItemVersions(ctx.session, params.projectId, params.itemId);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const versions = await fusionController.getItemVersions(ctx.session, params.projectId, params.itemId);
+      if (!!versions) {
+        ctx.status = versions.status;
+        ctx.body = versions.data;
       }
     } catch (err) {
       logger.error(err);
@@ -311,10 +311,10 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { projectId: string; versionId: string };
-      const response = await fusionController.getVersionRefs(ctx.session, params.projectId, params.versionId);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const refs = await fusionController.getVersionRefs(ctx.session, params.projectId, params.versionId);
+      if (!!refs) {
+        ctx.status = refs.status;
+        ctx.body = refs.data;
       }
     } catch (err) {
       logger.error(err);

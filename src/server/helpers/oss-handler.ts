@@ -1,4 +1,3 @@
-import { AxiosResponse } from 'axios';
 import config from 'config';
 import { ApiResponse, AuthClientTwoLegged, AuthToken, BucketsApi, ObjectsApi, Scope } from 'forge-apis';
 import fs from 'fs';
@@ -7,6 +6,7 @@ import os from 'os';
 import path from 'path';
 import util from 'util';
 import { IPassportUser } from '../../shared/auth';
+import { IDownloadObject } from '../../shared/data';
 import { ErrorHandler } from './error-handler';
 import { AuthHelper } from '../helpers/auth-handler';
 import { Context } from 'koa';
@@ -64,7 +64,7 @@ export class OssHandler {
     objectName: string,
     sourceFileName: string,
     session?: Context['session']
-  ): Promise<AxiosResponse | undefined> {
+  ): Promise<IDownloadObject | undefined> {
     try {
       if (session) {
         const passport = session.passport as IPassportUser;
@@ -85,14 +85,14 @@ export class OssHandler {
           const writeFile = util.promisify(fs.writeFile);
           await writeFile(outputFile, buffer);
           logger.info(`... successfully downloaded CAD object to local file ${outputFile}`);
-          const response: AxiosResponse = {
+          const object: IDownloadObject = {
             config: {},
             data: buffer,
             headers: {},
             status: 200,
             statusText: 'OK'
           };
-          return response;
+          return object;
         }
       }
     } catch (err) {
@@ -110,7 +110,7 @@ export class OssHandler {
     bucketKey: string,
     objectName: string,
     sourceFileName: string
-  ): Promise<AxiosResponse | undefined> {
+  ): Promise<IDownloadObject | undefined> {
     try {
       const credentials = await this.authHelper.createInternalToken(config.get('bucket_scope'));
       const objectsApi = new ObjectsApi();
@@ -124,14 +124,14 @@ export class OssHandler {
           const outputFile = `${outputDir}/${sourceFileName}`;
           const writeFile = util.promisify(fs.writeFile);
           await writeFile(outputFile, buffer);
-          const response: AxiosResponse = {
+          const object: IDownloadObject = {
             config: {},
             data: buffer,
             headers: {},
             status: 200,
             statusText: 'OK'
           };
-          return response;
+          return object;
         }
       }
     } catch (err) {

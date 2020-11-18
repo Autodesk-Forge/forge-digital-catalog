@@ -83,6 +83,24 @@ export interface ITranslateJob {
     };
 }
 
+export interface ITranslateJobResult {
+    result: string;
+    urn: string;
+    acceptedJobs: {
+        output: {
+            destination: {
+                region: string;
+            };
+            formats: [
+                {
+                    type: string;
+                    views: string[];
+                }
+            ]
+        };
+    };
+}
+
 export interface IXRef {
     children?: IXRef[];
     extension: string;

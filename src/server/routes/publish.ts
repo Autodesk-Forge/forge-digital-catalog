@@ -51,10 +51,10 @@ router.post('/publish/logs', (ctx: Context): void => {
  */
 router.post('/translate', async (ctx: Context): Promise<void> => {
     try {
-      const response = await publishController.translateJob(ctx.request.body);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const job = await publishController.translateJob(ctx.request.body);
+      if (!!job) {
+        ctx.status = job.status;
+        ctx.body = job.data;
       }
     } catch (err) {
       logger.error(err);

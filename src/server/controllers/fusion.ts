@@ -3,8 +3,8 @@ import config from 'config';
 import { Context } from 'koa';
 import log4 from 'koa-log4';
 import url from 'url';
-import { IPassportUser } from '../../shared/auth';
-import { IFolderContents, IItem, IVersion } from '../../shared/data';
+import { IPassportUser, IUser } from '../../shared/auth';
+import { IFolderContents, IHubs, IItemData, IProject, IProjects, ITopFolders, IItemVersion, IItemVersions, IItemVersionRelationshipsRefs, IItemVersionMetadata } from '../../shared/data';
 import { Token } from '../auth/token';
 import { AuthHelper } from '../helpers/auth-handler';
 import { ErrorHandler } from '../helpers/error-handler';
@@ -37,7 +37,7 @@ export class Fusion {
    * @param projectId
    * @param folderId
    */
-  public async getFolderContents(session: Context['session'], projectId: string, folderId: string): Promise<any> {
+  public async getFolderContents(session: Context['session'], projectId: string, folderId: string): Promise<{ data: IItemData[] } | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -69,13 +69,13 @@ export class Fusion {
         });
         if (res.status === 200) {
           const contents = res.data as IFolderContents;
-          const items: { data: IItem[] } = { data: [] };
-          const folderDocs = contents.data.filter((item: IItem) => {
+          const items: { data: IItemData[] } = { data: [] };
+          const folderDocs = contents.data.filter((item: IItemData) => {
             return item.type === 'folders';
           });
           items.data.push(...folderDocs);
           if (fileFormats && fileFormats[0].fileFormatToggles.creo) {
-            const creoDocs = contents.data.filter((item: IItem) => {
+            const creoDocs = contents.data.filter((item: IItemData) => {
               return item.type === 'items'
                 && (item.attributes.displayName.toLowerCase().endsWith('.asm')
                 || item.attributes.displayName.toLowerCase().endsWith('.drw')
@@ -84,27 +84,27 @@ export class Fusion {
             items.data.push(...creoDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.dwg) {
-            const dwgDocs = contents.data.filter((item: IItem) => {
+            const dwgDocs = contents.data.filter((item: IItemData) => {
               return item.type === 'items'
                 && item.attributes.displayName.toLowerCase().endsWith('.dwg');
             });
             items.data.push(...dwgDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.fbx) {
-            const fbxDocs = contents.data.filter((item: IItem) => {
+            const fbxDocs = contents.data.filter((item: IItemData) => {
               return item.type === 'items'
                 && item.attributes.displayName.toLowerCase().endsWith('.fbx');
             });
             items.data.push(...fbxDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.fusion) {
-            const fusionDocs = contents.data.filter((item: IItem) => {
+            const fusionDocs = contents.data.filter((item: IItemData) => {
               return item.attributes.extension.type === 'items:autodesk.fusion360:Design';
             });
             items.data.push(...fusionDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.inventor) {
-            const inventorDocs = contents.data.filter((item: IItem) => {
+            const inventorDocs = contents.data.filter((item: IItemData) => {
               return item.type === 'items'
                 && (item.attributes.displayName.toLowerCase().endsWith('.iam')
                 || item.attributes.displayName.toLowerCase().endsWith('.idw')
@@ -113,21 +113,21 @@ export class Fusion {
             items.data.push(...inventorDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.navisworks) {
-            const navisworksDocs = contents.data.filter((item: IItem) => {
+            const navisworksDocs = contents.data.filter((item: IItemData) => {
               return item.type === 'items'
                 && item.attributes.displayName.toLowerCase().endsWith('.nwd');
             });
             items.data.push(...navisworksDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.obj) {
-            const objDocs = contents.data.filter((item: IItem) => {
+            const objDocs = contents.data.filter((item: IItemData) => {
               return item.type === 'items'
                 && item.attributes.displayName.toLowerCase().endsWith('.obj');
             });
             items.data.push(...objDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.solidworks) {
-            const solidworksDocs = contents.data.filter((item: IItem) => {
+            const solidworksDocs = contents.data.filter((item: IItemData) => {
               return item.type === 'items'
                 && (item.attributes.displayName.toLowerCase().endsWith('.sldasm')
                 || item.attributes.displayName.toLowerCase().endsWith('.slddrw')
@@ -136,7 +136,7 @@ export class Fusion {
             items.data.push(...solidworksDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.step) {
-            const stepDocs = contents.data.filter((item: IItem) => {
+            const stepDocs = contents.data.filter((item: IItemData) => {
               return item.type === 'items'
                 && (item.attributes.displayName.toLowerCase().endsWith('.step')
                 || item.attributes.displayName.toLowerCase().endsWith('.stp'));
@@ -155,7 +155,7 @@ export class Fusion {
    * Retrieves Hubs
    * @param session
    */
-  public async getHubs(session: Context['session']): Promise<AxiosResponse | undefined> {
+  public async getHubs(session: Context['session']): Promise<AxiosResponse<IHubs> | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -173,7 +173,10 @@ export class Fusion {
           timeout: config.get('axios_timeout'),
           url: `${apiProjectHost}/hubs?filter[extension.type]=hubs:autodesk.core:Hub&filter[extension.type]=hubs:autodesk.bim360:Account`
         });
-        if (res.status === 200) { return res; }
+        if (res.status === 200) {
+          const hubs = res as AxiosResponse<IHubs>;
+          return hubs;
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -186,7 +189,7 @@ export class Fusion {
    * @param projectId
    * @param versionId
    */
-  public async getItemVersionInfo(session: Context['session'], projectId: string, versionId: string): Promise<any> {
+  public async getItemVersionInfo(session: Context['session'], projectId: string, versionId: string): Promise<IItemVersionMetadata | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -200,21 +203,19 @@ export class Fusion {
           url: `${apiDataHost}/projects/${projectId}/versions/${encodeURIComponent(versionId)}`
         });
         if (res.status === 200) {
-          const versionInfo = res.data as IVersion;
+          const versionInfo = res.data as IItemVersion;
           const fileType: string = (versionInfo.data.attributes.fileType)
             ? versionInfo.data.attributes.fileType
             : versionInfo.data.attributes.extension.type;
-          return {
-            message: {
-              derivativeUrn: versionInfo.data.relationships.derivatives.data.id,
-              designUrn: versionInfo.data.id,
-              fileType,
-              name: versionInfo.data.attributes.displayName,
-              size: versionInfo.data.attributes.storageSize,
-              storageLocation: versionInfo.data.relationships.storage.data.id
-            },
-            status: 200
-          };
+          const metadata = {
+            derivativeUrn: versionInfo.data.relationships.derivatives.data.id,
+            designUrn: versionInfo.data.id,
+            fileType,
+            name: versionInfo.data.attributes.displayName,
+            size: versionInfo.data.attributes.storageSize,
+            storageLocation: versionInfo.data.relationships.storage.data.id
+          } as IItemVersionMetadata;
+          return metadata;
         }
       }
     } catch (err) {
@@ -232,7 +233,7 @@ export class Fusion {
     session: Context['session'],
     projectId: string,
     itemId: string
-  ): Promise<AxiosResponse | undefined> {
+  ): Promise<AxiosResponse<IItemVersions> | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -245,7 +246,10 @@ export class Fusion {
           timeout: config.get('axios_timeout'),
           url: `${apiDataHost}/projects/${projectId}/items/${itemId}/versions`
         });
-        if (res.status === 200) { return res; }
+        if (res.status === 200) {
+          const versions = res as AxiosResponse<IItemVersions>;
+          return versions;
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -262,7 +266,7 @@ export class Fusion {
     session: Context['session'],
     hubId: string,
     projectId: string
-  ): Promise<AxiosResponse | undefined> {
+  ): Promise<AxiosResponse<IProject> | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -275,7 +279,10 @@ export class Fusion {
           timeout: config.get('axios_timeout'),
           url: `${apiProjectHost}/hubs/${hubId}/projects/${projectId}`
         });
-        if (res.status === 200) { return res; }
+        if (res.status === 200) {
+          const project = res as AxiosResponse<IProject>;
+          return project;
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -287,7 +294,7 @@ export class Fusion {
    * @param session
    * @param hubId
    */
-  public async getProjects(session: Context['session'], hubId: string): Promise<AxiosResponse | undefined> {
+  public async getProjects(session: Context['session'], hubId: string): Promise<AxiosResponse<IProjects> | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -300,7 +307,10 @@ export class Fusion {
           timeout: config.get('axios_long_timeout'),
           url: `${apiProjectHost}/hubs/${hubId}/projects`
         });
-        if (res.status === 200) { return res; }
+        if (res.status === 200) {
+          const projects = res as AxiosResponse<IProjects>;
+          return projects;
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -342,7 +352,7 @@ export class Fusion {
    */
   public async getTopFolders(
     session: Context['session'],
-    hubId: string, projectId: string): Promise<AxiosResponse | undefined> {
+    hubId: string, projectId: string): Promise<AxiosResponse<ITopFolders> | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -355,7 +365,10 @@ export class Fusion {
           timeout: config.get('axios_timeout'),
           url: `${apiProjectHost}/hubs/${hubId}/projects/${projectId}/topFolders`
         });
-        if (res.status === 200) { return res; }
+        if (res.status === 200) {
+          const folders = res as AxiosResponse<ITopFolders>;
+          return folders;
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -367,7 +380,7 @@ export class Fusion {
    * @param session
    * @param retry
    */
-  public async getUserProfile(session: Context['session']): Promise<AxiosResponse | undefined> {
+  public async getUserProfile(session: Context['session']): Promise<AxiosResponse<IUser> | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -384,7 +397,10 @@ export class Fusion {
           timeout: config.get('axios_timeout'),
           url: url.resolve(apiDataHost, url.resolve(config.get('userprofile_path'), 'users/@me'))
         });
-        if (res.status === 200) { return res; }
+        if (res.status === 200) {
+          const profile = res as AxiosResponse<IUser>;
+          return profile;
+        }
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -402,7 +418,7 @@ export class Fusion {
     session: Context['session'],
     projectId: string,
     versionId: string
-  ): Promise<AxiosResponse | undefined> {
+  ): Promise<AxiosResponse<IItemVersionRelationshipsRefs> | undefined> {
     try {
       const token = new Token(session);
       if (token.session) {
@@ -414,7 +430,9 @@ export class Fusion {
           method: 'GET',
           url: `${apiDataHost}/projects/${projectId}/versions/${encodeURIComponent(versionId)}/relationships/refs?filter[type]=versions&filter[direction]=from`
         });
-        if (res.status === 200) { return res; }
+        if (res.status === 200) {
+          const refs = res as AxiosResponse<IItemVersionRelationshipsRefs>;
+          return refs; }
       }
     } catch (err) {
       this.errorHandler.handleError(err);

@@ -20,10 +20,10 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { bucketKey: string; objectKey: string };
-      const response = await ossHelper.downloadObject(params.bucketKey, params.objectKey, params.objectKey, ctx.session);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const object = await ossHelper.downloadObject(params.bucketKey, params.objectKey, params.objectKey, ctx.session);
+      if (!!object) {
+        ctx.status = object.status;
+        ctx.body = object.data;
       }
     } catch (err) {
       logger.error(err);
@@ -41,10 +41,10 @@ router.get(
   async (ctx: Context): Promise<void> => {
     try {
       const params = ctx.params as { bucketKey: string; objectKey: string };
-      const response = await ossHelper.downloadGltfObject(params.bucketKey, params.objectKey, params.objectKey);
-      if (!!response) {
-        ctx.status = response.status;
-        ctx.body = response.data;
+      const object = await ossHelper.downloadGltfObject(params.bucketKey, params.objectKey, params.objectKey);
+      if (!!object) {
+        ctx.status = object.status;
+        ctx.body = object.data;
       }
     } catch (err) {
       logger.error(err);
