@@ -1,5 +1,6 @@
 import log4 from 'koa-log4';
-import { ICatalog } from '../../shared/catalog';
+import { FilterQuery, UpdateQuery } from 'mongoose';
+import { ICatalog, IGltf } from '../../shared/catalog';
 import { ErrorHandler } from '../helpers/error-handler';
 import CatalogDb from '../models/catalog';
 
@@ -215,15 +216,17 @@ export class Catalog {
     old: string;
   } | undefined> {
     try {
+      const conditions: FilterQuery<ICatalog> = {
+        isFile: false,
+        name: catalog.name,
+        path: catalog.path
+      };
+      const fields: UpdateQuery<ICatalog> = {
+        name: catalog.newName
+      };
       const catalogFolder = await CatalogDb.findOneAndUpdate(
-        {
-          isFile: false,
-          name: catalog.name,
-          path: catalog.path
-        },
-        {
-          name: catalog.newName
-        },
+        conditions,
+        fields,
         {
           upsert: true
         }
@@ -231,21 +234,17 @@ export class Catalog {
       if (!!catalogFolder && catalog.newName) {
         const oldNameWithCommas = this.escapeRegExp(`,${catalog.name},`);
         const newNameWithCommas = this.escapeRegExp(`,${catalog.newName},`);
-        const renameFolderQuery = CatalogDb.find({
+        for await (const doc of CatalogDb.find({
           path: { $regex: oldNameWithCommas }
-        })
-          .cursor()
-          .on('data', (e: any) => {
-            e.path = e.path.replace(oldNameWithCommas, newNameWithCommas);
-            e.save();
-          });
-        if (renameFolderQuery) {
-          logger.info(`Successfully renamed catalog folder: ${catalog.path}${catalog.name} to ${catalog.path}${catalog.newName}`);
-          return {
-            new: `${catalog.path}${catalog.newName}`,
-            old: `${catalog.path}${catalog.name}`
-          };
+        })) {
+          doc.path = doc.path.replace(oldNameWithCommas, newNameWithCommas);
+          void doc.save();
         }
+        logger.info(`Successfully renamed catalog folder: ${catalog.path}${catalog.name} to ${catalog.path}${catalog.newName}`);
+        return {
+          new: `${catalog.path}${catalog.newName}`,
+          old: `${catalog.path}${catalog.name}`
+        };
       }
     } catch (err) {
       this.errorHandler.handleError(err);
@@ -260,16 +259,18 @@ export class Catalog {
     try {
       const duplicateFile = await CatalogDb.find(catalog).exec();
       if (!!duplicateFile && duplicateFile.length > 0) { throw new Error('Duplicate catalog file found.'); }
+      const conditions: FilterQuery<ICatalog> = {
+        isFile: true,
+        name: catalog.name,
+        path: catalog.path,
+        rootFilename: '',
+        size: catalog.size,
+        srcDesignUrn: catalog.srcDesignUrn
+      };
+      const fields: UpdateQuery<ICatalog> = catalog;
       const catalogFile = await CatalogDb.findOneAndUpdate(
-        {
-          isFile: true,
-          name: catalog.name,
-          path: catalog.path,
-          rootFilename: '',
-          size: catalog.size,
-          srcDesignUrn: catalog.srcDesignUrn
-        },
-        catalog,
+        conditions,
+        fields,
         {
           new: true,
           upsert: true
@@ -307,9 +308,11 @@ export class Catalog {
         name: 'Root Folder',
         path: ''
       };
+      const conditions: FilterQuery<ICatalog> = rootJson;
+      const fields: UpdateQuery<ICatalog> = rootJson;
       const catalogRootFolder = await CatalogDb.findOneAndUpdate(
-        rootJson,
-        rootJson,
+        conditions,
+        fields,
         {
           upsert: true
         }
@@ -330,11 +333,11 @@ export class Catalog {
    */
   public async updateCatalogFile(payload: { srcDesignUrn: string }, ossDesignUrn: string): Promise<ICatalog | undefined> {
     try {
+      const conditions: FilterQuery<ICatalog> = payload;
+      const fields: UpdateQuery<ICatalog> = { ossDesignUrn };
       const catalogFile = await CatalogDb.findOneAndUpdate(
-        payload,
-        {
-          ossDesignUrn
-        },
+        conditions,
+        fields,
         {
           new: true
         }
@@ -350,13 +353,19 @@ export class Catalog {
    * @param payload
    * @param gltf
    */
-  public async updateCatalogFileGltf(payload: { isFile: boolean; isPublished: boolean; ossDesignUrn: string; svfUrn: string }, gltf: any): Promise<ICatalog | undefined> {
+  public async updateCatalogFileGltf(
+    payload: {
+      isFile: boolean;
+      isPublished: boolean;
+      ossDesignUrn: string;
+      svfUrn: string; },
+    gltf: IGltf): Promise<ICatalog | undefined> {
     try {
+      const conditions: FilterQuery<ICatalog> = payload;
+      const fields: UpdateQuery<ICatalog> = { gltf };
       const catalogFile = await CatalogDb.findOneAndUpdate(
-        payload,
-        {
-          gltf
-        },
+        conditions,
+        fields,
         {
           new: true
         }
@@ -372,13 +381,13 @@ export class Catalog {
    * @param payload
    * @param rootFilename
    */
-  public async updateCatalogFileRootFilename(payload: any, rootFilename: string): Promise<ICatalog | undefined> {
+  public async updateCatalogFileRootFilename(payload: { isFile: boolean; srcDesignUrn: string }, rootFilename: string): Promise<ICatalog | undefined> {
     try {
+      const conditions: FilterQuery<ICatalog> = payload;
+      const fields: UpdateQuery<ICatalog> = { rootFilename };
       const catalogFile = await CatalogDb.findOneAndUpdate(
-        payload,
-        {
-          rootFilename
-        },
+        conditions,
+        fields,
         {
           new: true
         }
@@ -396,12 +405,11 @@ export class Catalog {
    */
   public async updateCatalogFileSvf(payload: { isFile: boolean; ossDesignUrn: string }, svfUrn: string): Promise<ICatalog | undefined> {
     try {
+      const conditions: FilterQuery<ICatalog> = payload;
+      const fields: UpdateQuery<ICatalog> = { isPublished: true, svfUrn };
       const catalogFile = await CatalogDb.findOneAndUpdate(
-        payload,
-        {
-          isPublished: true,
-          svfUrn
-        },
+        conditions,
+        fields,
         {
           new: true
         }

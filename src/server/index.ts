@@ -18,6 +18,7 @@ import fusionRoutes from './routes/fusion';
 import ossRoutes from './routes/oss';
 import publishRoutes from './routes/publish';
 import webHooksRoutes from './routes/webhooks';
+import zlib = require('zlib');
 
 // Create webAdmins setting
 import { Admin } from './controllers/admin';
@@ -56,7 +57,11 @@ app.on('ready', () => {
     try {
       await next();
     } catch (err) {
-      const { message, status, statusCode } = err;
+      interface KoaError extends Error {
+        status?: number;
+        statusCode?: number;
+      }
+      const { message, status, statusCode } = err as KoaError;
       ctx.status = statusCode || status || 500;
       ctx.body = message;
       ctx.app.emit('error', err, ctx);
@@ -65,7 +70,7 @@ app.on('ready', () => {
   app.use(bodyParser());
   app.use(compress({
     gzip: {
-      flush: require('zlib').Z_SYNC_FLUSH
+      flush: zlib.Z_SYNC_FLUSH
     },
     threshold: 2048
   }));
@@ -74,6 +79,7 @@ app.on('ready', () => {
   app.use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }));
   app.use(session({
     beforeSave: (ctx: Koa.Context, sess) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       if (ctx.session) { ctx.session.cookie = sess.cookie = config.get('session'); }
     }
   }, app));
@@ -107,6 +113,8 @@ app.on('ready', () => {
       logger.info('... Successfully initialized the database');
       logger.info(`... Listening at port ${port}`);
     });
+  }).catch((err: Error) => {
+    logger.error(`... Server failed to start with error ${err.message}`);
   });
 });
 

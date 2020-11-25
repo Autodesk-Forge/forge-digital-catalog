@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import config from 'config';
 import fs from 'fs';
 import log4 from 'koa-log4';
+import { FilterQuery, UpdateQuery } from 'mongoose';
 import os from 'os';
 import path from 'path';
 import { AuthHelper } from '../helpers/auth-handler';
@@ -16,6 +17,7 @@ import { Catalog } from './catalog';
 import { IDerivative, IDerivativeChild, IManifest, IPublishJob, ITranslateJob, ITranslateJobResult } from '../../shared/publish';
 
 import Publisher from '../models/publish';
+import { IGltf } from '../../shared/catalog';
 
 const apiDerivativeHost: string = config.get('API_derivative_host');
 
@@ -300,13 +302,16 @@ export class Publish {
    */
   public async updatePublishLogEntry(filter: { 'job.input.designUrn': string }, status: string, svfUrn: string): Promise<IPublishJob | undefined>  {
     try {
+      const conditions: FilterQuery<IPublishJob> = filter;
+      const fields: UpdateQuery<IPublishJob> = {
+        $set: {
+          'job.output.svfUrn': svfUrn,
+          status
+        }
+      };
       const publishLog = await Publisher.findOneAndUpdate(
-        filter, {
-          $set: {
-            'job.output.svfUrn': svfUrn,
-            status
-          }
-        }, {
+        conditions,
+        fields, {
           new: true,
           upsert: true
         }).exec();
@@ -339,15 +344,16 @@ export class Publish {
             }
           });
           logger.info(`... Uploading glTF archive ${zipFileName} to bucket [${zipFileSize.toString()} total bytes]`);
-          const uploadZipRes = await this.fileHandler.uploadZipObject(zipFileName, zipFileSize);
-          if (!!uploadZipRes) {
+          const oss = await this.fileHandler.uploadZipObject(zipFileName, zipFileSize);
+          if (!!oss) {
             const payload = {
               isFile: true,
               isPublished: true,
               ossDesignUrn: urn,
               svfUrn: catalogFile.svfUrn
             };
-            const catalogItem = await this.catalogController.updateCatalogFileGltf(payload, uploadZipRes);
+            const gltf = oss as IGltf;
+            const catalogItem = await this.catalogController.updateCatalogFileGltf(payload, gltf);
             if (!!catalogItem) {
               logger.info('... Updated catalog item with glTF data');
             }

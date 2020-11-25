@@ -90,7 +90,8 @@ router.get(
         };
         tokenSession.setForgeSession(forgeSession);
         const host = ctx.req.headers.host as string;
-        const relativeUrl = `/${ctx.query.state}?isAdminUserLoggedIn=true`;
+        const query = ctx.query as { code: string; state: string };
+        const relativeUrl = `/${query.state}?isAdminUserLoggedIn=true`;
         ctx.redirect(url.resolve(
           config.get('vuehost') === 'origin'
           ? `http://${host}`

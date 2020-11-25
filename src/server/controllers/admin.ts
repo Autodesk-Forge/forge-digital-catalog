@@ -1,6 +1,7 @@
 import config from 'config';
 import fsExtra from 'fs-extra';
 import log4 from 'koa-log4';
+import { FilterQuery, UpdateQuery } from 'mongoose';
 import os from 'os';
 import path from 'path';
 import { IApplicationName, ICompanyLogo, IDefaultHubProject, IFileFormatToggles, ISetting } from '../../shared/admin';
@@ -164,12 +165,14 @@ export class Admin {
    */
   public async setAndUpdateDefaultHubProject(body: IDefaultHubProject): Promise<ISetting|undefined> {
     try {
+      const conditions: FilterQuery<ISetting> = {
+        email: body.email,
+        name: 'defaultHubProject'
+      };
+      const fields: UpdateQuery<ISetting> = body;
       const setting = await Settings.findOneAndUpdate(
-        {
-          email: body.email,
-          name: 'defaultHubProject'
-        },
-        body,
+        conditions,
+        fields,
         {
           new: true,
           upsert: true
@@ -187,13 +190,16 @@ export class Admin {
    */
   public async setApplicationName(body: IApplicationName): Promise<ISetting|undefined> {
     try {
-      const setting = await Settings.findOneAndUpdate(
-        {
-          name: 'applicationName'
-        }, {
+      const conditions: FilterQuery<ISetting> = {
+        name: 'applicationName'
+      };
+      const fields: UpdateQuery<ISetting> = {
         appName: body.value,
         name: 'applicationName'
-      }, {
+      };
+      const setting = await Settings.findOneAndUpdate(
+        conditions,
+        fields, {
         new: true,
         upsert: true
       }
@@ -210,13 +216,16 @@ export class Admin {
    */
   public async setCompanyLogo(body: ICompanyLogo): Promise<ISetting|undefined> {
     try {
-      const setting = await Settings.findOneAndUpdate(
-        {
-          name: 'companyLogo'
-        }, {
+      const conditions: FilterQuery<ISetting> = {
+        name: 'companyLogo'
+      };
+      const fields: UpdateQuery<ISetting> = {
         imageSrc: body.imageSrc,
         name: 'companyLogo'
-      }, {
+      };
+      const setting = await Settings.findOneAndUpdate(
+        conditions,
+        fields, {
         new: true,
         upsert: true
       }
@@ -240,21 +249,23 @@ export class Admin {
     uvs: boolean;
   }): Promise<ISetting|undefined> {
     try {
+      const conditions: FilterQuery<ISetting> = {
+        name: 'featureToggles'
+      };
+      const fields: UpdateQuery<ISetting> = {
+        featureToggles: {
+          arvr_toolkit: body.arvr,
+          fusion_animation: body.animation,
+          gltf_binary_output: body.binary,
+          gltf_deduplication: body.dedupe,
+          gltf_draco_compression: body.compress,
+          gltf_skip_unused_uvs: body.uvs
+        },
+        name: 'featureToggles'
+      };
       const setting = await Settings.findOneAndUpdate(
-        {
-          name: 'featureToggles'
-        },
-        {
-          featureToggles: {
-            arvr_toolkit: body.arvr,
-            fusion_animation: body.animation,
-            gltf_binary_output: body.binary,
-            gltf_deduplication: body.dedupe,
-            gltf_draco_compression: body.compress,
-            gltf_skip_unused_uvs: body.uvs
-          },
-          name: 'featureToggles'
-        },
+        conditions,
+        fields,
         {
           new: true,
           upsert: true
@@ -272,24 +283,26 @@ export class Admin {
    */
   public async setFileFormatToggles(body: IFileFormatToggles): Promise<ISetting|undefined> {
     try {
+      const conditions: FilterQuery<ISetting> = {
+        name: 'fileFormatToggles'
+      };
+      const fields: UpdateQuery<ISetting> = {
+        fileFormatToggles: {
+          creo: body.creo,
+          dwg: body.dwg,
+          fbx: body.fbx,
+          fusion: body.fusion,
+          inventor: body.inventor,
+          navisworks: body.navisworks,
+          obj: body.obj,
+          solidworks: body.solidworks,
+          step: body.step
+        },
+        name: 'fileFormatToggles'
+      };
       const setting = await Settings.findOneAndUpdate(
-        {
-          name: 'fileFormatToggles'
-        },
-        {
-          fileFormatToggles: {
-            creo: body.creo,
-            dwg: body.dwg,
-            fbx: body.fbx,
-            fusion: body.fusion,
-            inventor: body.inventor,
-            navisworks: body.navisworks,
-            obj: body.obj,
-            solidworks: body.solidworks,
-            step: body.step
-          },
-          name: 'fileFormatToggles'
-        },
+        conditions,
+        fields,
         {
           new: true,
           upsert: true
@@ -307,13 +320,16 @@ export class Admin {
    */
   public async setSysAdmins(body: string[]): Promise<ISetting|undefined> {
     try {
+      const conditions: FilterQuery<ISetting> = {
+        name: 'webAdmins'
+      };
+      const fields: UpdateQuery<ISetting> = {
+        name: 'webAdmins',
+        webAdmins: body
+      };
       const setting = await Settings.findOneAndUpdate(
-        {
-          name: 'webAdmins'
-        }, {
-          name: 'webAdmins',
-          webAdmins: body
-        }, {
+        conditions,
+        fields, {
           new: true,
           upsert: true
         }

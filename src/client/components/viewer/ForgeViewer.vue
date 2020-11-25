@@ -122,7 +122,7 @@ export default class ForgeViewer extends Vue {
   }
 
   protected initViewer(options: any, forceLoad: boolean) {
-    return Promise.all([new Promise((resolve, reject) => {
+    return Promise.all([new Promise((resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void) => {
       if (!forceLoad && typeof Autodesk === 'object' && Autodesk.Viewing) {
         resolve();
       } else {
@@ -133,7 +133,7 @@ export default class ForgeViewer extends Vue {
         link.onload = () => resolve();
         document.head.append(link);
       }
-    }), new Promise((resolve, reject) => {
+    }), new Promise((resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void) => {
       if (!forceLoad && typeof Autodesk === 'object' && Autodesk.Viewing) {
         resolve();
       } else {

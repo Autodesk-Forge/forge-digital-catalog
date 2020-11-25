@@ -96,7 +96,7 @@ export interface ITranslateJobResult {
                     type: string;
                     views: string[];
                 }
-            ]
+            ];
         };
     };
 }

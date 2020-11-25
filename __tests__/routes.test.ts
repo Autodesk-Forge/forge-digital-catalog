@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable no-console */
 import { Admin } from '../src/server/controllers/admin';
 import  * as config from 'config'; // This seems to be a bug, using esModuleInterop=true, we should not need star imports;

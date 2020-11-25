@@ -293,7 +293,7 @@ export class FileHandler {
    * @param archiveName
    * @param fileSize
    */
-  public async uploadZipObject(archiveName: string, fileSize: number): Promise<AxiosResponse | undefined> {
+  public async uploadZipObject(archiveName: string, fileSize: number): Promise<IOSSObject | undefined> {
     try {
       const mimeType = this.getMimeType(archiveName);
       const readFile = util.promisify(fs.readFile);
@@ -316,7 +316,7 @@ export class FileHandler {
             method: 'PUT',
             url: `${apiOssHost}/buckets/${bucketOssKey}/objects/${archiveName}`
           });
-          const result = uploadRes.data as AxiosResponse<IOSSObject>;
+          const result = uploadRes.data as IOSSObject;
           if (uploadRes.status === 200) { return result; }
         }
       }
@@ -546,24 +546,25 @@ export class FileHandler {
       if (!mimeType) { throw new Error('Unknown MIME type. Aborting move operation.'); }
       if (session) {
         const passport = session.passport as IPassportUser;
-        const res = await axios({
+        const download = await axios({
           headers: {
             Authorization: `Bearer ${passport.user.access_token}`
           },
           method: 'GET',
           responseType: 'arraybuffer',
           url: `${apiOssHost}/buckets/${bucketKey}/objects/${objectName}`
-        });
+        }) as AxiosResponse<Buffer>;
         logger.info(`... successfully downloaded object ${objectName}`);
-        if (res.status === 200 || res.status === 206) {
-          const buffer = Buffer.from(res.data);
+        if (download.status === 200 || download.status === 206) {
+          const buffer = Buffer.from(download.data);
           const authToken = await this.authHelper.createInternalToken(config.get('bucket_scope'));
           if (!!authToken) {
+            const headers = download.headers as { [key: string]: string };
             const upload = await axios({
               data: buffer,
               headers: {
                 'Authorization': `Bearer ${authToken.access_token}`,
-                'Content-Length': res.headers['content-length'],
+                'Content-Length': headers['content-length'],
                 'Content-Type': mimeType
               },
               maxBodyLength: Infinity,

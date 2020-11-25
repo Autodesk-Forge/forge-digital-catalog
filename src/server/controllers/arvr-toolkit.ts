@@ -9,6 +9,7 @@ import log4 from 'koa-log4';
 import path from 'path';
 import { ErrorHandler } from '../helpers/error-handler';
 import { Admin } from './admin';
+import { GlTf } from '../../shared/gltf';
 
 const logger = log4.getLogger('arvr-toolkit');
 if (process.env.NODE_ENV === 'development') { logger.level = 'debug'; }
@@ -69,15 +70,31 @@ export class ArvrToolkit {
             dracoOptions: { compressionLevel: 10 }
           };
           if (featureToggles[0].featureToggles.gltf_binary_output) {
+            // eslint-disable-next-line
             const gltfToGlb = gltfPipeline.gltfToGlb;
-            const gltf = fsExtra.readJsonSync(path.join(guiDir, 'output.gltf'));
+            const gltf = fsExtra.readJsonSync(path.join(guiDir, 'output.gltf')) as GlTf;
+            // eslint-disable-next-line
             const glb = await gltfToGlb(gltf, gltfOptions);
+            // Known issue: https://github.com/microsoft/TypeScript/issues/38715
+            /* const glb = await gltfToGlb(gltf, gltfOptions) as {
+              glb: {
+                type: string;
+                data: string | NodeJS.ArrayBufferView;
+              };
+              separateResources: any;
+            }; */
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             fsExtra.writeFileSync(path.join(guiDir, 'output.glb'), glb.glb);
           }
           if (featureToggles[0].featureToggles.gltf_draco_compression) {
+            // eslint-disable-next-line
             const processGltf = gltfPipeline.processGltf;
-            const gltf = fsExtra.readJsonSync(path.join(guiDir, 'output.gltf'));
-            const draco = await processGltf(gltf, gltfOptions);
+            const gltf = fsExtra.readJsonSync(path.join(guiDir, 'output.gltf')) as GlTf;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            const draco = await processGltf(gltf, gltfOptions) as {
+              gltf: GlTf;
+              separateResources: any;
+            };
             fsExtra.writeJSONSync(path.join(guiDir, 'output-draco.gltf'), draco.gltf);
           }
         }
