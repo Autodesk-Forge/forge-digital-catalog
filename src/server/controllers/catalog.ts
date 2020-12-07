@@ -234,7 +234,7 @@ export class Catalog {
       if (!!catalogFolder && catalog.newName) {
         const oldNameWithCommas = this.escapeRegExp(`,${catalog.name},`);
         const newNameWithCommas = this.escapeRegExp(`,${catalog.newName},`);
-        for await (const doc of CatalogDb.find({
+        for await (const doc of await CatalogDb.find({
           path: { $regex: oldNameWithCommas }
         })) {
           doc.path = doc.path.replace(oldNameWithCommas, newNameWithCommas);
@@ -257,7 +257,8 @@ export class Catalog {
    */
   public async setCatalogFile(catalog: ICatalog): Promise<ICatalog | undefined>  {
     try {
-      const duplicateFile = await CatalogDb.find(catalog).exec();
+      const filter = catalog as FilterQuery<ICatalog> ;
+      const duplicateFile = await CatalogDb.find(filter).exec();
       if (!!duplicateFile && duplicateFile.length > 0) { throw new Error('Duplicate catalog file found.'); }
       const conditions: FilterQuery<ICatalog> = {
         isFile: true,
@@ -288,7 +289,8 @@ export class Catalog {
    */
   public async setCatalogFolder(catalog: ICatalog): Promise<ICatalog | void> {
     try {
-      const duplicateFolder = await CatalogDb.find(catalog).exec();
+      const filter = catalog as FilterQuery<ICatalog> ;
+      const duplicateFolder = await CatalogDb.find(filter).exec();
       if (!!duplicateFolder && duplicateFolder.length > 0) { throw new Error('Duplicate Catalog Folder Found.'); }
       const folder = new CatalogDb(catalog);
       const newFolder = await folder.save();

@@ -216,7 +216,7 @@ export class Publish {
     try {
       const log = new Publisher(body);
       void log.save((err, logEntry) => {
-        if (err) { throw new Error(err); }
+        if (err) { throw new Error(err.message); }
         logger.info(`... successfully saved new publisher log entry: ${JSON.stringify(logEntry)}`);
       });
       return log;
