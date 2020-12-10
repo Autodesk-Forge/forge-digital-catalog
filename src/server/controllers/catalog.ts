@@ -21,11 +21,12 @@ export class Catalog {
    */
   public async deleteCatalogFile(catalog: ICatalog): Promise<ICatalog | undefined> {
     try {
-      const query = await CatalogDb.deleteOne({
+      const filter: FilterQuery<ICatalog> = {
         isFile: true,
         name: catalog.name,
         path: catalog.path
-      }).exec();
+      };
+      const query = await CatalogDb.deleteOne(filter).exec() as { ok: number; deletedCount: number };
       if (query.ok === 1 && query.deletedCount === 1) {
         return catalog;
       }
@@ -40,11 +41,12 @@ export class Catalog {
    */
   public async deleteCatalogFolder(catalog: ICatalog): Promise<ICatalog | undefined> {
     try {
-      const query = await CatalogDb.deleteOne({
+      const filter: FilterQuery<ICatalog> = {
         isFile: false,
         name: catalog.name,
         path: catalog.path
-      }).exec();
+      };
+      const query = await CatalogDb.deleteOne(filter).exec() as { ok: number; deletedCount: number };
       if (query.ok === 1 && query.deletedCount === 1) {
         return catalog;
       }
@@ -60,15 +62,15 @@ export class Catalog {
   public async deleteCatalogFolderWithContent(catalog: ICatalog): Promise<ICatalog | undefined> {
     try {
       const deleteString = this.escapeRegExp (`${catalog.path}${catalog.name},`);
-      const deleteQuery = await CatalogDb.deleteMany({
-        path: { $regex: deleteString }
-      }).exec();
+      const filter: FilterQuery<ICatalog> = { path: { $regex: deleteString } };
+      const deleteQuery = await CatalogDb.deleteMany(filter).exec() as { ok: number; deletedCount: number };
       if (deleteQuery.ok === 1) {
-        const query = await CatalogDb.deleteOne({
+        const filter2: FilterQuery<ICatalog> = {
           isFile: false,
           name: catalog.name,
           path: catalog.path
-        }).exec();
+        };
+        const query = await CatalogDb.deleteOne(filter2).exec() as { ok: number; deletedCount: number };
         if (query.ok === 1 && query.deletedCount === 1) {
           return catalog;
         }
@@ -234,9 +236,8 @@ export class Catalog {
       if (!!catalogFolder && catalog.newName) {
         const oldNameWithCommas = this.escapeRegExp(`,${catalog.name},`);
         const newNameWithCommas = this.escapeRegExp(`,${catalog.newName},`);
-        for await (const doc of await CatalogDb.find({
-          path: { $regex: oldNameWithCommas }
-        })) {
+        const filter: FilterQuery<ICatalog> = { path: { $regex: oldNameWithCommas } };
+        for await (const doc of await CatalogDb.find(filter).exec()) {
           doc.path = doc.path.replace(oldNameWithCommas, newNameWithCommas);
           void doc.save();
         }
