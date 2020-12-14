@@ -92,7 +92,8 @@ describe(
         binary: true,
         compress: true,
         dedupe: false,
-        uvs: true
+        uvs: true,
+        svf2: false,
       });
       if(!!setting) {
         expect(typeof setting.featureToggles).toEqual('object');
@@ -115,7 +116,8 @@ describe(
           gltf_binary_output: expect.any(Boolean),
           gltf_deduplication: expect.any(Boolean),
           gltf_draco_compression: expect.any(Boolean),
-          gltf_skip_unused_uvs: expect.any(Boolean)
+          gltf_skip_unused_uvs: expect.any(Boolean),
+          svf2: expect.any(Boolean)
         }));
       }
   });

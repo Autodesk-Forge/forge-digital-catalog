@@ -108,7 +108,7 @@ export class Admin {
       if (!!featureToggles && featureToggles.length === 0) {
         logger.info('... Initializing feature toggles');
         await this.setFeatureToggles(
-          { animation: false, arvr: false, binary: false, compress: false, dedupe: false, uvs: false }
+          { animation: false, arvr: false, binary: false, compress: false, dedupe: false, uvs: false, svf2: false }
         );
       }
       const fileFormats = await this.getSetting('fileFormatToggles');
@@ -247,6 +247,7 @@ export class Admin {
     compress: boolean;
     dedupe: boolean;
     uvs: boolean;
+    svf2: boolean;
   }): Promise<ISetting|undefined> {
     try {
       const conditions: FilterQuery<ISetting> = {
@@ -259,7 +260,8 @@ export class Admin {
           gltf_binary_output: body.binary,
           gltf_deduplication: body.dedupe,
           gltf_draco_compression: body.compress,
-          gltf_skip_unused_uvs: body.uvs
+          gltf_skip_unused_uvs: body.uvs,
+          svf2: body.svf2
         },
         name: 'featureToggles'
       };

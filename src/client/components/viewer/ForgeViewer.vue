@@ -45,8 +45,9 @@ export default class ForgeViewer extends Vue {
           this.$store.dispatch('setShowCatalogTree', false);
           this.$root.$emit('clearStoryboards');
           this.$store.dispatch('setSvfUrn', res.data.svfUrn);
-          const options = {
-            env: 'AutodeskProduction',
+          const env = this.$store.state.featureToggles.svf2 ? 'MD20ProdUS': 'AutodeskProduction';
+          const options: Autodesk.Viewing.InitializerOptions = {
+            env,
             getAccessToken: async (onGetAccessToken: any) => {
               try {
                 const res2 = await this.$axios({
@@ -65,6 +66,9 @@ export default class ForgeViewer extends Vue {
             viewerCSSURL: config.viewerCSSURL,
             viewerScriptURL: config.viewerScriptURL
           };
+          if (this.$store.state.featureToggles.svf2) {
+            options.api = 'D3S';
+          }
           vm.initViewer(options, (await caches.keys()).includes(e[0]) && !(await caches.keys()).includes('Forge-Digital-Catalog'));
         }
       }
@@ -121,7 +125,7 @@ export default class ForgeViewer extends Vue {
     }
   }
 
-  protected initViewer(options: any, forceLoad: boolean) {
+  protected initViewer(options: Autodesk.Viewing.InitializerOptions, forceLoad: boolean) {
     return Promise.all([new Promise((resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void) => {
       if (!forceLoad && typeof Autodesk === 'object' && Autodesk.Viewing) {
         resolve();

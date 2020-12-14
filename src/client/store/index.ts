@@ -59,6 +59,7 @@ class State {
     gltf_deduplication: false,
     gltf_draco_compression: false,
     gltf_skip_unused_uvs: false,
+    svf2: false
   };
   public fileFormatToggles: IFileFormatToggles | null = null;
   public fileType: string | null = null;

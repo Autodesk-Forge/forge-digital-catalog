@@ -581,7 +581,6 @@ export class FileHandler {
         }
       }
     } catch (err) {
-      // logger.error(`moveSingleObject; err: ${JSON.stringify(err)}`);
       this.errorHandler.handleError(err);
     }
   }

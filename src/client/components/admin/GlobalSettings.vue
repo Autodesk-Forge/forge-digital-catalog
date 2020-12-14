@@ -28,7 +28,6 @@
                   <v-list-item-subtitle>{{ $t('admin.fusionAnimationSubTitle') }}</v-list-item-subtitle>
                 </v-expansion-panel-content>
               </v-expansion-panel>
-
               <v-expansion-panel key="1">
                 <v-expansion-panel-header>
                   <v-checkbox v-model="arvr_toolkit" />
@@ -76,6 +75,15 @@
                   </v-list>
                 </v-expansion-panel-content>
               </v-expansion-panel>
+              <v-expansion-panel key="2">
+                <v-expansion-panel-header>
+                  <v-checkbox v-model="svf2" />
+                  <v-list-item-title>{{ $t('admin.svf2') }}</v-list-item-title>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-list-item-subtitle>{{ $t('admin.svf2SubTitle') }}</v-list-item-subtitle>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
             </v-expansion-panels>
           </v-list-item>
         </v-list>
@@ -83,7 +91,7 @@
       <v-card-actions>
         <v-btn
           color="primary"
-          @click="() => { saveFeatureToggles(arvr_toolkit, fusion_animation, gltf_binary_output, gltf_draco_compression, gltf_deduplication, gltf_skip_unused_uvs) }"
+          @click="() => { saveFeatureToggles(arvr_toolkit, fusion_animation, gltf_binary_output, gltf_draco_compression, gltf_deduplication, gltf_skip_unused_uvs, svf2) }"
         >
           {{ $t('general.save') }}
         </v-btn>
@@ -109,6 +117,7 @@ export default class GlobalSettings extends Vue {
   protected gltf_draco_compression: boolean = false;
   protected gltf_skip_unused_uvs: boolean = false;
   protected panelvalue: number[] = [];
+  protected svf2: boolean = false;
 
   beforeMount(): void {
     const loggedInSession = localStorage.getItem('loggedInSession');
@@ -127,7 +136,8 @@ export default class GlobalSettings extends Vue {
     gltf_binary_output: boolean,
     gltf_draco_compression: boolean,
     gltf_deduplication: boolean,
-    gltf_skip_unused_uvs: boolean
+    gltf_skip_unused_uvs: boolean,
+    svf2: boolean
   ): Promise<void> {
     try {
       this.$store.dispatch('setSaving', { featureToggleSetting: true });
@@ -138,7 +148,8 @@ export default class GlobalSettings extends Vue {
           binary: gltf_binary_output,
           compress: gltf_draco_compression,
           dedupe: gltf_deduplication,
-          uvs: gltf_skip_unused_uvs
+          uvs: gltf_skip_unused_uvs,
+          svf2
         },
         method: 'POST',
         url: new URL('/api/admin/settings/features', config.koahost).href
@@ -151,13 +162,15 @@ export default class GlobalSettings extends Vue {
         this.gltf_draco_compression = res.data.featureToggles.gltf_draco_compression;
         this.gltf_deduplication = res.data.featureToggles.gltf_deduplication;
         this.gltf_skip_unused_uvs = res.data.featureToggles.gltf_skip_unused_uvs;
+        this.svf2 = res.data.featureToggles.svf2;
         this.$store.dispatch('setFeatureToggles', {
           arvr_toolkit: res.data.featureToggles.arvr_toolkit,
           fusion_animation: res.data.featureToggles.fusion_animation,
           gltf_binary_output: res.data.featureToggles.gltf_binary_output,
           gltf_deduplication: res.data.featureToggles.gltf_deduplication,
           gltf_draco_compression: res.data.featureToggles.gltf_draco_compression,
-          gltf_skip_unused_uvs: res.data.featureToggles.gltf_skip_unused_uvs
+          gltf_skip_unused_uvs: res.data.featureToggles.gltf_skip_unused_uvs,
+          svf2: res.data.featureToggles.svf2
         });
       }
     } catch (err) {
@@ -182,13 +195,15 @@ export default class GlobalSettings extends Vue {
         this.gltf_draco_compression = res.data[0].featureToggles.gltf_draco_compression;
         this.gltf_deduplication = res.data[0].featureToggles.gltf_deduplication;
         this.gltf_skip_unused_uvs = res.data[0].featureToggles.gltf_skip_unused_uvs;
+        this.svf2 = res.data[0].featureToggles.svf2;
         this.$store.dispatch('setFeatureToggles', {
           arvr_toolkit: res.data[0].featureToggles.arvr_toolkit,
           fusion_animation: res.data[0].featureToggles.fusion_animation,
           gltf_binary_output: res.data[0].featureToggles.gltf_binary_output,
           gltf_deduplication: res.data[0].featureToggles.gltf_deduplication,
           gltf_draco_compression: res.data[0].featureToggles.gltf_draco_compression,
-          gltf_skip_unused_uvs: res.data[0].featureToggles.gltf_skip_unused_uvs
+          gltf_skip_unused_uvs: res.data[0].featureToggles.gltf_skip_unused_uvs,
+          svf2: res.data[0].featureToggles.svf2
         });
         if (this.arvr_toolkit) {
           this.panelvalue = [1];

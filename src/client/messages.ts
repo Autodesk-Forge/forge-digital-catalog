@@ -25,6 +25,8 @@ export default {
       skipUnusedUvs: 'TBD',
       skipUnusedUvsSubTitle: 'TBD',
       supportedFormats: 'Supported File Formats',
+      svf2: 'SVF2',
+      svf2SubTitle: 'Enables SVF2',
       toolbarTitle: 'Settings Administration'
     },
     catalog: {
@@ -90,6 +92,8 @@ export default {
       skipUnusedUvs: 'TBD',
       skipUnusedUvsSubTitle: 'TBD',
       supportedFormats: 'Unterstützte Datei Formate',
+      svf2: 'SVF2',
+      svf2SubTitle: 'Aktiviert SVF2',
       toolbarTitle: 'Administrator Einstellungen'
     },
     catalog: {
@@ -155,6 +159,8 @@ export default {
       skipUnusedUvs: 'Skip unused Uvs',
       skipUnusedUvsSubTitle: 'Skips texture UVs that are not used by any material',
       supportedFormats: 'Supported File Formats',
+      svf2: 'SVF2',
+      svf2SubTitle: 'Enables SVF2',
       toolbarTitle: 'Settings Administration'
     },
     catalog: {
@@ -220,6 +226,8 @@ export default {
       skipUnusedUvs: 'Ignore les UVs non utilisées',
       skipUnusedUvsSubTitle: 'Ignore les textures UV utilisées dans aucun matériau',
       supportedFormats: 'Formats de fichiers supportés',
+      svf2: 'SVF2',
+      svf2SubTitle: 'Conversion SVF2',
       toolbarTitle: 'Administration des Paramètres'
     },
     catalog: {
@@ -285,6 +293,8 @@ export default {
       skipUnusedUvs: 'TBD',
       skipUnusedUvsSubTitle: 'TBD',
       supportedFormats: 'Supported File Formats',
+      svf2: 'SVF2',
+      svf2SubTitle: 'Enables SVF2',
       toolbarTitle: 'Settings Administration'
     },
     catalog: {

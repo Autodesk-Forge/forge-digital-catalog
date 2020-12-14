@@ -11,17 +11,21 @@ import vuetify from './plugins/vuetify';
 import router from './router';
 import store from './store';
 
-const options = {
+import { ILoggerOptions } from 'vuejs-logger/dist/interfaces/logger-options';
+import { PluginObject } from 'vue';
+import { LogLevels } from 'vuejs-logger/dist/enum/log-levels';
+
+const logOptions: ILoggerOptions = {
     isEnabled: true,
-    logLevel : (process.env.NODE_ENV === 'production') ? 'error' : 'debug',
+    logLevel : (process.env.NODE_ENV === 'production') ? LogLevels.ERROR : LogLevels.DEBUG,
     separator: '|',
     showConsoleColors: true,
     showLogLevel : true,
     showMethodName : true,
     stringifyArguments : false
 };
-
-Vue.use(VueLogger, options);
+const loggerPlugin = (VueLogger as unknown) as PluginObject<ILoggerOptions>;
+Vue.use<ILoggerOptions>(loggerPlugin, logOptions);
 Vue.config.errorHandler = (err, vm, info) => {
   (Vue as any).$log.error(`Error: ${err.toString()}\nInfo: ${info}`);
 };

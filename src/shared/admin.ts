@@ -26,6 +26,7 @@ export interface IFeatureToggles {
   gltf_deduplication: boolean;
   gltf_draco_compression: boolean;
   gltf_skip_unused_uvs: boolean;
+  svf2: boolean;
 }
 
 export interface IFileFormatToggles {

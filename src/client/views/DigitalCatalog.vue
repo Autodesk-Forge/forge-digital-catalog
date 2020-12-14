@@ -126,7 +126,8 @@ export default class DigitalCatalog extends Vue {
           gltf_binary_output: res.data[0].featureToggles.gltf_binary_output,
           gltf_deduplication: res.data[0].featureToggles.gltf_deduplication,
           gltf_draco_compression: res.data[0].featureToggles.gltf_draco_compression,
-          gltf_skip_unused_uvs: res.data[0].featureToggles.gltf_skip_unused_uvs
+          gltf_skip_unused_uvs: res.data[0].featureToggles.gltf_skip_unused_uvs,
+          svf2: res.data[0].featureToggles.svf2
         });
       }
     } catch (err) {

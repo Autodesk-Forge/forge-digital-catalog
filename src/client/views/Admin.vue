@@ -128,14 +128,14 @@ export default class Admin extends Vue {
   protected alert: boolean = false;
   protected alertMessage: string = '';
   protected appNameKey: number = 0;
-  protected companyLogoKey: number = 0;
+  protected companyLogoKey: number = 1;
   protected defaultHubProject: string[] = [];
-  protected globalSettingsKey: number = 0;
+  protected globalSettingsKey: number = 2;
   protected isDefaultHubProjectDefined: boolean = false;
   protected isWebAdminsDefined: boolean = false;
-  protected supportedFileFormatsKey: number = 0;
+  protected supportedFileFormatsKey: number = 3;
   protected webAdmins: string = '';
-  protected webHooksKey: number = 0;
+  protected webHooksKey: number = 4;
 
   async beforeMount(): Promise<void> {
     let retrievedSession: boolean = false;

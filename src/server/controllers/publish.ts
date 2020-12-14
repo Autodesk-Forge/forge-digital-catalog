@@ -143,6 +143,10 @@ export class Publish {
         if (
           !!featureToggles
           && featureToggles[0].featureToggles.arvr_toolkit
+          /* If translating to SVF2 (formerly known as OTG), there is no current support for translating SVF2 to glTF.
+          The code will not proceed in that case to convert to glTF. Only for SVF (1) will the code proceed to generate glTF assets.
+          Exploratory work is being done in https://github.com/petrbroz/forge-convert-utils/tree/develop/src/otg */
+          && !featureToggles[0].featureToggles.svf2
           && !!catalogFile
           && !catalogFile.name.toLowerCase().endsWith('.drw')
           && !catalogFile.name.toLowerCase().endsWith('.dwg')

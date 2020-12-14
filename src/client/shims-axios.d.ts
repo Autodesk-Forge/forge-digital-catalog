@@ -1,6 +1,4 @@
-/* eslint-disable no-shadow */
 import axios from 'axios';
-import Vue from 'vue';
 
 declare module 'vue/types/vue' {
   interface Vue {

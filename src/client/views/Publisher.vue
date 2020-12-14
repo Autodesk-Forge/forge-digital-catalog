@@ -814,6 +814,7 @@ export default class Publisher extends Vue {
     try {
       const urn = encodeBase64(this.$store.state.designUrn);
       const extension = this.$store.state.designUrn.split('.').pop();
+      const svfVersion = this.$store.state.featureToggles.svf2 ? 'svf2': 'svf';
       const job: any = {
         input: {
           compressedUrn: false,
@@ -822,7 +823,7 @@ export default class Publisher extends Vue {
         misc: { workflow: '' },
         output: {
           destination: { region: '' },
-          formats: [{ type: 'svf', views: ['2d', '3d'] }]
+          formats: [{ type: svfVersion, views: ['2d', '3d'] }]
         }
       }; // workflow and region will be set by the server controller
       if (extension === 'zip') {

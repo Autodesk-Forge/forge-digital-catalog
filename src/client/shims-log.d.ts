@@ -1,14 +1,7 @@
-/* eslint-disable no-shadow */
-import Vue from 'vue';
+import { Log } from 'vuejs-logger';
 
 declare module 'vue/types/vue' {
 	interface Vue {
-		$log: {
-			debug(...args: any[]): void;
-			info(...args: any[]): void;
-			warn(...args: any[]): void;
-			error(...args: any[]): void;
-			fatal(...args: any[]): void;
-		};
+		$log: Log;
 	}
 }
