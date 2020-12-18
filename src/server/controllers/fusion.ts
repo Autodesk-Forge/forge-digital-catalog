@@ -53,6 +53,7 @@ export class Fusion {
             || fileFormats[0].fileFormatToggles.inventor
             || fileFormats[0].fileFormatToggles.navisworks
             || fileFormats[0].fileFormatToggles.obj
+            || fileFormats[0].fileFormatToggles.revit
             || fileFormats[0].fileFormatToggles.solidworks
             || fileFormats[0].fileFormatToggles.step) {
             filters += ',items:autodesk.core:File,items:autodesk.bim360:File';
@@ -125,6 +126,13 @@ export class Fusion {
                 && item.attributes.displayName.toLowerCase().endsWith('.obj');
             });
             items.data.push(...objDocs);
+          }
+          if (fileFormats && fileFormats[0].fileFormatToggles.revit) {
+            const revitDocs = contents.data.filter((item: IItemData) => {
+              return item.type === 'items'
+                && item.attributes.displayName.toLowerCase().endsWith('.rvt');
+            });
+            items.data.push(...revitDocs);
           }
           if (fileFormats && fileFormats[0].fileFormatToggles.solidworks) {
             const solidworksDocs = contents.data.filter((item: IItemData) => {

@@ -140,6 +140,7 @@ describe(
           inventor: expect.any(Boolean),
           navisworks: expect.any(Boolean),
           obj: expect.any(Boolean),
+          revit: expect.any(Boolean),
           solidworks: expect.any(Boolean),
           step: expect.any(Boolean)
         }));

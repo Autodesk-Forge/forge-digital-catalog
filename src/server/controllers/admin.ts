@@ -122,6 +122,7 @@ export class Admin {
           inventor: false,
           navisworks: false,
           obj: false,
+          revit: false,
           solidworks: false,
           step: false
         });
@@ -297,6 +298,7 @@ export class Admin {
           inventor: body.inventor,
           navisworks: body.navisworks,
           obj: body.obj,
+          revit: body.revit,
           solidworks: body.solidworks,
           step: body.step
         },

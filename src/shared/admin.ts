@@ -37,6 +37,7 @@ export interface IFileFormatToggles {
   inventor: boolean;
   navisworks: boolean;
   obj: boolean;
+  revit: boolean;
   solidworks: boolean;
   step: boolean;
 }

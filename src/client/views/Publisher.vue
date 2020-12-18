@@ -507,6 +507,9 @@ export default class Publisher extends Vue {
             if (fileType === 'nwd') {
               this.$store.dispatch('setFileType', 'NavisWorks');
             }
+            if (fileType === 'rvt') {
+              this.$store.dispatch('setFileType', 'Revit');
+            }
             if (fileType === 'sldasm') {
               this.$store.dispatch('setFileType', 'SolidWorks');
               const slwTree = await this.setSolidWorksChildReferences(projectId, refs, selectedModelInfo.name);

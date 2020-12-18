@@ -74,6 +74,15 @@
         </v-list-item>
         <v-list-item>
           <v-list-item-action>
+            <v-checkbox v-model="formats.revit" />
+          </v-list-item-action>
+          <v-list-item-content @click="formats.revit = !formats.revit">
+            <v-list-item-title>Revit</v-list-item-title>
+            <v-list-item-subtitle>.RVT</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item>
+          <v-list-item-action>
             <v-checkbox v-model="formats.solidworks" />
           </v-list-item-action>
           <v-list-item-content @click="formats.solidworks = !formats.solidworks">
@@ -103,6 +112,7 @@
               formats.inventor,
               formats.navisworks,
               formats.obj,
+              formats.revit,
               formats.solidworks,
               formats.step
             )}"
@@ -132,6 +142,7 @@ export default class SupportedFileFormats extends Vue {
     inventor: false,
     navisworks: false,
     obj: false,
+    revit: false,
     solidworks: false,
     step: false
   };
@@ -155,6 +166,7 @@ export default class SupportedFileFormats extends Vue {
     inventor: boolean,
     navisworks: boolean,
     obj: boolean,
+    revit: boolean,
     solidworks: boolean,
     step: boolean
   ): Promise<void> {
@@ -169,6 +181,7 @@ export default class SupportedFileFormats extends Vue {
           inventor,
           navisworks,
           obj,
+          revit,
           solidworks,
           step
         },
@@ -184,6 +197,7 @@ export default class SupportedFileFormats extends Vue {
         this.formats.inventor = res.data.fileFormatToggles.inventor;
         this.formats.navisworks = res.data.fileFormatToggles.navisworks;
         this.formats.obj = res.data.fileFormatToggles.obj;
+        this.formats.revit = res.data.fileFormatToggles.revit;
         this.formats.solidworks = res.data.fileFormatToggles.solidworks;
         this.formats.step = res.data.fileFormatToggles.step;
         this.$store.dispatch('setFileFormatToggles', {
@@ -194,6 +208,7 @@ export default class SupportedFileFormats extends Vue {
           inventor: res.data.fileFormatToggles.inventor,
           navisworks: res.data.fileFormatToggles.navisworks,
           obj: res.data.fileFormatToggles.obj,
+          revit: res.data.fileFormatToggles.revit,
           solidworks: res.data.fileFormatToggles.solidworks,
           step: res.data.fileFormatToggles.step
         });
@@ -221,6 +236,7 @@ export default class SupportedFileFormats extends Vue {
         this.formats.inventor = res.data[0].fileFormatToggles.inventor;
         this.formats.navisworks = res.data[0].fileFormatToggles.navisworks;
         this.formats.obj = res.data[0].fileFormatToggles.obj;
+        this.formats.revit = res.data[0].fileFormatToggles.revit;
         this.formats.solidworks = res.data[0].fileFormatToggles.solidworks;
         this.formats.step = res.data[0].fileFormatToggles.step;
         this.$store.dispatch('setFileFormatToggles', {
@@ -231,6 +247,7 @@ export default class SupportedFileFormats extends Vue {
           inventor: res.data[0].fileFormatToggles.inventor,
           navisworks: res.data[0].fileFormatToggles.navisworks,
           obj: res.data[0].fileFormatToggles.obj,
+          revit: res.data[0].fileFormatToggles.revit,
           solidworks: res.data[0].fileFormatToggles.solidworks,
           step: res.data[0].fileFormatToggles.step
         });
