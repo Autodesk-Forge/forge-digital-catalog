@@ -38,7 +38,7 @@
     "@koa/router": "10.0.0",
     "@mdi/font": "5.8.55",
     "archiver": "5.1.0",
-    "axios": "0.21.0",
+    "axios": "0.21.1",
     "bad-words": "3.0.4",
     "config": "3.3.3",
     "core-js": "3.8.1",
