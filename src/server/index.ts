@@ -75,7 +75,61 @@ app.on('ready', () => {
     threshold: 2048
   }));
   app.use(cors({ credentials: true }));
-  app.use(helmet());
+  const opts = {
+    directives: {
+      connectSrc: [
+        // eslint-disable-next-line @typescript-eslint/quotes
+        "'self'",
+        'api-js.mixpanel.com',
+        'developer.api.autodesk.com'
+      ],
+      // eslint-disable-next-line @typescript-eslint/quotes
+      defaultSrc: ["'self'"],
+      fontSrc: [
+        // eslint-disable-next-line @typescript-eslint/quotes
+        "'self'",
+        'data:',
+        'fonts.autodesk.com',
+        'fonts.gstatic.com'
+      ],
+      imgSrc: [
+        // eslint-disable-next-line @typescript-eslint/quotes
+        "'self'",
+        'blob:',
+        'data:',
+        'developer.api.autodesk.com'
+      ],
+      scriptSrc: [
+        // eslint-disable-next-line @typescript-eslint/quotes
+        "'self'",
+        'developer.api.autodesk.com'
+      ],
+      styleSrc: [
+        // eslint-disable-next-line @typescript-eslint/quotes
+        "'self'",
+        // eslint-disable-next-line @typescript-eslint/quotes
+        "'unsafe-inline'",
+        'developer.api.autodesk.com',
+        'fonts.googleapis.com'
+      ],
+      workerSrc: [
+        // eslint-disable-next-line @typescript-eslint/quotes
+        "'self'",
+        'blob:'
+      ]
+    }
+  };
+  app.use(helmet.contentSecurityPolicy(opts));
+  app.use(helmet.dnsPrefetchControl());
+  app.use(helmet.expectCt());
+  app.use(helmet.frameguard());
+  app.use(helmet.hidePoweredBy());
+  app.use(helmet.hsts());
+  app.use(helmet.ieNoOpen());
+  app.use(helmet.noSniff());
+  app.use(helmet.permittedCrossDomainPolicies());
+  app.use(helmet.referrerPolicy());
+  app.use(helmet.xssFilter());
   app.use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }));
   app.use(session({
     beforeSave: (ctx: Koa.Context, sess) => {

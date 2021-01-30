@@ -258,7 +258,7 @@ export class Catalog {
    */
   public async setCatalogFile(catalog: ICatalog): Promise<ICatalog | undefined>  {
     try {
-      const filter = catalog as FilterQuery<ICatalog> ;
+      const filter = catalog as unknown as FilterQuery<ICatalog> ;
       const duplicateFile = await CatalogDb.find(filter).exec();
       if (!!duplicateFile && duplicateFile.length > 0) { throw new Error('Duplicate catalog file found.'); }
       const conditions: FilterQuery<ICatalog> = {
@@ -290,7 +290,7 @@ export class Catalog {
    */
   public async setCatalogFolder(catalog: ICatalog): Promise<ICatalog | void> {
     try {
-      const filter = catalog as FilterQuery<ICatalog> ;
+      const filter = catalog as unknown as FilterQuery<ICatalog> ;
       const duplicateFolder = await CatalogDb.find(filter).exec();
       if (!!duplicateFolder && duplicateFolder.length > 0) { throw new Error('Duplicate Catalog Folder Found.'); }
       const folder = new CatalogDb(catalog);

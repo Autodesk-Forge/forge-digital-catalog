@@ -26,14 +26,15 @@ use(
   )
 );
 
-serializeUser<Authenticator, Authenticator>(
-  (user: Authenticator, done: (err: any, id?: Authenticator | undefined) => void): void => {
-    done(null, user);
+serializeUser(
+  (user: Express.User, done: (err: any, id?: Authenticator | undefined) => void): void => {
+    const userInfo = user as Authenticator;
+    done(null, userInfo);
   }
 );
 
-deserializeUser<Authenticator, Authenticator>(
-  (id: Authenticator, done: (err: any, user?: Authenticator) => void): void => {
+deserializeUser(
+  (id: Authenticator, done: (err: any, user?: Express.User) => void): void => {
     done(null, id);
   }
 );
