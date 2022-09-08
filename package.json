@@ -46,7 +46,7 @@
     "forge-convert-utils": "3.5.2",
     "fs-extra": "9.1.0",
     "gltf-pipeline": "3.0.2",
-    "jszip": "3.5.0",
+    "jszip": "3.7.0",
     "koa": "2.13.1",
     "koa-bodyparser": "4.3.0",
     "koa-compress": "5.0.1",
